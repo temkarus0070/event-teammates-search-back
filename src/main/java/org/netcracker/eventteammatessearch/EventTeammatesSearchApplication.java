@@ -8,6 +8,7 @@ public class EventTeammatesSearchApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(EventTeammatesSearchApplication.class, args);
+
     }
 
 }
