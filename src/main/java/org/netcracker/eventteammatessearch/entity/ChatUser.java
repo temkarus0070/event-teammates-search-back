@@ -20,5 +20,6 @@ public class ChatUser {
     @MapsId("userId")
     private User user;
 
+    @Enumerated
     private ChatUserType chatUserType;
 }
