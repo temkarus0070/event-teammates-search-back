@@ -11,15 +11,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @NoArgsConstructor
-@Document(collection = "messages_images")
 @ToString
-public class MessageImage {
+@Document(collection = "review_images")
+public class ReviewImage {
     @Transient
-    public static final String SEQUENCE_NAME = "messages_images_sequence";
+    public static final String SEQUENCE_NAME = "review_images_sequence";
 
     @Id
-    private Long id;
+    private long id;
 
-    private String imageURL;
-
+    private
 }
