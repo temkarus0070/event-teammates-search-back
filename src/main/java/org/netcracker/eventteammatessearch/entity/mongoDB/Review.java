@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,7 +29,7 @@ public class Review {
 
     private EventLengthMark eventLengthMark;
 
-    private
+    private List<ReviewImage> images;
 
 
     @EqualsAndHashCode

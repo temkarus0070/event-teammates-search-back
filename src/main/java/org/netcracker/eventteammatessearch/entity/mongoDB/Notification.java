@@ -11,18 +11,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @NoArgsConstructor
+@Document(collection = "events")
 @ToString
-@Document(collection = "review_images")
-public class ReviewImage {
+public class Notification {
     @Transient
-    public static final String SEQUENCE_NAME = "review_images_sequence";
+    public static final String SEQUENCE_NAME = "events_sequence";
 
     @Id
     private long id;
 
-    private String url;
+    private long userId;
 
-    private Long eventId;
+    private NotificationDescription notificationDescription;
 
-    private Long userId;
+    private boolean isShown;
 }

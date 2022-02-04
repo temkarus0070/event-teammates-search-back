@@ -1,28 +1,26 @@
 package org.netcracker.eventteammatessearch.entity.mongoDB;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
-@NoArgsConstructor
-@ToString
-@Document(collection = "review_images")
-public class ReviewImage {
+@Document(collection = "notificationDescriptions")
+public class NotificationDescription {
     @Transient
-    public static final String SEQUENCE_NAME = "review_images_sequence";
+    public static final String SEQUENCE_NAME = "notification_descriptions_sequence";
 
     @Id
     private long id;
 
-    private String url;
+    private LocalDateTime notificationTime;
 
-    private Long eventId;
+    private String title;
 
-    private Long userId;
+    private String description;
 }
