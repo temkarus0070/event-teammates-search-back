@@ -1,9 +1,6 @@
 package org.netcracker.eventteammatessearch.entity.mongoDB;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,6 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "messages")
 @ToString
 public class Message {
@@ -29,7 +27,7 @@ public class Message {
 
     private Long userId;
 
-    private boolean isRemove;
+    private boolean isRemoved;
 
     private Set<MessageImage> messageImages;
 
