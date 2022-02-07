@@ -6,10 +6,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Document(collection = "reviews")
 public class Review implements Serializable {
@@ -28,7 +30,7 @@ public class Review implements Serializable {
 
     private EventLengthMark eventLengthMark;
 
-    private
+    private List<ReviewImage> images;
 
 
     @EqualsAndHashCode

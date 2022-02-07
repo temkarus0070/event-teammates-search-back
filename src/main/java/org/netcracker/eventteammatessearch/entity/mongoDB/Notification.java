@@ -5,21 +5,22 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "messages_images")
+@Document(collection = "events")
 @ToString
-public class MessageImage implements Serializable {
+public class Notification {
     @Transient
-    public static final String SEQUENCE_NAME = "messages_images_sequence";
+    public static final String SEQUENCE_NAME = "events_sequence";
 
     @Id
-    private Long id;
+    private long id;
 
-    private String imageURL;
+    private long userId;
 
+    private NotificationDescription notificationDescription;
+
+    private boolean isShown;
 }
