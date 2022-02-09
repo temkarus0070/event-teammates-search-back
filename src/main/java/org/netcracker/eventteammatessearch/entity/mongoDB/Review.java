@@ -14,7 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @Document(collection = "reviews")
-public class Review {
+public class Review implements Serializable {
     @Id
     private ReviewId id;
 

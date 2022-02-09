@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Document(collection = "messages")
 @ToString
-public class Message {
+public class Message implements Serializable {
     @Transient
     public static final String SEQUENCE_NAME = "messages_sequence";
 
