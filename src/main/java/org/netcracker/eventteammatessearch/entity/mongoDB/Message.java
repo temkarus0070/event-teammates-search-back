@@ -23,13 +23,13 @@ public class Message {
 
     private LocalDateTime sendTime;
 
-    private Long chatId;
+    private long chatId;
 
-    private Long userId;
+    private long userId;
 
     private boolean isRemoved;
 
-    private Set<MessageImage> messageImages;
+    private Set<String> messageImagesUrls;
 
 
 }
