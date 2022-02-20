@@ -35,9 +35,13 @@ public class Event {
 
     private boolean isPrivate;
 
+    private boolean isOnline;
+
     private boolean isHidden;
 
     private Long chatId;
+
+    private String url;
 
     @ManyToOne
     private Location location;
