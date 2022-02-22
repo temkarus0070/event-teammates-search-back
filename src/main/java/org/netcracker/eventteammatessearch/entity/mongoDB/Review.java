@@ -38,7 +38,7 @@ public class Review implements Serializable {
     @AllArgsConstructor
     @Getter
     @Setter
-    static class ReviewId implements Serializable {
+    public static class ReviewId implements Serializable {
         private long eventId;
 
         private long userId;
