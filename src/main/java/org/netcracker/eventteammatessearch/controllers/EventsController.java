@@ -19,4 +19,14 @@ public class EventsController {
     public Event get(@RequestParam Long eventId) {
         return eventsService.get(eventId);
     }
+
+    @PatchMapping
+    public void update(@RequestBody Event event) {
+        eventsService.update(event);
+    }
+
+    @DeleteMapping
+    public void delete(@RequestParam Long eventId) {
+        eventsService.delete(eventId);
+    }
 }

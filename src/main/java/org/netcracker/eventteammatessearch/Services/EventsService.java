@@ -18,8 +18,8 @@ public class EventsService {
         eventRepository.save(event);
     }
 
-    public void delete(Event event) {
-        eventRepository.delete(event);
+    public void delete(Long eventId) {
+        eventRepository.deleteById(eventId);
     }
 
     public void update(Event event) {
