@@ -45,6 +45,9 @@ public class User {
 
     private boolean isBlocked;
 
+    @Transient
+    private double rating; // NOT PERSISTED AT this TABLE
+
     @OneToMany(mappedBy = "user1")
     private Set<Relationship> users1;
 
