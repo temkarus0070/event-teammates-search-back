@@ -38,5 +38,6 @@ public class MongoTest {
         List<Review> all = reviewRepository.findAll();
         Assertions.assertTrue(all.size()==2);
         Assertions.assertEquals(6.75,avgMark);
+        Assertions.assertNull(reviewRepository.averageReviewNumber(2));
     }
 }
