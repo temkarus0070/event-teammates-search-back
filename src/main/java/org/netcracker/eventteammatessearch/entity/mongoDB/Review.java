@@ -18,6 +18,8 @@ public class Review implements Serializable {
     @Id
     private ReviewId id;
 
+    private long eventOwnerId;
+
     private String text;
 
     private int eventMark;
