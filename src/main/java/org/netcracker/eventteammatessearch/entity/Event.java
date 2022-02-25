@@ -43,6 +43,9 @@ public class Event {
 
     private String url;
 
+    @Transient
+    private double avgMark;
+
     @ManyToOne
     private Location location;
 
