@@ -1,28 +1,31 @@
 package org.netcracker.eventteammatessearch.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @NoArgsConstructor
+@Table(name = "app_users")
 public class User {
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NonNull
     private String firstName;
 
-    @NonNull
     private String lastName;
 
-    @NonNull
     private String email;
 
     private String phone;
@@ -33,7 +36,6 @@ public class User {
     @NonNull
     private String password;
 
-    @NonNull
     private String pictureUrl;
 
     @NonNull
@@ -48,24 +50,45 @@ public class User {
     @Transient
     private double rating; // NOT PERSISTED AT this TABLE
 
-    @OneToMany(mappedBy = "user1")
-    private Set<Relationship> users1;
-
-    @OneToMany(mappedBy = "user2")
-    private Set<Relationship> users2;
 
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
     private Set<PhoneToken> tokens;
 
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
     private Set<ChatUser> chats;
 
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
     private Set<EventAttendance> eventAttendances;
 
     @OneToMany(mappedBy = "owner")
+    @ToString.Exclude
     private Set<Event> createdEvents;
 
     @ManyToMany
+    @ToString.Exclude
     private Set<Event> invitations;
+
+
+    private boolean isCommercialUser;
+
+    private String organizationName;
+
+    private String description;
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

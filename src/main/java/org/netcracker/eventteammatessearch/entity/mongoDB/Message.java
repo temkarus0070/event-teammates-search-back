@@ -22,6 +22,8 @@ public class Message implements Serializable {
     @Id
     private long id;
 
+    private String text;
+
     private LocalDateTime sendTime;
 
     private long chatId;

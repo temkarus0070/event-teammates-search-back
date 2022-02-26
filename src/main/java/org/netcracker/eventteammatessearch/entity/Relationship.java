@@ -9,16 +9,19 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 public class Relationship {
-    @EmbeddedId
-    private RelationshipKey id;
 
-    @ManyToOne
-    @MapsId("user1Id")
-    private User user1;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
 
-    @ManyToOne
-    @MapsId("user2Id")
-    private User user2;
+    @JoinColumn(name = "rs_fromuser", nullable = false, updatable = false, referencedColumnName = "user_id")
+    @OneToOne(optional = false)
+    private User owner;
+
+    @JoinColumn(name = "rs_touser", nullable = false, updatable = false, referencedColumnName = "user_id")
+    @OneToOne(optional = false)
+    private User friend;
+
 
     private boolean isFriend;
 }

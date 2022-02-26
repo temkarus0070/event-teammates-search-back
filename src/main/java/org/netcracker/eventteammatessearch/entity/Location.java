@@ -19,10 +19,10 @@ public class Location {
     private String name;
 
     @NonNull
-    private String latitude;
+    private String lon;
 
     @NonNull
-    private String altitude;
+    private String lat;
 
     @OneToMany(mappedBy = "location")
     private Set<Event> events;
