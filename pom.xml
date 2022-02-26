@@ -81,6 +81,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>event-teammates-search</finalName>
     </build>
 
 </project>
