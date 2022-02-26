@@ -5,6 +5,8 @@ import org.netcracker.eventteammatessearch.entity.Event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController("/events")
 public class EventsController {
     @Autowired
@@ -13,6 +15,11 @@ public class EventsController {
     @PostMapping
     public void add(@RequestBody Event event) {
         eventsService.add(event);
+    }
+
+    @PostMapping("/assignOnEvent")
+    public void assignOnEvents(@RequestBody Long eventId, Principal principal) {
+        eventsService.assignOnEvent(eventId, principal);
     }
 
     @GetMapping

@@ -14,11 +14,11 @@ public class Relationship {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @JoinColumn(name = "rs_fromuser", nullable = false, updatable = false, referencedColumnName = "user_id")
+    @JoinColumn(name = "rs_fromuser", nullable = false, updatable = false, referencedColumnName = "login")
     @OneToOne(optional = false)
     private User owner;
 
-    @JoinColumn(name = "rs_touser", nullable = false, updatable = false, referencedColumnName = "user_id")
+    @JoinColumn(name = "rs_touser", nullable = false, updatable = false, referencedColumnName = "login")
     @OneToOne(optional = false)
     private User friend;
 

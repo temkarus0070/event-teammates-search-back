@@ -24,6 +24,6 @@ public class ReviewMark implements Serializable {
 @NoArgsConstructor
 @ToString
 class ReviewMarkId implements Serializable {
-    private long userId;
+    private String userId;
     private long reviewId;
 }

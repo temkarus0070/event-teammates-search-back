@@ -14,12 +14,11 @@ import java.util.Set;
 @ToString
 @RequiredArgsConstructor
 @NoArgsConstructor
-@Table(name = "app_users")
+@Table(name = "app_users",
+        uniqueConstraints = {@UniqueConstraint(name = "username_constraint", columnNames = {"login"})})
 public class User {
     @Id
-    @Column(name = "user_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String login;
 
     @NonNull
     private String firstName;
@@ -29,9 +28,6 @@ public class User {
     private String email;
 
     private String phone;
-
-    @NonNull
-    private String login;
 
     @NonNull
     private String password;

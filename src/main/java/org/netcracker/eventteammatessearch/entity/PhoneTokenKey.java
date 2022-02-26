@@ -14,5 +14,5 @@ public class PhoneTokenKey implements Serializable {
 
     private LocalDateTime dateTimeSend;
 
-    private Long userId;
+    private String userId;
 }

@@ -43,7 +43,7 @@ public class Review implements Serializable {
     public static class ReviewId implements Serializable {
         private long eventId;
 
-        private long userId;
+        private String userId;
 
 
     }
