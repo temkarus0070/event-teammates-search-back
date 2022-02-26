@@ -9,7 +9,6 @@ import org.netcracker.eventteammatessearch.persistence.repositories.EventReposit
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 
 import java.security.Principal;
 import java.util.Optional;
@@ -22,7 +21,7 @@ public class EventsService {
     @Autowired
     private ReviewRepository reviewRepository;
 
-    @Repository
+    @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
 
     public Event get(Long id) {
