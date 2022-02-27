@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReviewRepository extends MongoRepository<Review, Review.ReviewId> {
-    @Aggregation(pipeline = {"{'$match':{'eventOwnerId': ?0}}",
+    @Aggregation(pipeline = {"{'$match':{'eventOwnerId': '?0'}}",
             "{$group:{ _id: '', total: {$avg: {'$multiply': ['$eventMark','$reviewWeight']}}  }}"})
     public Double averageReviewNumber(String ownerId);
 }
