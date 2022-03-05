@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -17,26 +18,31 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String theme;
+
     @NonNull
     private String name;
 
-    @NonNull
+
     private String description;
 
     @NonNull
     private LocalDateTime dateTimeStart;
 
-    @NonNull
+
     private LocalDateTime dateTimeEnd;
 
     private int maxNumberOfGuests;
 
     private int price;
 
+    @JsonProperty("isPrivate")
     private boolean isPrivate;
 
+    @JsonProperty("isOnline")
     private boolean isOnline;
 
+    @JsonProperty("isHidden")
     private boolean isHidden;
 
     private Long chatId;
@@ -61,6 +67,6 @@ public class Event {
     @ManyToMany
     private Set<User> invitedGuests;
 
-    @ManyToMany
-    private Set<ThemeTag> themeTags;
+    @ManyToMany(mappedBy = "events")
+    private Set<Tag> tags;
 }

@@ -2,9 +2,10 @@ package org.netcracker.eventteammatessearch.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import java.util.Set;
 
 @Entity
@@ -13,12 +14,8 @@ import java.util.Set;
 public class Tag {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NonNull
     private String name;
 
-    @OneToMany(mappedBy = "tag")
-    Set<ThemeTag> themeTags;
+    @ManyToMany()
+    private Set<Event> events;
 }

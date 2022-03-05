@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
-@RestController("/events")
+@RestController
+@RequestMapping(value = "/events")
 public class EventsController {
     @Autowired
     private EventsService eventsService;
