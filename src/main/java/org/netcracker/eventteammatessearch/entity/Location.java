@@ -3,6 +3,7 @@ package org.netcracker.eventteammatessearch.entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.locationtech.jts.geom.Point;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -18,11 +19,8 @@ public class Location {
     @NonNull
     private String name;
 
-    @NonNull
-    private String lon;
-
-    @NonNull
-    private String lat;
+    @Column(columnDefinition = "geography")
+    private Point location;
 
     @OneToMany(mappedBy = "location")
     private Set<Event> events;

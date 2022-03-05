@@ -1,8 +1,13 @@
 package org.netcracker.eventteammatessearch.Services;
 
 import org.hibernate.ObjectNotFoundException;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.netcracker.eventteammatessearch.entity.Event;
 import org.netcracker.eventteammatessearch.entity.EventAttendance;
+import org.netcracker.eventteammatessearch.entity.Location;
 import org.netcracker.eventteammatessearch.entity.UserEventKey;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
@@ -11,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -23,6 +29,8 @@ public class EventsService {
 
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
+
+    private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 3857);
 
     public Event get(Long id) {
         Event event = eventRepository.getById(id);
@@ -52,6 +60,11 @@ public class EventsService {
 
     public void update(Event event) {
         this.eventRepository.save(event);
+    }
+
+    public List<Location> getEventsByRadius(double lon, double lat, int radius) {
+        Point p = factory.createPoint(new Coordinate(lon, lat));
+        return eventRepository.findNearWithinDistance(p, radius);
     }
 
 

@@ -52,6 +52,7 @@ public class Event {
     @Transient
     private double avgMark;
 
+
     @ManyToOne
     private Location location;
 
