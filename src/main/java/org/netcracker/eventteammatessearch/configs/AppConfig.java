@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.configs;
 
-import com.bedatadriven.jackson.datatype.jts.JtsModule;
+
+import org.n52.jackson.datatype.jts.JtsModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

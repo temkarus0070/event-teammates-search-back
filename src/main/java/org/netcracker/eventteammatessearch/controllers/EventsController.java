@@ -20,9 +20,14 @@ public class EventsController {
         eventsService.add(event);
     }
 
-    @GetMapping
+    @GetMapping("/getEventsWithinRadius")
     public List<Location> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam int radius) {
         return eventsService.getEventsByRadius(lon, lat, radius);
+    }
+
+    @GetMapping("/getEvents")
+    public List<Event> getEvents() {
+        return eventsService.get();
     }
 
     @PostMapping("/assignOnEvent")
@@ -30,7 +35,7 @@ public class EventsController {
         eventsService.assignOnEvent(eventId, principal);
     }
 
-    @GetMapping
+    @GetMapping("/getEvent")
     public Event get(@RequestParam Long eventId) {
         return eventsService.get(eventId);
     }

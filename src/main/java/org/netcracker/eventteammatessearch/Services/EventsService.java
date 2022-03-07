@@ -5,6 +5,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.io.WKTReader;
 import org.netcracker.eventteammatessearch.entity.Event;
 import org.netcracker.eventteammatessearch.entity.EventAttendance;
 import org.netcracker.eventteammatessearch.entity.Location;
@@ -21,6 +22,8 @@ import java.util.Optional;
 
 @Component
 public class EventsService {
+
+
     @Autowired
     private EventRepository eventRepository;
 
@@ -30,7 +33,10 @@ public class EventsService {
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
 
-    private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 3857);
+    private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
+
+    private WKTReader wktReader = new WKTReader();
+
 
     public Event get(Long id) {
         Event event = eventRepository.getById(id);
@@ -39,6 +45,10 @@ public class EventsService {
         return event;
     }
 
+    public List<Event> get() {
+        List<Event> all = eventRepository.findAll();
+        return all;
+    }
 
     public void assignOnEvent(Long eventId, Principal principal) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);

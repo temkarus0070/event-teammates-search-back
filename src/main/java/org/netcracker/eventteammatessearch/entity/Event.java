@@ -1,16 +1,19 @@
 package org.netcracker.eventteammatessearch.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @NoArgsConstructor
 public class Event {
 
@@ -56,21 +59,38 @@ public class Event {
     private double avgMark;
 
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Location location;
 
     @ManyToOne
     private User owner;
 
     @OneToMany(mappedBy = "event")
+    @ToString.Exclude
     private Set<EventAttendance> guests;
 
     @OneToMany(mappedBy = "event")
+    @ToString.Exclude
     private Set<Complaint> complaints;
 
     @ManyToMany
+    @ToString.Exclude
     private Set<User> invitedGuests;
 
     @ManyToMany(mappedBy = "events")
+    @ToString.Exclude
     private Set<Tag> tags;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Event event = (Event) o;
+        return id != null && Objects.equals(id, event.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
