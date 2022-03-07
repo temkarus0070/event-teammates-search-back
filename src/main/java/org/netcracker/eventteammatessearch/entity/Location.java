@@ -3,6 +3,7 @@ package org.netcracker.eventteammatessearch.entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.hibernate.annotations.Type;
 import org.locationtech.jts.geom.Point;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ public class Location {
     private String name;
 
     @Column(columnDefinition = "geography")
+    @Type(type = "org.hibernate.spatial.JTSGeometryType")
     private Point location;
 
     @OneToMany(mappedBy = "location")
