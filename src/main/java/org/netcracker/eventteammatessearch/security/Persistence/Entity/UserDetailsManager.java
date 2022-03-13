@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.security.Persistence.Entity;
 
+import org.netcracker.eventteammatessearch.security.Persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,12 +21,12 @@ public class UserDetailsManager implements org.springframework.security.provisio
 
     @Override
     public void createUser(UserDetails user) {
-        userRepository.save(new UserEntity(user.getUsername(), user.getPassword(), user.getAuthorities().parallelStream().collect(Collectors.toList())));
+        userRepository.save(new UserEntity(user.getUsername(), passwordEncoder.encode(user.getPassword()), user.getAuthorities().parallelStream().collect(Collectors.toList())));
     }
 
     @Override
     public void updateUser(UserDetails user) {
-        userRepository.update(new UserEntity(user.getUsername(), user.getPassword(), user.getAuthorities().parallelStream().collect(Collectors.toList())));
+        userRepository.update(user.getAuthorities().parallelStream().collect(Collectors.toList()), user.getUsername(), user.getPassword());
     }
 
     @Override
@@ -46,7 +47,7 @@ public class UserDetailsManager implements org.springframework.security.provisio
             UserEntity userEntity = user.get();
             if (userEntity.getPassword().equals(oldPass)) {
                 userEntity.setPassword(newPass);
-                userRepository.update(userEntity);
+                userRepository.updatePassword(userEntity.getPassword(), userEntity.getUsername());
             } else throw new AuthorizationServiceException("Invalid old pass");
         }
     }
@@ -60,7 +61,7 @@ public class UserDetailsManager implements org.springframework.security.provisio
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserEntity> userEntityOptional = userRepository.findById(username);
         if (userEntityOptional.isPresent())
-            return new org.netcracker.eventteammatessearch.security.UserDetails(userEntityOptional.get());
+            return new org.netcracker.eventteammatessearch.security.Entity.UserDetails(userEntityOptional.get());
         else throw new UsernameNotFoundException("User with such username have not  found");
     }
 }

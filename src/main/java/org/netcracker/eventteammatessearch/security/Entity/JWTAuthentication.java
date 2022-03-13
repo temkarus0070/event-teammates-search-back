@@ -1,4 +1,4 @@
-package org.netcracker.eventteammatessearch.security;
+package org.netcracker.eventteammatessearch.security.Entity;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
@@ -10,6 +10,14 @@ public class JWTAuthentication implements Authentication {
     private String jwt;
     private io.jsonwebtoken.JwtParser parser;
     private boolean isAuthenticated;
+    private String refreshToken;
+
+    public JWTAuthentication(String jwt, String secretKey, String refreshToken) {
+        this.jwt = jwt;
+        this.parser = Jwts.parser().setSigningKey(secretKey);
+        this.refreshToken = refreshToken;
+        this.isAuthenticated = true;
+    }
 
     public JWTAuthentication(String jwt, String secretKey) {
         this.jwt = jwt;
@@ -28,7 +36,7 @@ public class JWTAuthentication implements Authentication {
 
     @Override
     public Object getDetails() {
-        return null;
+        return refreshToken;
     }
 
     @Override

@@ -1,6 +1,8 @@
-package org.netcracker.eventteammatessearch.security;
+package org.netcracker.eventteammatessearch.security.Providers;
 
+import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.JWTUser;
+import org.netcracker.eventteammatessearch.security.Persistence.JwtTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,8 +12,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtAuthProvider implements AuthenticationProvider {
-    @Value("${secretKey}")
+    @Value("${jwt.secretKey}")
     private String secretKey;
+
+    private JwtTokenRepository jwtTokenRepository;
 
 
     @Override
@@ -32,6 +36,6 @@ public class JwtAuthProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> aClass) {
-        return JWTUser.class.isAssignableFrom(aClass);
+        return JWTAuthentication.class.isAssignableFrom(aClass);
     }
 }

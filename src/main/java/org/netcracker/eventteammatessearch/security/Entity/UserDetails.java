@@ -1,4 +1,4 @@
-package org.netcracker.eventteammatessearch.security;
+package org.netcracker.eventteammatessearch.security.Entity;
 
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserEntity;
 import org.springframework.security.core.GrantedAuthority;

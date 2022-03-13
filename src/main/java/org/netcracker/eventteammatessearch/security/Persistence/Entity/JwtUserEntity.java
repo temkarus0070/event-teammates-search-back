@@ -14,6 +14,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class JwtUserEntity {
     @EmbeddedId
     private JwtUserKey jwtUserKey;
@@ -35,6 +36,8 @@ public class JwtUserEntity {
 
     @Data
     @Embeddable
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class JwtUserKey implements Serializable {
         private String username;
         private String jwt;
