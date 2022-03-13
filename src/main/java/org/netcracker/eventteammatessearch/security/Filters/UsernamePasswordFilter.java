@@ -33,9 +33,7 @@ public class UsernamePasswordFilter extends AbstractAuthenticationProcessingFilt
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(request.getHeader("username"), request.getHeader("password"));
-        Authentication authenticate = this.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(request.getHeader("username"), request.getHeader("password")));
-        return authenticate;
+        return this.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(request.getHeader("username"), request.getHeader("password")));
     }
 
     @Override
