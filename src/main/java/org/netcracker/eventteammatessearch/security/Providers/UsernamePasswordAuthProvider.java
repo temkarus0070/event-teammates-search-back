@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
+
 @Component
 public class UsernamePasswordAuthProvider implements AuthenticationProvider {
     @Autowired
@@ -18,6 +20,7 @@ public class UsernamePasswordAuthProvider implements AuthenticationProvider {
     private PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
             UserDetails userDetails = userDetailsManager.loadUserByUsername(authentication.getName());

@@ -6,6 +6,7 @@ import org.hibernate.Hibernate;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -19,6 +20,7 @@ public class JwtUserEntity {
     @EmbeddedId
     private JwtUserKey jwtUserKey;
 
+    @Lob
     private String refreshToken;
 
     @Override
@@ -40,6 +42,7 @@ public class JwtUserEntity {
     @AllArgsConstructor
     public static class JwtUserKey implements Serializable {
         private String username;
+        @Lob
         private String jwt;
 
     }

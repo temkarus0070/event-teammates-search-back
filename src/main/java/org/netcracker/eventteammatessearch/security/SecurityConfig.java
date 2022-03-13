@@ -10,18 +10,17 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtAuthProvider jwtAuthProvider;
     private JWTFilter jwtFilter;
@@ -36,6 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
+
     @Bean
     public RequestMatcher requestMatcher() {
         return new MvcRequestMatcher(new HandlerMappingIntrospector(), "/login");
@@ -47,10 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().mvcMatchers("/error", "/login");
-    }
+
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -63,11 +60,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.httpBasic().disable();
-        http
-                .authenticationProvider(usernamePasswordAuthProvider)
+        http.cors()
+                .disable()
                 .csrf().disable()
                 .authorizeRequests()
-                .anyRequest().permitAll()
+                .mvcMatchers("/register")
+                .permitAll()
+                .anyRequest().authenticated()
 
 //            .and()
 //            .formLogin()
@@ -80,12 +79,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterBefore(
                         usernamePasswordFilter,
-                        AnonymousAuthenticationFilter.class)
+                        UsernamePasswordAuthenticationFilter.class)
                 .logout()
                 .logoutUrl("/logout")
 
                 .and()
-                .exceptionHandling();
+                .authenticationProvider(usernamePasswordAuthProvider)
+                .exceptionHandling()
+        ;
 
 
     }
