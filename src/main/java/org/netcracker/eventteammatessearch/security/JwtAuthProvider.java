@@ -1,6 +1,6 @@
 package org.netcracker.eventteammatessearch.security;
 
-import org.netcracker.eventteammatessearch.security.Entity.JWTUser;
+import org.netcracker.eventteammatessearch.security.Persistence.Entity.JWTUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;

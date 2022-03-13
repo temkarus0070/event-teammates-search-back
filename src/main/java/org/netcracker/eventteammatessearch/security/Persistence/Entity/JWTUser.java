@@ -1,4 +1,4 @@
-package org.netcracker.eventteammatessearch.security.Entity;
+package org.netcracker.eventteammatessearch.security.Persistence.Entity;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.GrantedAuthority;
