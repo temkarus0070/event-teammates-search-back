@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity()
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtAuthProvider jwtAuthProvider;
     private JWTFilter jwtFilter;
@@ -74,11 +74,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(
                         usernamePasswordFilter,
                         UsernamePasswordAuthenticationFilter.class)
-                .mvcMatcher("/api/**")
                 .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout()
-                .logoutUrl("/logout")
-                .and().authenticationProvider(usernamePasswordAuthProvider)
+                .authenticationProvider(usernamePasswordAuthProvider)
                 .authenticationProvider(jwtAuthProvider);
 
 

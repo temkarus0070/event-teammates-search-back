@@ -16,8 +16,8 @@ public class EventsController {
     private EventsService eventsService;
 
     @PostMapping
-    public void add(@RequestBody Event event) {
-        eventsService.add(event);
+    public void add(@RequestBody Event event, Principal principal) {
+        eventsService.add(event, principal);
     }
 
     @GetMapping("/getEventsWithinRadius")

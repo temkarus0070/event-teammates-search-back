@@ -6,10 +6,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
-import org.netcracker.eventteammatessearch.entity.Event;
-import org.netcracker.eventteammatessearch.entity.EventAttendance;
-import org.netcracker.eventteammatessearch.entity.Location;
-import org.netcracker.eventteammatessearch.entity.UserEventKey;
+import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
@@ -60,7 +57,11 @@ public class EventsService {
         } else throw new ObjectNotFoundException(eventId, "Event");
     }
 
-    public void add(Event event) {
+    public void add(Event event, Principal principal) {
+        String name = principal.getName();
+        User user = new User();
+        user.setLogin(name);
+        event.setOwner(user);
         eventRepository.save(event);
     }
 
