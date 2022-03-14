@@ -7,6 +7,7 @@ import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetai
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -17,8 +18,9 @@ public class RegistrationController {
     private UserDetailsManager userDetailsManager;
 
     @PostMapping("/register")
-    public void register(String username, String password) {
-        userDetailsManager.createUser(new UserDetails(new User(username, password, List.of(new SimpleGrantedAuthority("user")))));
+    public void register(@RequestBody User user) {
+        user.setAuthorities(List.of(new SimpleGrantedAuthority("user")));
+        userDetailsManager.createUser(new UserDetails(user));
 
     }
 
