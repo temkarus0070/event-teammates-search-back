@@ -24,7 +24,10 @@ public class UserDetailsManager implements org.springframework.security.provisio
     public void createUser(UserDetails user) {
         org.netcracker.eventteammatessearch.security.Entity.UserDetails userDetails = (org.netcracker.eventteammatessearch.security.Entity.UserDetails) user;
         userDetails.getUser().setPassword(passwordEncoder.encode(userDetails.getPassword()));
-        userRepository.save(userDetails.getUser());
+        if (userRepository.findById(userDetails.getUsername()).isEmpty())
+            userRepository.save(userDetails.getUser());
+        else throw new AuthorizationServiceException("username is already used");
+
     }
 
     @Override

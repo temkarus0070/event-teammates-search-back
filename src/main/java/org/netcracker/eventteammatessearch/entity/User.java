@@ -15,13 +15,13 @@ import java.util.Set;
 @ToString
 @RequiredArgsConstructor
 @NoArgsConstructor
-@Table(name = "app_users",
-        uniqueConstraints = {@UniqueConstraint(name = "username_constraint", columnNames = {"login"})})
+@Table(name = "app_users")
 public class User {
     @ElementCollection
     private List<GrantedAuthority> authorities;
 
     @Id
+    @Column(unique = true, name = "login")
     private String login;
 
     @NonNull
