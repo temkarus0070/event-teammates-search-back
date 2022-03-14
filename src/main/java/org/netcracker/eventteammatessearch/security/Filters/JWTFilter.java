@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.stereotype.Component;
 
@@ -22,14 +23,18 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
-    protected JWTFilter(@Value("! /login") String defaultFilterProcessesUrl, AuthenticationManager authenticationManager) {
+    protected JWTFilter(@Value("/api/**") String defaultFilterProcessesUrl, AuthenticationManager authenticationManager) {
         super(defaultFilterProcessesUrl, authenticationManager);
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         String authorizationToken = request.getHeader("Authorization");
-        return this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey));
+        if (authorizationToken == null) {
+            authorizationToken = response.getHeader("token");
+        }
+        Authentication authenticate = this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey));
+        return authenticate;
     }
 
     @Override
@@ -37,5 +42,12 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
 
         super.doFilter(request, response, chain);
     }
+
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        SecurityContextHolder.getContext().setAuthentication(authResult);
+        chain.doFilter(request, response);
+    }
+
 
 }

@@ -24,27 +24,24 @@ public class UsernamePasswordFilter extends AbstractAuthenticationProcessingFilt
     @Autowired
     private JwtTokenGeneratorService jwtTokenGeneratorService;
 
-
     public UsernamePasswordFilter(RequestMatcher requiresAuthenticationRequestMatcher, AuthenticationManager authenticationManager) {
-
         super(requiresAuthenticationRequestMatcher, authenticationManager);
     }
-
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         return this.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(request.getHeader("username"), request.getHeader("password")));
     }
 
+
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authenticate) throws IOException, ServletException {
-        JWTAuthentication generate = jwtTokenGeneratorService.generate(authenticate);
-        response.setHeader("token", String.valueOf(generate.getCredentials()));
-        response.setHeader("refreshToken", String.valueOf(generate.getDetails()));
-        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        if (authenticate.isAuthenticated()) {
+            JWTAuthentication generate = jwtTokenGeneratorService.generate(authenticate);
+            response.setHeader("token", String.valueOf(generate.getCredentials()));
+            response.setHeader("refreshToken", String.valueOf(generate.getDetails()));
+            SecurityContextHolder.getContext().setAuthentication(generate);
+        }
         chain.doFilter(request, response);
     }
-
-
-
 }

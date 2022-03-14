@@ -30,7 +30,7 @@ public class UsernamePasswordAuthProvider implements AuthenticationProvider {
         } catch (Exception ex) {
             return authentication;
         }
-        return null;
+        return authentication;
 
     }
 

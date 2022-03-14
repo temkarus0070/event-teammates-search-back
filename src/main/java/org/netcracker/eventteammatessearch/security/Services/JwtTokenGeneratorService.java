@@ -16,14 +16,14 @@ import java.util.Random;
 
 @Service
 public class JwtTokenGeneratorService {
-    @Value("${jwt.secretKey")
+    @Value("${jwt.secretKey}")
     private String secret;
 
     @Value("${jwt.expireTime}")
-    private int expireTime;
+    private long expireTime;
 
     @Value("${jwt.refreshExpireTime}")
-    private int refreshExpire;
+    private long refreshExpire;
 
     private JwtBuilder jwtBuilder;
 

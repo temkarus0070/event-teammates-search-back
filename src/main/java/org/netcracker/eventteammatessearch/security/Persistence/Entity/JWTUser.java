@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.security.Persistence.Entity;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,17 +12,22 @@ public class JWTUser implements UserDetails {
     private String jwt;
     private io.jsonwebtoken.JwtParser parser;
     private LocalDateTime expire;
+    private boolean isLocked;
+    private boolean isExpire;
 
     public JWTUser(String jwt, String signKey) {
         this.jwt = jwt;
         parser = Jwts.parser().setSigningKey(signKey);
-        expire = (LocalDateTime) parser.parseClaimsJws(jwt).getBody().get("expire");
+        try {
+            parser.parseClaimsJws(jwt);
+        } catch (ExpiredJwtException e) {
+            isExpire = true;
+        }
     }
 
     public JWTUser(JwtUserEntity jwtUserEntity, String signKey) {
         this.jwt = jwtUserEntity.getJwtUserKey().getJwt();
         parser = Jwts.parser().setSigningKey(signKey);
-        expire = (LocalDateTime) parser.parseClaimsJws(jwt).getBody().get("expire");
     }
 
     @Override
@@ -41,21 +47,21 @@ public class JWTUser implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return expire.isAfter(LocalDateTime.now());
+        return !isExpire;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isExpire;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return expire.isAfter(LocalDateTime.now());
+        return !isExpire;
     }
 
     @Override
     public boolean isEnabled() {
-        return expire.isAfter(LocalDateTime.now());
+        return !isExpire;
     }
 }

@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.security.Persistence.Entity;
 
-import org.netcracker.eventteammatessearch.security.Persistence.UserRepository;
+import org.netcracker.eventteammatessearch.entity.User;
+import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +22,7 @@ public class UserDetailsManager implements org.springframework.security.provisio
 
     @Override
     public void createUser(UserDetails user) {
-        userRepository.save(new UserEntity(user.getUsername(), passwordEncoder.encode(user.getPassword()), user.getAuthorities().parallelStream().collect(Collectors.toList())));
+        userRepository.save(new User(user.getUsername(), passwordEncoder.encode(user.getPassword()), user.getAuthorities().parallelStream().collect(Collectors.toList())));
     }
 
     @Override
@@ -42,12 +43,12 @@ public class UserDetailsManager implements org.springframework.security.provisio
     public void changePassword(String oldPassword, String username, String newPassword) throws org.springframework.security.access.AuthorizationServiceException {
         String oldPass = passwordEncoder.encode(oldPassword);
         String newPass = passwordEncoder.encode(newPassword);
-        Optional<UserEntity> user = userRepository.findById(username);
+        Optional<User> user = userRepository.findById(username);
         if (user.isPresent()) {
-            UserEntity userEntity = user.get();
+            User userEntity = user.get();
             if (userEntity.getPassword().equals(oldPass)) {
                 userEntity.setPassword(newPass);
-                userRepository.updatePassword(userEntity.getPassword(), userEntity.getUsername());
+                userRepository.updatePassword(userEntity.getPassword(), userEntity.getLogin());
             } else throw new AuthorizationServiceException("Invalid old pass");
         }
     }
@@ -59,7 +60,7 @@ public class UserDetailsManager implements org.springframework.security.provisio
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> userEntityOptional = userRepository.findById(username);
+        Optional<User> userEntityOptional = userRepository.findById(username);
         if (userEntityOptional.isPresent())
             return new org.netcracker.eventteammatessearch.security.Entity.UserDetails(userEntityOptional.get());
         else throw new UsernameNotFoundException("User with such username have not  found");

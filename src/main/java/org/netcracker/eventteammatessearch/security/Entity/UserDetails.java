@@ -1,14 +1,14 @@
 package org.netcracker.eventteammatessearch.security.Entity;
 
-import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserEntity;
+import org.netcracker.eventteammatessearch.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
 public class UserDetails implements org.springframework.security.core.userdetails.UserDetails {
-    private UserEntity user;
+    private User user;
 
-    public UserDetails(UserEntity user) {
+    public UserDetails(User user) {
         this.user = user;
     }
 
@@ -24,7 +24,7 @@ public class UserDetails implements org.springframework.security.core.userdetail
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return user.getLogin();
     }
 
     @Override

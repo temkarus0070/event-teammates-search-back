@@ -1,9 +1,11 @@
 package org.netcracker.eventteammatessearch.entity;
 
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -15,6 +17,9 @@ import java.util.Set;
 @Table(name = "app_users",
         uniqueConstraints = {@UniqueConstraint(name = "username_constraint", columnNames = {"login"})})
 public class User {
+    @ElementCollection
+    private List<GrantedAuthority> authorities;
+
     @Id
     private String login;
 
@@ -35,7 +40,11 @@ public class User {
     @NonNull
     private LocalDate registrationDate;
 
-    private boolean isAdmin;
+    public User(String login, @NonNull String password, List<GrantedAuthority> authorities) {
+        this.login = login;
+        this.password = password;
+        this.authorities = authorities;
+    }
 
     private boolean prefersOfflineEvents;
 

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/eventTypes")
+@RequestMapping("/api/eventTypes")
 public class EventTypeController {
     @Autowired
     private EventTypeRepository eventTypeRepository;

@@ -17,7 +17,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -35,7 +41,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-
     @Bean
     public RequestMatcher requestMatcher() {
         return new MvcRequestMatcher(new HandlerMappingIntrospector(), "/login");
@@ -48,45 +53,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.parentAuthenticationManager(authenticationManager());
-        auth.authenticationProvider(usernamePasswordAuthProvider);
 
     }
 
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.httpBasic().disable();
-        http.cors()
-                .disable()
+        http.
+                cors().and().
+                httpBasic().disable()
                 .csrf().disable()
                 .authorizeRequests()
                 .mvcMatchers("/register")
                 .permitAll()
                 .anyRequest().authenticated()
-
-//            .and()
-//            .formLogin()
-//            .loginProcessingUrl("/login")
-//            .usernameParameter("login")
-//            .passwordParameter("password")
-//            .successHandler(this::loginSuccessHandler)
-//            .failureHandler(this::loginFailureHandler)
-
                 .and()
                 .addFilterBefore(
                         usernamePasswordFilter,
                         UsernamePasswordAuthenticationFilter.class)
+                .mvcMatcher("/api/**")
+                .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout()
                 .logoutUrl("/logout")
-
-                .and()
-                .authenticationProvider(usernamePasswordAuthProvider)
-                .exceptionHandling()
-        ;
+                .and().authenticationProvider(usernamePasswordAuthProvider)
+                .authenticationProvider(jwtAuthProvider);
 
 
     }
@@ -94,6 +87,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    protected CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("http://localhost:4200");
+        corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
+        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+        corsConfiguration.setExposedHeaders(Arrays.asList("refreshToken", "token"));
+        source.registerCorsConfiguration("/**", corsConfiguration);
+        return source;
     }
 
 
