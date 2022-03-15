@@ -29,11 +29,14 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+
         String authorizationToken = request.getHeader("Authorization");
         if (authorizationToken == null) {
             authorizationToken = response.getHeader("token");
         }
-        Authentication authenticate = this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey));
+        Authentication authenticate = null;
+        if (authorizationToken != null)
+            authenticate = this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey));
         return authenticate;
     }
 
