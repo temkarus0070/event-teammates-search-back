@@ -5,17 +5,13 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import java.util.Set;
+import javax.persistence.Table;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class Tag {
-
+@Table(name = "eventTypes")
+public class EventType {
     @Id
     private String name;
-
-    @ManyToMany()
-    private Set<Event> events;
 }

@@ -1,20 +1,32 @@
 package org.netcracker.eventteammatessearch.Services;
 
 import org.hibernate.ObjectNotFoundException;
-import org.netcracker.eventteammatessearch.entity.Event;
-import org.netcracker.eventteammatessearch.entity.EventAttendance;
-import org.netcracker.eventteammatessearch.entity.UserEventKey;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.io.WKTReader;
+import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
+import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @Component
 public class EventsService {
+
+
     @Autowired
     private EventRepository eventRepository;
 
@@ -24,6 +36,11 @@ public class EventsService {
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
 
+    private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
+
+    private WKTReader wktReader = new WKTReader();
+
+
     public Event get(Long id) {
         Event event = eventRepository.getById(id);
         double avgMark = reviewRepository.averageReviewNumber(event.getOwner().getLogin());
@@ -31,6 +48,10 @@ public class EventsService {
         return event;
     }
 
+    public List<Event> get() {
+        List<Event> all = eventRepository.findAll();
+        return all;
+    }
 
     public void assignOnEvent(Long eventId, Principal principal) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
@@ -42,7 +63,11 @@ public class EventsService {
         } else throw new ObjectNotFoundException(eventId, "Event");
     }
 
-    public void add(Event event) {
+    public void add(Event event, Principal principal) {
+        String name = principal.getName();
+        User user = new User();
+        user.setLogin(name);
+        event.setOwner(user);
         eventRepository.save(event);
     }
 
@@ -52,6 +77,23 @@ public class EventsService {
 
     public void update(Event event) {
         this.eventRepository.save(event);
+    }
+
+    public List<Location> getEventsByRadius(double lon, double lat, int radius) {
+        Point p = factory.createPoint(new Coordinate(lon, lat));
+        return eventRepository.findNearWithinDistance(p, radius);
+    }
+
+    public List<Event> filter(EventFilterData filterData) {
+
+        String[] words = filterData.getKeyWords().trim().split(" ");
+        Specification<Event> specification = new Specification<Event>() {
+            @Override
+            public Predicate toPredicate(Root<Event> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                return criteriaBuilder.in(root.get(""))
+            }
+        }
+
     }
 
 

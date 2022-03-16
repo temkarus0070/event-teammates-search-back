@@ -1,8 +1,15 @@
 package org.netcracker.eventteammatessearch.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.locationtech.jts.geom.Point;
+import org.n52.jackson.datatype.jts.GeometryDeserializer;
+import org.n52.jackson.datatype.jts.GeometrySerializer;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -18,12 +25,14 @@ public class Location {
     @NonNull
     private String name;
 
-    @NonNull
-    private String lon;
 
-    @NonNull
-    private String lat;
+    @Column(columnDefinition = "geometry(Point,4326)", nullable = false)
+    @JsonSerialize(using = GeometrySerializer.class)
+    @JsonDeserialize(using = GeometryDeserializer.class)
+    private Point location;
+
 
     @OneToMany(mappedBy = "location")
+    @JsonIgnore
     private Set<Event> events;
 }

@@ -1,20 +1,34 @@
 package org.netcracker.eventteammatessearch.controllers;
 
 import org.netcracker.eventteammatessearch.Services.EventsService;
+import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.Event;
+import org.netcracker.eventteammatessearch.entity.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
-@RestController("/events")
+@RequestMapping(value = "/api/events")
+@RestController
 public class EventsController {
     @Autowired
     private EventsService eventsService;
 
     @PostMapping
-    public void add(@RequestBody Event event) {
-        eventsService.add(event);
+    public void add(@RequestBody Event event, Principal principal) {
+        eventsService.add(event, principal);
+    }
+
+    @GetMapping("/getEventsWithinRadius")
+    public List<Location> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam int radius) {
+        return eventsService.getEventsByRadius(lon, lat, radius);
+    }
+
+    @GetMapping("/getEvents")
+    public List<Event> getEvents() {
+        return eventsService.get();
     }
 
     @PostMapping("/assignOnEvent")
@@ -22,9 +36,14 @@ public class EventsController {
         eventsService.assignOnEvent(eventId, principal);
     }
 
-    @GetMapping
+    @GetMapping("/getEvent")
     public Event get(@RequestParam Long eventId) {
         return eventsService.get(eventId);
+    }
+
+    @PostMapping("/filter")
+    public List<Event> filter(@RequestBody EventFilterData filterData) {
+
     }
 
     @PatchMapping
