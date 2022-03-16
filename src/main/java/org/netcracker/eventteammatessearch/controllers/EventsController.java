@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.controllers;
 
 import org.netcracker.eventteammatessearch.Services.EventsService;
+import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.Event;
 import org.netcracker.eventteammatessearch.entity.Location;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,11 @@ public class EventsController {
     @GetMapping("/getEvent")
     public Event get(@RequestParam Long eventId) {
         return eventsService.get(eventId);
+    }
+
+    @PostMapping("/filter")
+    public List<Event> filter(@RequestBody EventFilterData filterData) {
+
     }
 
     @PatchMapping
