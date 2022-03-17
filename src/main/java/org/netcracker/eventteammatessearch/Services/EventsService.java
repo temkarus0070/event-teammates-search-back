@@ -75,7 +75,7 @@ public class EventsService {
         User user = new User();
         user.setLogin(name);
         event.setOwner(user);
-        Set<Tag> tags = tagRepository.findAllById(event.getTags() == null ? new HashSet<>() : event.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList())).stream().collect(Collectors.toSet());
+        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(event.getTags() == null ? new HashSet<>() : event.getTags().stream().map(Tag::getName).collect(Collectors.toList())));
         tags.addAll(event.getTags());
         event.setTags(tags);
         for (Tag tag : event.getTags()) {
