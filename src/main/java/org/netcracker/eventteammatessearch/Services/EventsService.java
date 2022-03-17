@@ -13,13 +13,8 @@ import org.netcracker.eventteammatessearch.persistence.repositories.EventReposit
 import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.List;
@@ -56,8 +51,7 @@ public class EventsService {
     }
 
     public List<Event> get() {
-        List<Event> all = eventRepository.findAll();
-        return all;
+        return eventRepository.findAll();
     }
 
     public void assignOnEvent(Long eventId, Principal principal) {
@@ -102,13 +96,7 @@ public class EventsService {
     public List<Event> filter(EventFilterData filterData) {
 
         String[] words = filterData.getKeyWords().trim().split(" ");
-        Specification<Event> specification = new Specification<Event>() {
-            @Override
-            public Predicate toPredicate(Root<Event> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                return criteriaBuilder.in(root.get(""))
-            }
-        }
-
+        return null;
     }
 
 
