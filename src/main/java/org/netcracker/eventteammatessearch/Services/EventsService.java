@@ -9,13 +9,17 @@ import org.locationtech.jts.io.WKTReader;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class EventsService {
@@ -29,6 +33,9 @@ public class EventsService {
 
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
+
+    @Autowired
+    private TagRepository tagRepository;
 
     private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
 
@@ -62,6 +69,14 @@ public class EventsService {
         User user = new User();
         user.setLogin(name);
         event.setOwner(user);
+        Set<Tag> tags = tagRepository.findAllById(event.getTags() == null ? new HashSet<>() : event.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList())).stream().collect(Collectors.toSet());
+        tags.addAll(event.getTags());
+        event.setTags(tags);
+        for (Tag tag : event.getTags()) {
+            if (tag.getEvents() == null)
+                tag.setEvents(new HashSet<>(List.of(event)));
+            else tag.getEvents().add(event);
+        }
         eventRepository.save(event);
     }
 
