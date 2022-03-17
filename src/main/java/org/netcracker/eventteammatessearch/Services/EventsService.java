@@ -6,14 +6,20 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
+import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.List;
@@ -91,6 +97,18 @@ public class EventsService {
     public List<Location> getEventsByRadius(double lon, double lat, int radius) {
         Point p = factory.createPoint(new Coordinate(lon, lat));
         return eventRepository.findNearWithinDistance(p, radius);
+    }
+
+    public List<Event> filter(EventFilterData filterData) {
+
+        String[] words = filterData.getKeyWords().trim().split(" ");
+        Specification<Event> specification = new Specification<Event>() {
+            @Override
+            public Predicate toPredicate(Root<Event> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                return criteriaBuilder.in(root.get(""))
+            }
+        }
+
     }
 
 
