@@ -40,7 +40,7 @@ public class Event {
 
     private int maxNumberOfGuests;
 
-    private int price;
+    private float price;
 
     @JsonProperty("isPrivate")
     private boolean isPrivate;
