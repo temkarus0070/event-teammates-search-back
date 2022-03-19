@@ -13,6 +13,7 @@ import org.netcracker.eventteammatessearch.persistence.repositories.EventReposit
 import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
@@ -94,6 +95,15 @@ public class EventsService {
     }
 
     public List<Event> filter(EventFilterData filterData) {
+        Specification<Event> eventTypeSpecification = (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType());
+        Specification<Event> eventLengthSpec = null;
+        if (filterData.getEventLengthFrom() != 0 || filterData.getEventLengthTo() != 0) {
+            if (filterData.getEventLengthFrom() != 0 && filterData.getEventLengthTo() == 0) {
+                filterData.setEventLengthTo(Long.MAX_VALUE);
+            } else if (filterData.getEventLengthFrom() == 0) {
+
+            }
+        }
 
 
         return null;

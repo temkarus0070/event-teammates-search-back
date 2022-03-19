@@ -3,6 +3,7 @@ package org.netcracker.eventteammatessearch.security.Providers;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -22,15 +23,10 @@ public class UsernamePasswordAuthProvider implements AuthenticationProvider {
     @Override
     @Transactional
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        try {
             UserDetails userDetails = userDetailsManager.loadUserByUsername(authentication.getName());
-            if (passwordEncoder.matches(String.valueOf(authentication.getCredentials()), userDetails.getPassword())) {
-                return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
-            }
-        } catch (Exception ex) {
-            return authentication;
-        }
-        return authentication;
+        if (userDetails != null && passwordEncoder.matches(String.valueOf(authentication.getCredentials()), userDetails.getPassword())) {
+            return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
+        } else throw new BadCredentialsException("YOUR LOGIN OR PASS are invalid");
 
     }
 
