@@ -116,7 +116,7 @@ public class EventsService {
         double[] userLocation = filterData.getUserLocation();
         specificationList.add((root, query, criteriaBuilder) -> filterData.getUserLocation().length == 2 && filterData.getMaxDistance() != 0 ?
                 org.hibernate.spatial.predicate.GeolatteSpatialPredicates.distanceWithin(criteriaBuilder, root.join(Event_.location).get("location"),
-                        Geometries.mkPoint(new C2D(userLocation[0], userLocation[1]), CrsRegistry.getProjectedCoordinateReferenceSystemForEPSG(4326))
+                        Geometries.mkPoint(new C2D(userLocation[0], userLocation[1]), CrsRegistry.getProjectedCoordinateReferenceSystemForEPSG(3857))
                         , filterData.getMaxDistance()) : null);
 
 
