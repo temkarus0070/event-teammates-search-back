@@ -1,8 +1,6 @@
 package org.netcracker.eventteammatessearch.Services;
 
-import org.geolatte.geom.C2D;
-import org.geolatte.geom.Geometries;
-import org.geolatte.geom.crs.CrsRegistry;
+import org.geolatte.geom.builder.DSL;
 import org.hibernate.ObjectNotFoundException;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -26,6 +24,9 @@ import javax.persistence.criteria.Root;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.geolatte.geom.builder.DSL.g;
+import static org.geolatte.geom.crs.CoordinateReferenceSystems.WGS84;
 
 @Component
 public class EventsService {
@@ -116,7 +117,7 @@ public class EventsService {
         double[] userLocation = filterData.getUserLocation();
         specificationList.add((root, query, criteriaBuilder) -> filterData.getUserLocation().length == 2 && filterData.getMaxDistance() != 0 ?
                 org.hibernate.spatial.predicate.GeolatteSpatialPredicates.distanceWithin(criteriaBuilder, root.join(Event_.location).get("location"),
-                        Geometries.mkPoint(new C2D(userLocation[0], userLocation[1]), CrsRegistry.getProjectedCoordinateReferenceSystemForEPSG(3857))
+                        DSL.point(WGS84, g(userLocation[0], userLocation[1]))
                         , filterData.getMaxDistance()) : null);
 
 
