@@ -95,7 +95,7 @@ public class EventsService {
 
     public List<Event> filter(EventFilterData filterData) {
 
-        String[] words = filterData.getKeyWords().trim().split(" ");
+
         return null;
     }
 
