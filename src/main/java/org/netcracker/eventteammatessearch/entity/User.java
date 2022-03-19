@@ -76,6 +76,9 @@ public class User {
     @ToString.Exclude
     private Set<Event> invitations;
 
+    @OneToOne(mappedBy = "user")
+    private Survey surveyResult;
+
 
     private boolean isCommercialUser;
 

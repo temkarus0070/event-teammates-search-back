@@ -43,7 +43,7 @@ public class EventsController {
 
     @PostMapping("/filter")
     public List<Event> filter(@RequestBody EventFilterData filterData) {
-
+        return null;
     }
 
     @PatchMapping

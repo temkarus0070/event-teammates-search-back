@@ -85,15 +85,7 @@ public class EventsService {
     }
 
     public List<Event> filter(EventFilterData filterData) {
-
-        String[] words = filterData.getKeyWords().trim().split(" ");
-        Specification<Event> specification = new Specification<Event>() {
-            @Override
-            public Predicate toPredicate(Root<Event> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                return criteriaBuilder.in(root.get(""))
-            }
-        }
-
+        return null;
     }
 
 
