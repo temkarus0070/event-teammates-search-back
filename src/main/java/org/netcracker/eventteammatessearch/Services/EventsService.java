@@ -1,11 +1,15 @@
 package org.netcracker.eventteammatessearch.Services;
 
+import org.geolatte.geom.C2D;
+import org.geolatte.geom.Geometries;
+import org.geolatte.geom.crs.CrsRegistry;
 import org.hibernate.ObjectNotFoundException;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
-import org.netcracker.eventteammatessearch.entity.Location;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
@@ -105,21 +109,29 @@ public class EventsService {
                 criteriaBuilder.between(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeFrom(), filterData.getEventBeginTimeTo()) : null);
         specificationList.add((root, query, criteriaBuilder) -> filterData.getGuestsCountFrom() != 0 || filterData.getGuestsCountTo() != 0 ? criteriaBuilder.between(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountFrom(), filterData.getGuestsCountTo()) : null);
         specificationList.add((root, query, criteriaBuilder) -> filterData.getPriceFrom() != 0 || filterData.getPriceTo() != 0 ? criteriaBuilder.between(root.get(Event_.price), filterData.getPriceFrom(), filterData.getPriceTo()) : null);
-        specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Event_.theme), filterData.getTheme()));
+        specificationList.add((root, query, criteriaBuilder) -> filterData.getTheme() != null && !filterData.getTheme().equals("") ? criteriaBuilder.equal(root.get(Event_.theme), filterData.getTheme()) : null);
         specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
                 criteriaBuilder.equal(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("ONLINE")),
                 criteriaBuilder.notEqual(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("OFFLINE"))));
         double[] userLocation = filterData.getUserLocation();
-        specificationList.add((root, query, criteriaBuilder) ->
+        specificationList.add((root, query, criteriaBuilder) -> filterData.getUserLocation().length == 2 && filterData.getMaxDistance() != 0 ?
                 org.hibernate.spatial.predicate.GeolatteSpatialPredicates.distanceWithin(criteriaBuilder, root.join(Event_.location).get("location"),
-                        new org.locationtech.jts.geom.Point(new CoordinateArraySequence(new Coordinate[]{new CoordinateXY(userLocation[0], userLocation[1]})
-                                , factory), filterData.getMaxDistance()));
+                        Geometries.mkPoint(new C2D(userLocation[0], userLocation[1]), CrsRegistry.getProjectedCoordinateReferenceSystemForEPSG(4326))
+                        , filterData.getMaxDistance()) : null);
 
 
         Specification<Event> endSpec = null;
-        return eventRepository.findAll()
-
-        return null;
+        boolean isFirst = true;
+        for (Specification<Event> eventSpecification : specificationList) {
+            if (eventSpecification != null) {
+                if (isFirst) {
+                    endSpec = eventSpecification;
+                    isFirst = false;
+                } else endSpec = endSpec.and(eventSpecification);
+            }
+        }
+        List<Event> events = eventRepository.findAll(endSpec);
+        return events;
     }
 
 
