@@ -77,7 +77,8 @@ public class Event {
     @ToString.Exclude
     private Set<User> invitedGuests;
 
-    @ManyToMany(mappedBy = "events")
+
+    @ManyToMany(mappedBy = "events", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Tag> tags;
 

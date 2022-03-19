@@ -4,6 +4,7 @@ import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Services.JwtTokenGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -34,7 +35,7 @@ public class UsernamePasswordFilter extends AbstractAuthenticationProcessingFilt
         String password = request.getHeader("password");
         if (username != null && password != null)
             return this.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        else return null;
+        else throw new BadCredentialsException("you have not typed your login or pass");
     }
 
 

@@ -10,18 +10,18 @@ import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.security.Principal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class EventsService {
@@ -36,6 +36,9 @@ public class EventsService {
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
 
+    @Autowired
+    private TagRepository tagRepository;
+
     private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
 
     private WKTReader wktReader = new WKTReader();
@@ -49,8 +52,7 @@ public class EventsService {
     }
 
     public List<Event> get() {
-        List<Event> all = eventRepository.findAll();
-        return all;
+        return eventRepository.findAll();
     }
 
     public void assignOnEvent(Long eventId, Principal principal) {
@@ -68,6 +70,14 @@ public class EventsService {
         User user = new User();
         user.setLogin(name);
         event.setOwner(user);
+        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(event.getTags() == null ? new HashSet<>() : event.getTags().stream().map(Tag::getName).collect(Collectors.toList())));
+        tags.addAll(event.getTags());
+        event.setTags(tags);
+        for (Tag tag : event.getTags()) {
+            if (tag.getEvents() == null)
+                tag.setEvents(new HashSet<>(List.of(event)));
+            else tag.getEvents().add(event);
+        }
         eventRepository.save(event);
     }
 
@@ -85,6 +95,17 @@ public class EventsService {
     }
 
     public List<Event> filter(EventFilterData filterData) {
+        Specification<Event> eventTypeSpecification = (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType());
+        Specification<Event> eventLengthSpec = null;
+        if (filterData.getEventLengthFrom() != 0 || filterData.getEventLengthTo() != 0) {
+            if (filterData.getEventLengthFrom() != 0 && filterData.getEventLengthTo() == 0) {
+                filterData.setEventLengthTo(Long.MAX_VALUE);
+            } else if (filterData.getEventLengthFrom() == 0) {
+
+            }
+        }
+
+
         return null;
     }
 

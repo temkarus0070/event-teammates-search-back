@@ -3,6 +3,7 @@ package org.netcracker.eventteammatessearch.security.Filters;
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,6 +38,7 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
         Authentication authenticate = null;
         if (authorizationToken != null)
             authenticate = this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey));
+        else throw new BadCredentialsException("you dont have token");
         return authenticate;
     }
 
