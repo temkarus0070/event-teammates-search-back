@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.NonNull;
 
 import javax.persistence.*;
@@ -36,5 +37,6 @@ public class Survey {
 
     @NonNull
     @OneToOne
+    @JsonIgnore
     private User user;
 }
