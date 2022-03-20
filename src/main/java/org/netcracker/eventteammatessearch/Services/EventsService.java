@@ -103,8 +103,8 @@ public class EventsService {
         List<Specification<Event>> specificationList = new ArrayList<>();
         specificationList.add((root, query, criteriaBuilder) -> getWordsSpec(root, query, criteriaBuilder, filterData.getKeyWords()));
         specificationList.add((root, query, criteriaBuilder) -> filterData.getEventType() == null ? null : criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType()));
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventLengthFrom() != 0 || filterData.getEventLengthTo() != 0 ? criteriaBuilder.between(criteriaBuilder.diff(root.get(Event_.DATE_TIME_END),
-                root.get(Event_.DATE_TIME_START)).as(Long.class), filterData.getEventLengthFrom(), filterData.getEventLengthTo()) : null);
+        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventLengthFrom() != 0 || filterData.getEventLengthTo() != 0 ? criteriaBuilder.isTrue(criteriaBuilder.function("is_date_diff_between", Boolean.class,
+                root.get(Event_.dateTimeStart), root.get(Event_.dateTimeEnd), criteriaBuilder.literal(filterData.getEventLengthFrom()), criteriaBuilder.literal(filterData.getEventLengthTo()))) : null);
 
         specificationList.add((root, query, criteriaBuilder) -> filterData.getEventBeginTimeFrom() != null || filterData.getEventBeginTimeTo() != null ?
                 criteriaBuilder.between(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeFrom(), filterData.getEventBeginTimeTo()) : null);
