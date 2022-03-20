@@ -114,6 +114,7 @@ public class EventsService {
         specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
                 criteriaBuilder.equal(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("ONLINE")),
                 criteriaBuilder.notEqual(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("OFFLINE"))));
+        specificationList.add((root, query, criteriaBuilder) -> filterData.isFreeEvents() ? criteriaBuilder.equal(root.get(Event_.PRICE), 0) : null);
         double[] userLocation = filterData.getUserLocation();
         specificationList.add((root, query, criteriaBuilder) -> filterData.getUserLocation().length == 2 && filterData.getMaxDistance() != 0 ?
                 org.hibernate.spatial.predicate.GeolatteSpatialPredicates.distanceWithin(criteriaBuilder, root.join(Event_.location).get("location"),
@@ -124,12 +125,10 @@ public class EventsService {
         Specification<Event> endSpec = null;
         boolean isFirst = true;
         for (Specification<Event> eventSpecification : specificationList) {
-            if (eventSpecification != null) {
                 if (isFirst) {
                     endSpec = eventSpecification;
                     isFirst = false;
                 } else endSpec = endSpec.and(eventSpecification);
-            }
         }
         List<Event> events = eventRepository.findAll(endSpec);
         return events;
@@ -144,6 +143,7 @@ public class EventsService {
             for (String word : words) {
 
                 Predicate like = criteriaBuilder.like(root.get(Event_.NAME), "%" + word + "%");
+                like = criteriaBuilder.or(like, criteriaBuilder.like(root.get(Event_.DESCRIPTION), "%" + word + "%"));
                 if (predicate == null) {
                     predicate = like;
                 } else

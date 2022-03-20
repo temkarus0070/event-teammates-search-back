@@ -29,6 +29,7 @@ public class EventFilterData {
     private double eventOwnerRating;
     private List<String> eventFormats;
     private double[] userLocation;
+    private boolean freeEvents;
 
 
 }
