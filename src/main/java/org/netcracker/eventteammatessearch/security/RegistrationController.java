@@ -21,7 +21,6 @@ public class RegistrationController {
     public void register(@RequestBody User user) {
         user.setAuthorities(List.of(new SimpleGrantedAuthority("user")));
         userDetailsManager.createUser(new UserDetails(user));
-
     }
 
 

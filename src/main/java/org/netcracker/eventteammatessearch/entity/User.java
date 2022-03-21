@@ -76,6 +76,7 @@ public class User {
     @ToString.Exclude
     private Set<Event> invitations;
 
+    private boolean isCommercialUserCreated;
 
     private boolean isCommercialUser;
 
