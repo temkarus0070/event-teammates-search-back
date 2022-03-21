@@ -60,7 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 httpBasic().disable()
                 .csrf().disable()
                 .authorizeRequests()
-                .mvcMatchers("/register")
+                .mvcMatchers("/register", "/refreshToken")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()

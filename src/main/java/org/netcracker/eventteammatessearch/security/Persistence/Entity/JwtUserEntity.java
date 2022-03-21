@@ -2,6 +2,7 @@ package org.netcracker.eventteammatessearch.security.Persistence.Entity;
 
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
@@ -18,9 +19,10 @@ import java.util.Objects;
 @AllArgsConstructor
 public class JwtUserEntity {
     @EmbeddedId
-    private JwtUserKey jwtUserKey;
+    private JwtUserKey id;
 
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String refreshToken;
 
     @Override
@@ -28,12 +30,12 @@ public class JwtUserEntity {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         JwtUserEntity that = (JwtUserEntity) o;
-        return jwtUserKey != null && Objects.equals(jwtUserKey, that.jwtUserKey);
+        return id != null && Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jwtUserKey);
+        return Objects.hash(id);
     }
 
     @Data
@@ -43,6 +45,7 @@ public class JwtUserEntity {
     public static class JwtUserKey implements Serializable {
         private String username;
         @Lob
+        @Type(type = "org.hibernate.type.TextType")
         private String jwt;
 
     }

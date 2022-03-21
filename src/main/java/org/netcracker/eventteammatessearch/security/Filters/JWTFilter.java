@@ -1,6 +1,8 @@
 package org.netcracker.eventteammatessearch.security.Filters;
 
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
+import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,6 +26,9 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
+    @Autowired
+    private UserDetailsManager userDetailsManager;
+
     protected JWTFilter(@Value("/api/**") String defaultFilterProcessesUrl, AuthenticationManager authenticationManager) {
         super(defaultFilterProcessesUrl, authenticationManager);
     }
@@ -37,7 +42,7 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
         }
         Authentication authenticate = null;
         if (authorizationToken != null)
-            authenticate = this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey));
+            authenticate = this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey, userDetailsManager));
         else throw new BadCredentialsException("you dont have token");
         return authenticate;
     }

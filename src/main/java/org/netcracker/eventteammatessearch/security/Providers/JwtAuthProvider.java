@@ -24,10 +24,11 @@ public class JwtAuthProvider implements AuthenticationProvider {
             JWTUser jwtUser = new JWTUser(authentication.getCredentials().toString(), secretKey);
             if (jwtUser.isAccountNonExpired()) {
                 authentication.setAuthenticated(true);
-
+                return authentication;
             }
-            return authentication;
-        } else throw new BadCredentialsException("YOUR token is empty or invalid");
+
+        }
+        throw new BadCredentialsException("YOUR token is empty or invalid");
     }
 
     @Override
