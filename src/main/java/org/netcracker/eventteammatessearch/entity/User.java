@@ -34,6 +34,7 @@ public class User {
     private String phone;
 
     @NonNull
+    @JsonIgnore
     private String password;
 
     private String pictureUrl;
@@ -45,6 +46,10 @@ public class User {
         this.login = login;
         this.password = password;
         this.authorities = authorities;
+    }
+
+    public User(String login) {
+        this.login = login;
     }
 
     private boolean prefersOfflineEvents;

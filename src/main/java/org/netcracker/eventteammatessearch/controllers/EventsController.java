@@ -3,7 +3,6 @@ package org.netcracker.eventteammatessearch.controllers;
 import org.netcracker.eventteammatessearch.Services.EventsService;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.Event;
-import org.netcracker.eventteammatessearch.entity.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +21,7 @@ public class EventsController {
     }
 
     @GetMapping("/getEventsWithinRadius")
-    public List<Location> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam int radius) {
+    public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam int radius) {
         return eventsService.getEventsByRadius(lon, lat, radius);
     }
 
@@ -32,7 +31,7 @@ public class EventsController {
     }
 
     @PostMapping("/assignOnEvent")
-    public void assignOnEvents(@RequestBody Long eventId, Principal principal) {
+    public void assignOnEvents(@RequestParam long eventId, Principal principal) {
         eventsService.assignOnEvent(eventId, principal);
     }
 
@@ -42,8 +41,8 @@ public class EventsController {
     }
 
     @PostMapping("/filter")
-    public List<Event> filter(@RequestBody EventFilterData filterData) {
-return eventsService.filter(filterData);
+    public List<Event> filter(@RequestBody EventFilterData filterData, Principal principal) {
+        return eventsService.filter(filterData, principal);
     }
 
     @PatchMapping

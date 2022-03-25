@@ -58,6 +58,12 @@ public class Event {
     @Transient
     private double avgMark;
 
+    @Transient
+    private boolean currentUserInvited;
+
+    @Transient
+    private boolean currentUserEntered;
+
 
     @ManyToOne(cascade = CascadeType.ALL)
     private Location location;

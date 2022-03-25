@@ -66,6 +66,8 @@ public class EventsService {
             Event event = eventOptional.get();
             EventAttendance eventAttendance = new EventAttendance();
             eventAttendance.setId(new UserEventKey(event.getId(), principal.getName()));
+            eventAttendance.setEvent(event);
+            eventAttendance.setUser(new User(principal.getName()));
             eventAttendanceRepository.save(eventAttendance);
         } else throw new ObjectNotFoundException(eventId, "Event");
     }
@@ -94,12 +96,12 @@ public class EventsService {
         this.eventRepository.save(event);
     }
 
-    public List<Location> getEventsByRadius(double lon, double lat, int radius) {
+    public List<Event> getEventsByRadius(double lon, double lat, int radius) {
         Point p = factory.createPoint(new Coordinate(lon, lat));
         return eventRepository.findNearWithinDistance(p, radius);
     }
 
-    public List<Event> filter(EventFilterData filterData) {
+    public List<Event> filter(EventFilterData filterData, Principal principal) {
         List<Specification<Event>> specificationList = new ArrayList<>();
         specificationList.add((root, query, criteriaBuilder) -> getWordsSpec(root, query, criteriaBuilder, filterData.getKeyWords()));
         specificationList.add((root, query, criteriaBuilder) -> filterData.getEventType() == null ? null : criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType()));
@@ -166,6 +168,12 @@ public class EventsService {
             } else endSpec = endSpec.and(eventSpecification);
         }
         List<Event> events = eventRepository.findAll(endSpec);
+        events.forEach(event -> {
+            if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
+                event.setCurrentUserEntered(true);
+            if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
+                event.setCurrentUserInvited(true);
+        });
         return events;
     }
 
