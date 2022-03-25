@@ -2,7 +2,6 @@ package org.netcracker.eventteammatessearch.security.Providers;
 
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.JWTUser;
-import org.netcracker.eventteammatessearch.security.Persistence.JwtTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,7 +14,6 @@ public class JwtAuthProvider implements AuthenticationProvider {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
-    private JwtTokenRepository jwtTokenRepository;
 
 
     @Override

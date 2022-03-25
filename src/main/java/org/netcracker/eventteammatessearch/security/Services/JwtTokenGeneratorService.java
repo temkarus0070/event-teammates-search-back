@@ -63,7 +63,7 @@ public class JwtTokenGeneratorService {
                 .signWith(SignatureAlgorithm.HS512, secret);
         jwtUserEntity.setId(new JwtUserEntity.JwtUserKey(userDetails.getId().getUsername(), jwtBuilder.compact()));
         jwtUserEntity.setRefreshToken(generateRefresh());
-        jwtTokenRepository.save(jwtUserEntity);
+        jwtTokenRepository.saveAndFlush(jwtUserEntity);
         return jwtUserEntity;
     }
 

@@ -103,13 +103,48 @@ public class EventsService {
         List<Specification<Event>> specificationList = new ArrayList<>();
         specificationList.add((root, query, criteriaBuilder) -> getWordsSpec(root, query, criteriaBuilder, filterData.getKeyWords()));
         specificationList.add((root, query, criteriaBuilder) -> filterData.getEventType() == null ? null : criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType()));
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventLengthFrom() != 0 || filterData.getEventLengthTo() != 0 ? criteriaBuilder.isTrue(criteriaBuilder.function("is_date_diff_between", Boolean.class,
-                root.get(Event_.dateTimeStart), root.get(Event_.dateTimeEnd), criteriaBuilder.literal(filterData.getEventLengthFrom()), criteriaBuilder.literal(filterData.getEventLengthTo()))) : null);
+        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventLengthFrom() != 0 || filterData.getEventLengthTo() != 0 ?
+                criteriaBuilder.isTrue(criteriaBuilder.function("is_date_diff_between", Boolean.class, root.get(Event_.dateTimeStart), root.get(Event_.dateTimeEnd),
+                        criteriaBuilder.literal(filterData.getEventLengthFrom()), criteriaBuilder.literal(filterData.getEventLengthTo()))) : null);
 
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventBeginTimeFrom() != null || filterData.getEventBeginTimeTo() != null ?
-                criteriaBuilder.between(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeFrom(), filterData.getEventBeginTimeTo()) : null);
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getGuestsCountFrom() != 0 || filterData.getGuestsCountTo() != 0 ? criteriaBuilder.between(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountFrom(), filterData.getGuestsCountTo()) : null);
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getPriceFrom() != 0 || filterData.getPriceTo() != 0 ? criteriaBuilder.between(root.get(Event_.price), filterData.getPriceFrom(), filterData.getPriceTo()) : null);
+        specificationList.add((root, query, criteriaBuilder) -> {
+            Predicate predicate = null;
+            if (filterData.getEventBeginTimeFrom() != null)
+                predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeFrom());
+            if (filterData.getEventBeginTimeTo() != null) {
+                Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeTo());
+                if (predicate != null) {
+                    predicate = criteriaBuilder.and(predicate, predicate1);
+                } else predicate = predicate1;
+            }
+            return predicate;
+        });
+        specificationList.add((root, query, criteriaBuilder) -> {
+            Predicate predicate = null;
+            if (filterData.getGuestsCountFrom() != 0) {
+                predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountFrom());
+            }
+            if (filterData.getGuestsCountTo() != 0) {
+                Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountTo());
+                if (filterData.getGuestsCountFrom() != 0) {
+                    predicate = criteriaBuilder.and(predicate1, predicate);
+                } else predicate = predicate1;
+            }
+            return predicate;
+        });
+        specificationList.add((root, query, criteriaBuilder) -> {
+                    Predicate predicate = null;
+                    if (filterData.getPriceFrom() != 0)
+                        predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.price), filterData.getPriceFrom());
+                    if (filterData.getPriceTo() != 0) {
+                        Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.price), filterData.getPriceTo());
+                        if (filterData.getPriceFrom() != 0) {
+                            predicate = criteriaBuilder.and(predicate1, predicate);
+                        } else predicate = predicate1;
+                    }
+                    return predicate;
+                }
+        );
         specificationList.add((root, query, criteriaBuilder) -> filterData.getTheme() != null && !filterData.getTheme().equals("") ? criteriaBuilder.equal(root.get(Event_.theme), filterData.getTheme()) : null);
         specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
                 criteriaBuilder.equal(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("ONLINE")),
@@ -125,10 +160,10 @@ public class EventsService {
         Specification<Event> endSpec = null;
         boolean isFirst = true;
         for (Specification<Event> eventSpecification : specificationList) {
-                if (isFirst) {
-                    endSpec = eventSpecification;
-                    isFirst = false;
-                } else endSpec = endSpec.and(eventSpecification);
+            if (isFirst) {
+                endSpec = eventSpecification;
+                isFirst = false;
+            } else endSpec = endSpec.and(eventSpecification);
         }
         List<Event> events = eventRepository.findAll(endSpec);
         return events;
