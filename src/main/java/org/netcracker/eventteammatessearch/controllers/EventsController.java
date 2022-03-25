@@ -21,7 +21,7 @@ public class EventsController {
     }
 
     @GetMapping("/getEventsWithinRadius")
-    public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam int radius) {
+    public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius) {
         return eventsService.getEventsByRadius(lon, lat, radius);
     }
 

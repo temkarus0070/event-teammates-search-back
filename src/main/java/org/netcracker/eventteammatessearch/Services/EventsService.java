@@ -96,9 +96,10 @@ public class EventsService {
         this.eventRepository.save(event);
     }
 
-    public List<Event> getEventsByRadius(double lon, double lat, int radius) {
+    public List<Event> getEventsByRadius(double lon, double lat, double radius) {
         Point p = factory.createPoint(new Coordinate(lon, lat));
-        return eventRepository.findNearWithinDistance(p, radius);
+        List<Event> nearWithinDistance = eventRepository.findNearWithinDistance(p, radius);
+        return nearWithinDistance;
     }
 
     public List<Event> filter(EventFilterData filterData, Principal principal) {
