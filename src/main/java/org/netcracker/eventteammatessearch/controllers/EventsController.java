@@ -4,6 +4,9 @@ import org.netcracker.eventteammatessearch.Services.EventsService;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.Event;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -43,6 +46,13 @@ public class EventsController {
     @PostMapping("/filter")
     public List<Event> filter(@RequestBody EventFilterData filterData, Principal principal) {
         return eventsService.filter(filterData, principal);
+    }
+
+    @PostMapping("/filterWithPaging")
+    public Page<Event> filterWithPaging(@RequestBody EventFilterData filterData, Principal principal, @RequestParam int pageNum, @RequestParam int size) {
+        Pageable pageable = PageRequest.of(pageNum, size);
+        Page<Event> eventPage = eventsService.filterByPage(filterData, principal, pageable);
+        return eventPage;
     }
 
     @PatchMapping

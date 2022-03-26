@@ -2,6 +2,8 @@ package org.netcracker.eventteammatessearch.persistence.repositories;
 
 import org.locationtech.jts.geom.Point;
 import org.netcracker.eventteammatessearch.entity.Event;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -20,4 +22,8 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     @Query(value = "SELECT e FROM Event e inner join e.tags inner join e.guests inner join e.location inner join e.eventType inner join e.owner inner join e.invitedGuests")
     List<Event> findAll(List<Specification<Event>> specifications);
+
+
+    @Query(value = "SELECT e FROM Event e inner join e.tags inner join e.guests inner join e.location inner join e.eventType inner join e.owner inner join e.invitedGuests")
+    Page<Event> findAll(List<Specification<Event>> specifications, Pageable pageable);
 }

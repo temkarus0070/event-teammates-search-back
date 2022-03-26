@@ -14,6 +14,8 @@ import org.netcracker.eventteammatessearch.persistence.repositories.EventReposit
 import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -101,6 +103,85 @@ public class EventsService {
         List<Event> nearWithinDistance = eventRepository.findNearWithinDistance(p, radius);
         return nearWithinDistance;
     }
+
+
+    public Page<Event> filterByPage(EventFilterData filterData, Principal principal, Pageable pageable) {
+        List<Specification<Event>> specificationList = new ArrayList<>();
+        specificationList.add((root, query, criteriaBuilder) -> getWordsSpec(root, query, criteriaBuilder, filterData.getKeyWords()));
+        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventType() == null ? null : criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType()));
+        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventLengthFrom() != 0 || filterData.getEventLengthTo() != 0 ?
+                criteriaBuilder.isTrue(criteriaBuilder.function("is_date_diff_between", Boolean.class, root.get(Event_.dateTimeStart), root.get(Event_.dateTimeEnd),
+                        criteriaBuilder.literal(filterData.getEventLengthFrom()), criteriaBuilder.literal(filterData.getEventLengthTo()))) : null);
+
+        specificationList.add((root, query, criteriaBuilder) -> {
+            Predicate predicate = null;
+            if (filterData.getEventBeginTimeFrom() != null)
+                predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeFrom());
+            if (filterData.getEventBeginTimeTo() != null) {
+                Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeTo());
+                if (predicate != null) {
+                    predicate = criteriaBuilder.and(predicate, predicate1);
+                } else predicate = predicate1;
+            }
+            return predicate;
+        });
+        specificationList.add((root, query, criteriaBuilder) -> {
+            Predicate predicate = null;
+            if (filterData.getGuestsCountFrom() != 0) {
+                predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountFrom());
+            }
+            if (filterData.getGuestsCountTo() != 0) {
+                Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountTo());
+                if (filterData.getGuestsCountFrom() != 0) {
+                    predicate = criteriaBuilder.and(predicate1, predicate);
+                } else predicate = predicate1;
+            }
+            return predicate;
+        });
+        specificationList.add((root, query, criteriaBuilder) -> {
+                    Predicate predicate = null;
+                    if (filterData.getPriceFrom() != 0)
+                        predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.price), filterData.getPriceFrom());
+                    if (filterData.getPriceTo() != 0) {
+                        Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.price), filterData.getPriceTo());
+                        if (filterData.getPriceFrom() != 0) {
+                            predicate = criteriaBuilder.and(predicate1, predicate);
+                        } else predicate = predicate1;
+                    }
+                    return predicate;
+                }
+        );
+        specificationList.add((root, query, criteriaBuilder) -> filterData.getTheme() != null && !filterData.getTheme().equals("") ? criteriaBuilder.equal(root.get(Event_.theme), filterData.getTheme()) : null);
+        specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
+                criteriaBuilder.equal(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("ONLINE")),
+                criteriaBuilder.notEqual(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("OFFLINE"))));
+        specificationList.add((root, query, criteriaBuilder) -> filterData.isFreeEvents() ? criteriaBuilder.equal(root.get(Event_.PRICE), 0) : null);
+        double[] userLocation = filterData.getUserLocation();
+        specificationList.add((root, query, criteriaBuilder) -> filterData.getUserLocation().length == 2 && filterData.getMaxDistance() != 0 ?
+                org.hibernate.spatial.predicate.GeolatteSpatialPredicates.distanceWithin(criteriaBuilder, root.join(Event_.location).get("location"),
+                        DSL.point(WGS84, g(userLocation[0], userLocation[1]))
+                        , filterData.getMaxDistance()) : null);
+
+
+        Specification<Event> endSpec = null;
+        boolean isFirst = true;
+        for (Specification<Event> eventSpecification : specificationList) {
+            if (isFirst) {
+                endSpec = eventSpecification;
+                isFirst = false;
+            } else endSpec = endSpec.and(eventSpecification);
+        }
+        Page<Event> eventPage = eventRepository.findAll(endSpec, pageable);
+        List<Event> events = eventPage.getContent();
+        events.forEach(event -> {
+            if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
+                event.setCurrentUserEntered(true);
+            if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
+                event.setCurrentUserInvited(true);
+        });
+        return eventPage;
+    }
+
 
     public List<Event> filter(EventFilterData filterData, Principal principal) {
         List<Specification<Event>> specificationList = new ArrayList<>();
