@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 @RequestMapping(value = "/api/events")
 @RestController
@@ -24,8 +25,13 @@ public class EventsController {
     }
 
     @GetMapping("/getEventsWithinRadius")
-    public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius) {
-        return eventsService.getEventsByRadius(lon, lat, radius);
+    public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius, Principal principal) {
+        return eventsService.getEventsByRadius(lon, lat, radius, principal);
+    }
+
+    @GetMapping("/getWords")
+    public Set<String> getWords(@RequestParam String word) {
+        return eventsService.getWords(word);
     }
 
     @GetMapping("/getEvents")
@@ -63,5 +69,10 @@ public class EventsController {
     @DeleteMapping
     public void delete(@RequestParam Long eventId) {
         eventsService.delete(eventId);
+    }
+
+    @DeleteMapping("/deleteCurrentUserFromEvent")
+    public void deleteCurrentUserFromEvent(Principal principal, @RequestParam long eventId) {
+        this.eventsService.removeUserFromEvent(principal, eventId);
     }
 }

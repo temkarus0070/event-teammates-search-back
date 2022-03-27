@@ -87,7 +87,16 @@ public class EventsService {
                 tag.setEvents(new HashSet<>(List.of(event)));
             else tag.getEvents().add(event);
         }
+        if (event.getUrl() != null) {
+            if (!(event.getUrl().contains("http://") || event.getUrl().contains("https://"))) {
+                event.setUrl("http://" + event.getUrl());
+            }
+        }
         eventRepository.save(event);
+    }
+
+    public Set<String> getWords(String word) {
+        return eventRepository.getWords(word);
     }
 
     public void delete(Long eventId) {
@@ -98,9 +107,15 @@ public class EventsService {
         this.eventRepository.save(event);
     }
 
-    public List<Event> getEventsByRadius(double lon, double lat, double radius) {
+    public List<Event> getEventsByRadius(double lon, double lat, double radius, Principal principal) {
         Point p = factory.createPoint(new Coordinate(lon, lat));
         List<Event> nearWithinDistance = eventRepository.findNearWithinDistance(p, radius);
+        nearWithinDistance.forEach(event -> {
+            if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
+                event.setCurrentUserEntered(true);
+            if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
+                event.setCurrentUserInvited(true);
+        });
         return nearWithinDistance;
     }
 
@@ -276,6 +291,11 @@ public class EventsService {
             }
             return predicate;
         }
+    }
+
+    public void removeUserFromEvent(Principal principal, long eventId) {
+        UserEventKey userEventKey = new UserEventKey(eventId, principal.getName());
+        this.eventAttendanceRepository.deleteById(userEventKey);
     }
 
 
