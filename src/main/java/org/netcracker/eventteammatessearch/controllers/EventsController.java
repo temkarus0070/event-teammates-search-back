@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RequestMapping(value = "/api/events")
@@ -40,8 +41,9 @@ public class EventsController {
     }
 
     @PostMapping("/assignOnEvent")
-    public void assignOnEvents(@RequestParam long eventId, Principal principal) {
+    public Map assignOnEvents(@RequestParam long eventId, Principal principal) {
         eventsService.assignOnEvent(eventId, principal);
+        return Map.of("response", principal.getName());
     }
 
     @GetMapping("/getEvent")
@@ -72,7 +74,8 @@ public class EventsController {
     }
 
     @DeleteMapping("/deleteCurrentUserFromEvent")
-    public void deleteCurrentUserFromEvent(Principal principal, @RequestParam long eventId) {
+    public Map deleteCurrentUserFromEvent(Principal principal, @RequestParam long eventId) {
         this.eventsService.removeUserFromEvent(principal, eventId);
+        return Map.of("response", principal.getName());
     }
 }
