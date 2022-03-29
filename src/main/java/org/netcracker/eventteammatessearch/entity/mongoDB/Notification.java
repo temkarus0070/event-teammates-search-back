@@ -18,7 +18,7 @@ public class Notification {
     @Id
     private long id;
 
-    private long userId;
+    private String userId;
 
     private NotificationDescription notificationDescription;
 
