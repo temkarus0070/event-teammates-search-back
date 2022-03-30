@@ -5,6 +5,7 @@ import org.netcracker.eventteammatessearch.entity.Survey;
 import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.persistence.repositories.SurveyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,5 +44,11 @@ public class SurveyController {
 */
         //surveyRepository.deleteById(name);
         return data;
+    }
+
+    @GetMapping("/api/surveyCheck")
+    public boolean surveyCheck(Principal principal) {
+        if (surveyRepository.findByUser_login(principal.getName()) != null) { return true; }
+        else { return false; }
     }
 }
