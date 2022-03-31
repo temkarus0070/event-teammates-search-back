@@ -2,6 +2,8 @@ package org.netcracker.eventteammatessearch.security.Providers;
 
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.JWTUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class JwtAuthProvider implements AuthenticationProvider {
     @Value("${jwt.secretKey}")
     private String secretKey;
-
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthProvider.class);
 
 
     @Override
@@ -26,6 +28,7 @@ public class JwtAuthProvider implements AuthenticationProvider {
             }
 
         }
+        logger.error("bad jwt token " + authentication.getCredentials());
         throw new BadCredentialsException("YOUR token is empty or invalid");
     }
 
