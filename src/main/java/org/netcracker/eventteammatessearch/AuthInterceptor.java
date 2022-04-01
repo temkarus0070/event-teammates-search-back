@@ -14,6 +14,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +54,8 @@ public class AuthInterceptor implements ChannelInterceptor {
                 long chatId = Long.parseLong(((ArrayList<String>) ((Map) raw).get("chatId")).get(0));
                 Authentication authenticate = new JWTAuthentication(jwt, secret, userDetailsManager);
                 Chat chat = chatRepository.getByChatUsersContains(authenticate.getName(), chatId);
-
+                if (chat == null)
+                    throw new AuthorizationServiceException("you cant participate at this chat");
             }
         }
 
