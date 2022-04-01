@@ -15,6 +15,12 @@ public class JWTAuthentication implements Authentication {
     private UserDetailsManager userDetailsManager;
     private String username;
 
+    public JWTAuthentication(String jwt, UserDetailsManager userDetailsManager) {
+        this.jwt = jwt;
+        this.userDetailsManager = userDetailsManager;
+    }
+
+
     public JWTAuthentication(String jwt, String secretKey, String refreshToken, UserDetailsManager userDetailsManager) {
         this.jwt = jwt;
         this.parser = Jwts.parser().setSigningKey(secretKey);

@@ -11,4 +11,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     public Chat getByPrivateTrueAndChatUsersContains(String chatUser);
 
     public Chat getByEvent_Id(long id);
+
+    @Query("SELECT  c from  Chat c inner join ChatUser  cu where cu.user.login=:chatUser and c.id=:chatId")
+    public Chat getByChatUsersContains(String chatUser, long chatId);
 }
