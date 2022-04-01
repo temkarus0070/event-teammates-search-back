@@ -51,7 +51,8 @@ public class Event {
     @JsonProperty("isHidden")
     private boolean isHidden;
 
-    private Long chatId;
+    @OneToOne(mappedBy = "event")
+    private Chat chat;
 
     private String url;
 

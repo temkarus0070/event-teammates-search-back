@@ -21,4 +21,7 @@ public class Chat {
     @OneToMany(mappedBy = "chat")
     private Set<ChatUser> chatUsers;
 
+    @OneToOne
+    private Event event;
+
 }
