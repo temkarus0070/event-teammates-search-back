@@ -19,7 +19,6 @@ public class UsersController {
 
     @GetMapping("/api/usersList")
     public List<User> get(HttpServletRequest request, Principal principal) {
-        List<User> login = userRepository.getUsersByLogin(request.getHeader("login"));
-        return login;
+        return userRepository.getUsersByLogin(request.getHeader("login"));
     }
 }

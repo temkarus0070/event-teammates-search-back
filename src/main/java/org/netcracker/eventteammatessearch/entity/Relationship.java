@@ -1,26 +1,25 @@
 package org.netcracker.eventteammatessearch.entity;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Objects;
 
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"owner_login", "friend_login"})})
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 public class Relationship {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
-    @JoinColumn(name = "rs_fromuser", nullable = false, updatable = false, referencedColumnName = "login")
-    @OneToOne(optional = false)
-    private User owner;
-
-    @JoinColumn(name = "rs_touser", nullable = false, updatable = false, referencedColumnName = "login")
-    @OneToOne(optional = false)
-    private User friend;
+    @EmbeddedId
+    private RelationshipId id;
 
 
     private boolean isFriend;
@@ -29,5 +28,31 @@ public class Relationship {
         isFriend = tempFriend;
     }
 
-    public boolean getIsFriend() { return isFriend; }
+    public boolean getIsFriend() {
+        return isFriend;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Relationship that = (Relationship) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Embeddable
+    @Getter
+    @Setter
+    public static class RelationshipId implements Serializable {
+        @OneToOne()
+        private User owner;
+
+        @OneToOne()
+        private User friend;
+    }
 }
