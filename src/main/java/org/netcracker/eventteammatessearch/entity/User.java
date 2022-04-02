@@ -18,6 +18,7 @@ import java.util.Set;
 @Table(name = "app_users")
 public class User {
     @ElementCollection
+    @JsonIgnore
     private List<GrantedAuthority> authorities;
 
     @Id

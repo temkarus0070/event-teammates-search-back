@@ -12,9 +12,9 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @NoArgsConstructor
+@ToString
 public class Event {
 
     @Id
@@ -101,4 +101,6 @@ public class Event {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+
 }

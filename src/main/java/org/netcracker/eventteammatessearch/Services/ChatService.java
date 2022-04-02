@@ -49,8 +49,6 @@ public class ChatService {
         long eventId = event.getId();
         Chat chat1 = this.chatRepository.getByEvent_Id(eventId);
         if (chat1 == null) {
-           event = new Event();
-            event.setId(eventId);
             Chat chat = new Chat();
             event.setChat(chat);
             chat.setEvent(event);
