@@ -53,6 +53,7 @@ public class AuthInterceptor implements ChannelInterceptor {
 
             if (raw instanceof Map) {
                 long chatId = Long.parseLong(((ArrayList<String>) ((Map) raw).get("chatId")).get(0));
+                String name = accessor.getUser().getName();
                 Chat chat = chatRepository.getByChatUsersContains(accessor.getUser().getName(), chatId);
                 if (chat == null)
                     throw new AuthorizationServiceException("you cant participate at this chat");

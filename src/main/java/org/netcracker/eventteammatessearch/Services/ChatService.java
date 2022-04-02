@@ -2,6 +2,7 @@ package org.netcracker.eventteammatessearch.Services;
 
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
+import org.netcracker.eventteammatessearch.entity.mongoDB.sequenceGenerators.SequenceGeneratorService;
 import org.netcracker.eventteammatessearch.persistence.repositories.ChatRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
 public class ChatService {
+
+    @Autowired
+    private SequenceGeneratorService sequenceGeneratorService;
+
     @Autowired
     private ChatRepository chatRepository;
     @Autowired
@@ -44,6 +50,12 @@ public class ChatService {
         return chat.getId();
     }
 
+    public Message saveMessage(Message message) {
+        long id = sequenceGeneratorService.generateSequence(Message.SEQUENCE_NAME);
+        message.setId(id);
+        message = messageRepository.save(message);
+        return message;
+    }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public long createForEvent(Event event, Principal principal) {
@@ -82,6 +94,10 @@ public class ChatService {
         }
         chat1 = chatRepository.save(chat1);
         return chat1.getId();
+    }
+
+    public Optional<Chat> get(long id) {
+        return this.chatRepository.findById(id);
     }
 
     public List<Message> getMessages(long chatId) {

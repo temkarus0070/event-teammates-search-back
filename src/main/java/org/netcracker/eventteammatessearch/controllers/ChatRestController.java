@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.controllers;
 
 import org.netcracker.eventteammatessearch.Services.ChatService;
+import org.netcracker.eventteammatessearch.entity.Chat;
 import org.netcracker.eventteammatessearch.entity.Event;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,11 @@ public class ChatRestController {
     @PostMapping("/createEventChat")
     public long createEventChat(@RequestBody Event event, Principal principal) {
         return this.chatService.createForEvent(event, principal);
+    }
+
+    @GetMapping
+    public Chat get(@RequestParam long chatId) {
+        return this.chatService.get(chatId).get();
     }
 
 
