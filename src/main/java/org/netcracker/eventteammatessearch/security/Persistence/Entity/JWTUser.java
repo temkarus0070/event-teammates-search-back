@@ -26,7 +26,7 @@ public class JWTUser implements UserDetails {
     }
 
     public JWTUser(JwtUserEntity jwtUserEntity, String signKey) {
-        this.jwt = jwtUserEntity.getJwtUserKey().getJwt();
+        this.jwt = jwtUserEntity.getId().getJwt();
         parser = Jwts.parser().setSigningKey(signKey);
     }
 

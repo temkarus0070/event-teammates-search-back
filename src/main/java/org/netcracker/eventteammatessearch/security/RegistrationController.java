@@ -3,7 +3,9 @@ package org.netcracker.eventteammatessearch.security;
 
 import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.security.Entity.UserDetails;
+import org.netcracker.eventteammatessearch.security.Persistence.Entity.JwtUserEntity;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
+import org.netcracker.eventteammatessearch.security.Services.JwtTokenGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,10 @@ public class RegistrationController {
     @Autowired
     private UserDetailsManager userDetailsManager;
 
+    @Autowired
+    private JwtTokenGeneratorService jwtTokenGeneratorService;
+
+
     @PostMapping("/register")
     public void register(@RequestBody User user) {
         user.setAuthorities(List.of(new SimpleGrantedAuthority("user")));
@@ -26,6 +32,11 @@ public class RegistrationController {
 
     @PostMapping("/login")
     public void login() {
+    }
+
+    @PostMapping("/refreshToken")
+    public JwtUserEntity refreshToken(@RequestBody JwtUserEntity jwtUser) {
+        return jwtTokenGeneratorService.refreshToken(jwtUser);
     }
 
 }
