@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -63,7 +64,9 @@ public class ChatService {
             chatUserKey.setUserId(event.getOwner().getLogin());
             chatUserKey.setChatId(chat1.getId());
             admin.setId(chatUserKey);
-            chat1.setChatUsers(Set.of(admin));
+            Set<ChatUser> set = new HashSet<>();
+            set.add(admin);
+            chat1.setChatUsers(set);
 
             chat1 = chatRepository.save(chat1);
         }

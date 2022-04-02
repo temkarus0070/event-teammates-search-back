@@ -65,7 +65,7 @@ public class User {
     @ToString.Exclude
     private Set<PhoneToken> tokens;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<ChatUser> chats;
 
