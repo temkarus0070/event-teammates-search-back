@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RelationshipRepository extends JpaRepository<Relationship, String> {
 
-    @Query("select r from Relationship r where owner=:owner and friend=:friend")
+    @Query("select r from Relationship r where r.id.owner=:owner and r.id.friend=:friend")
     Relationship getRelationshipByUsersLogin(User owner, User friend);
 }
