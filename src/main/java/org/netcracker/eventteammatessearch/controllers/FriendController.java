@@ -27,7 +27,7 @@ public class FriendController {
         String friendLogin = request.getHeader("friendName");
         friend.setLogin(friendLogin);
         relationship.setFriend(friend);
-        relationship.setIsFriend(false);
+        relationship.setFriend(false);
         /*
         System.out.println("\n\n\n");
         System.out.println(relationshipRepository.getRelationshipByUsersLogin(owner, friend));

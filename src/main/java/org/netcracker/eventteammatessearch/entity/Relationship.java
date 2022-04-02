@@ -21,16 +21,7 @@ public class Relationship {
     @EmbeddedId
     private RelationshipId id;
 
-
     private boolean isFriend;
-
-    public void setIsFriend(boolean tempFriend) {
-        isFriend = tempFriend;
-    }
-
-    public boolean getIsFriend() {
-        return isFriend;
-    }
 
     @Override
     public boolean equals(Object o) {
