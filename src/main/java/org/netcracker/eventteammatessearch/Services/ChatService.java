@@ -63,6 +63,7 @@ public class ChatService {
         Chat chat1 = this.chatRepository.getByEvent_Id(eventId);
         if (chat1 == null) {
             Chat chat = new Chat();
+            chat.setName("Чат события " + event.getName());
             event.setChat(chat);
             chat.setEvent(event);
             ChatUser admin = new ChatUser();
@@ -101,7 +102,7 @@ public class ChatService {
     }
 
     public List<Message> getMessages(long chatId) {
-        return messageRepository.findAll();
+        return messageRepository.findMessagesByChatId(chatId);
     }
 
 }
