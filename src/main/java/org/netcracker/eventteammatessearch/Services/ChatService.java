@@ -68,15 +68,19 @@ public class ChatService {
             set.add(admin);
             chat1.setChatUsers(set);
 
-            chat1 = chatRepository.save(chat1);
         }
         if (!principal.getName().equals(event.getOwner().getLogin())) {
             ChatUser chatUser = new ChatUser();
             chatUser.setUser(new User(principal.getName()));
             chatUser.setChatUserType(ChatUserType.READ_WRITE);
             chatUser.setChat(chat1);
+            ChatUserKey chatUserKey = new ChatUserKey();
+            chatUserKey.setUserId(principal.getName());
+            chatUserKey.setChatId(chat1.getId());
+            chatUser.setId(chatUserKey);
             chat1.getChatUsers().add(chatUser);
         }
+        chat1 = chatRepository.save(chat1);
         return chat1.getId();
     }
 

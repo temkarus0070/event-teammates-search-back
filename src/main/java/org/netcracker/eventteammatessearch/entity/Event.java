@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -12,7 +13,6 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@RequiredArgsConstructor
 @NoArgsConstructor
 @ToString
 public class Event {
@@ -52,6 +52,7 @@ public class Event {
     private boolean isHidden;
 
     @OneToOne(mappedBy = "event")
+    @JsonIgnore
     private Chat chat;
 
     private String url;

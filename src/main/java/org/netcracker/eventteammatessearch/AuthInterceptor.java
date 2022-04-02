@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch;
 
+import com.sun.security.auth.UserPrincipal;
 import org.netcracker.eventteammatessearch.entity.Chat;
 import org.netcracker.eventteammatessearch.persistence.repositories.ChatRepository;
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
@@ -42,18 +43,17 @@ public class AuthInterceptor implements ChannelInterceptor {
 
             if (raw instanceof Map) {
                 String jwt = ((ArrayList<String>) ((Map) raw).get("jwt")).get(0);
-                Authentication authenticate = jwtAuthProvider.authenticate(new JWTAuthentication(jwt, userDetailsManager));
-
+                Authentication authenticate = jwtAuthProvider.authenticate(new JWTAuthentication(jwt, secret, userDetailsManager));
+                UserPrincipal principal = new UserPrincipal(authenticate.getName());
+                accessor.setUser(principal);
             }
         }
         if (accessor.getCommand() == StompCommand.SUBSCRIBE) {
             Object raw = message.getHeaders().get(SimpMessageHeaderAccessor.NATIVE_HEADERS);
 
             if (raw instanceof Map) {
-                String jwt = ((ArrayList<String>) ((Map) raw).get("jwt")).get(0);
                 long chatId = Long.parseLong(((ArrayList<String>) ((Map) raw).get("chatId")).get(0));
-                Authentication authenticate = new JWTAuthentication(jwt, secret, userDetailsManager);
-                Chat chat = chatRepository.getByChatUsersContains(authenticate.getName(), chatId);
+                Chat chat = chatRepository.getByChatUsersContains(accessor.getUser().getName(), chatId);
                 if (chat == null)
                     throw new AuthorizationServiceException("you cant participate at this chat");
             }

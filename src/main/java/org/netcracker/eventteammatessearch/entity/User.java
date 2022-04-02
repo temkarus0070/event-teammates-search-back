@@ -35,7 +35,6 @@ public class User {
     private String phone;
 
     @NonNull
-    @JsonIgnore
     private String password;
 
     private String pictureUrl;
@@ -66,6 +65,7 @@ public class User {
     private Set<PhoneToken> tokens;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     @ToString.Exclude
     private Set<ChatUser> chats;
 

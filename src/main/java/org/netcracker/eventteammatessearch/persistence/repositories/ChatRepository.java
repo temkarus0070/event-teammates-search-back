@@ -12,6 +12,6 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     public Chat getByEvent_Id(long id);
 
-    @Query("SELECT  c from  Chat c  where EXISTS(SELECT cu from ChatUser cu where cu.user.login=:chatUser and cu.chat.id=:chatId)")
+    @Query("SELECT  c from  Chat c  where EXISTS(SELECT cu from ChatUser cu where cu.user.login=:chatUser and cu.chat.id=:chatId) and c.id=:chatId")
     public Chat getByChatUsersContains(String chatUser, long chatId);
 }
