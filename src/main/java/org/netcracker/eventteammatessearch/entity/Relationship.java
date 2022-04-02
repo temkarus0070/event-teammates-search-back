@@ -1,9 +1,6 @@
 package org.netcracker.eventteammatessearch.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -21,7 +18,7 @@ public class Relationship {
     @EmbeddedId
     private RelationshipId id;
 
-    private boolean isFriend;
+    private boolean friend;
 
     @Override
     public boolean equals(Object o) {
@@ -39,6 +36,8 @@ public class Relationship {
     @Embeddable
     @Getter
     @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class RelationshipId implements Serializable {
         @OneToOne()
         private User owner;

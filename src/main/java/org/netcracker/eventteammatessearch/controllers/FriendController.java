@@ -22,11 +22,11 @@ public class FriendController {
         User owner = new User();
         String ownerLogin = principal.getName();
         owner.setLogin(ownerLogin);
-        relationship.setOwner(owner);
         User friend = new User();
         String friendLogin = request.getHeader("friendName");
         friend.setLogin(friendLogin);
-        relationship.setFriend(friend);
+        Relationship.RelationshipId relationshipId = new Relationship.RelationshipId(owner, friend);
+        relationship.setId(relationshipId);
         relationship.setFriend(false);
         /*
         System.out.println("\n\n\n");
@@ -34,7 +34,8 @@ public class FriendController {
         System.out.println("\n\n\n");
 
          */
-        if (relationshipRepository.getRelationshipByUsersLogin(owner, friend) == null) relationshipRepository.save(relationship);
+        if (relationshipRepository.getRelationshipByUsersLogin(owner, friend) == null)
+            relationshipRepository.save(relationship);
         /*
         System.out.println("\n\n\n\n\n");
         System.out.println("owner: " + relationship.getOwner());
