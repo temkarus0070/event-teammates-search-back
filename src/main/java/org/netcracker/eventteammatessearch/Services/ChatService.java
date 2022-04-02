@@ -58,8 +58,14 @@ public class ChatService {
             admin.setChatUserType(ChatUserType.MAIN_ADMIN);
             admin.setUser(event.getOwner());
 
-            chat.getChatUsers().add(admin);
             chat1 = chatRepository.save(chat);
+            ChatUserKey chatUserKey = new ChatUserKey();
+            chatUserKey.setUserId(event.getOwner().getLogin());
+            chatUserKey.setChatId(chat1.getId());
+            admin.setId(chatUserKey);
+            chat1.setChatUsers(Set.of(admin));
+
+            chat1 = chatRepository.save(chat1);
         }
         if (!principal.getName().equals(event.getOwner().getLogin())) {
             ChatUser chatUser = new ChatUser();
