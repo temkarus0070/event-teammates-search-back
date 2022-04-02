@@ -1,10 +1,10 @@
 package org.netcracker.eventteammatessearch.controllers;
 
+import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.netcracker.eventteammatessearch.entity.User;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
@@ -19,6 +19,7 @@ public class UsersController {
 
     @GetMapping("/api/usersList")
     public List<User> get(HttpServletRequest request, Principal principal) {
-        return userRepository.getUsersByLogin(request.getHeader("login"));
+        List<User> login = userRepository.getUsersByLogin(request.getHeader("login"));
+        return login;
     }
 }
