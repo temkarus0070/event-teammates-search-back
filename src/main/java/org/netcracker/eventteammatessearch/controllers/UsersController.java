@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.netcracker.eventteammatessearch.entity.User;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
 
@@ -17,9 +18,7 @@ public class UsersController {
     private UserRepository userRepository;
 
     @GetMapping("/api/usersList")
-    public List<User> get(String login, Principal principal) {
-        System.out.println("\n\n\n" + userRepository.getUsersByLogin(login) + "\n\n\n");
-        return userRepository.getUsersByLogin(login);
-        //userRepository.findBy()
+    public List<User> get(HttpServletRequest request, Principal principal) {
+        return userRepository.getUsersByLogin(request.getHeader("login"));
     }
 }

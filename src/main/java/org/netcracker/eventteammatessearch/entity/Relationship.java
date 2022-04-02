@@ -24,4 +24,10 @@ public class Relationship {
 
 
     private boolean isFriend;
+
+    public void setIsFriend(boolean tempFriend) {
+        isFriend = tempFriend;
+    }
+
+    public boolean getIsFriend() { return isFriend; }
 }
