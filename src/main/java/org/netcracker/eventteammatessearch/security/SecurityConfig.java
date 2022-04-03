@@ -44,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-                .mvcMatchers("/chatService/**");
+                .mvcMatchers("/chatService/**", "/register", "/refreshToken");
     }
 
     @Bean
@@ -67,8 +67,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 httpBasic().disable()
                 .csrf().disable()
                 .authorizeRequests()
-                .mvcMatchers("/register", "/refreshToken")
-                .permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(
