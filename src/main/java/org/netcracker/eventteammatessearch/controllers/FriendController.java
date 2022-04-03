@@ -18,6 +18,8 @@ public class FriendController {
     @Autowired
     private RelationshipRepository relationshipRepository;
 
+    //------------------------------------------------------------------ post finctions
+
     @PostMapping("/api/requestFriend")
     public Relationship requestFriend(HttpServletRequest request, Principal principal) {
         Relationship relationship = new Relationship();
@@ -38,19 +40,12 @@ public class FriendController {
             if (relationshipRepository.getRelationshipByUsersLogin(owner, friend) == null)
                 relationshipRepository.save(relationship);
             Relationship temp = relationshipRepository.getRelationshipByUsersLogin(friend, owner);
-            temp.setFriend(true);
             relationshipRepository.delete(temp);
+            temp.setFriend(true);
             relationshipRepository.save(temp);
         }
         return relationship;
 
-    }
-
-    @GetMapping("/api/getRequests")
-    public List<Relationship> getRequests(Principal principal) {
-        User owner = new User();
-        owner.setLogin(principal.getName());
-        return relationshipRepository.getRelationshipsRequestsByFriend(owner);
     }
 
     @PostMapping("/api/cancelFriend")
@@ -60,6 +55,35 @@ public class FriendController {
         User friend = new User();
         friend.setLogin(request.getHeader("friendName"));
         relationshipRepository.delete(relationshipRepository.getRelationshipByUsersLogin(friend, owner));
+    }
+
+    @PostMapping("/api/deleteFriend")
+    public void deleteFriend(HttpServletRequest request, Principal principal) {
+        User owner = new User();
+        owner.setLogin(principal.getName());
+        User friend = new User();
+        friend.setLogin(request.getHeader("friendName"));
+        relationshipRepository.delete(relationshipRepository.getRelationshipByUsersLogin(owner, friend));
+        Relationship temp = relationshipRepository.getRelationshipByUsersLogin(friend, owner);
+        relationshipRepository.delete(temp);
+        temp.setFriend(false);
+        relationshipRepository.save(temp);
+    }
+
+    //------------------------------------------------------------------ get functions
+
+    @GetMapping("/api/getRequests")
+    public List<Relationship> getRequests(Principal principal) {
+        User owner = new User();
+        owner.setLogin(principal.getName());
+        return relationshipRepository.getRelationshipsRequestsByOwner(owner);
+    }
+
+    @GetMapping("/api/getFriends")
+    public List<Relationship> getFriends(Principal principal) {
+        User owner = new User();
+        owner.setLogin(principal.getName());
+        return relationshipRepository.getRelationshipsFriendsByOwner(owner);
     }
 
 }
