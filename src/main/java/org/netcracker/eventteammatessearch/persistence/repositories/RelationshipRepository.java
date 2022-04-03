@@ -6,9 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface RelationshipRepository extends JpaRepository<Relationship, String> {
 
     @Query("select r from Relationship r where r.id.owner=:owner and r.id.friend=:friend")
     Relationship getRelationshipByUsersLogin(User owner, User friend);
+
+    @Query("select r from Relationship r where r.id.friend=:friend and r.friend=false")
+    List<Relationship> getRelationshipsRequestsByFriend(User friend);
 }
