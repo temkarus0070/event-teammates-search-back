@@ -30,4 +30,8 @@ public class UsersController {
         userService.updateUser(user);
     }
 
+    @GetMapping("/approvePassword")
+    public boolean approvePassword(@RequestParam String login, @RequestParam String password) {
+        return userService.approvePassword(login, password);
+    }
 }
