@@ -50,12 +50,16 @@ public class FriendController {
     public List<Relationship> getRequests(Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());
-/*
-        System.out.println("\n\n\n\n");
-        System.out.println(relationshipRepository.getRelationshipsRequestsByFriend(owner));
-        System.out.println("\n\n\n\n");
-*/
         return relationshipRepository.getRelationshipsRequestsByFriend(owner);
+    }
+
+    @PostMapping("/api/cancelFriend")
+    public void deleteFriendRequest(HttpServletRequest request, Principal principal) {
+        User owner = new User();
+        owner.setLogin(principal.getName());
+        User friend = new User();
+        friend.setLogin(request.getHeader("friendName"));
+        relationshipRepository.delete(relationshipRepository.getRelationshipByUsersLogin(friend, owner));
     }
 
 }
