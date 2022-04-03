@@ -1,9 +1,12 @@
 package org.netcracker.eventteammatessearch.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -12,10 +15,14 @@ import java.util.Set;
 @ToString
 @RequiredArgsConstructor
 @NoArgsConstructor
-@Table(name = "app_users",
-        uniqueConstraints = {@UniqueConstraint(name = "username_constraint", columnNames = {"login"})})
+@Table(name = "app_users")
 public class User {
+    @ElementCollection
+    @JsonIgnore
+    private List<GrantedAuthority> authorities;
+
     @Id
+    @Column(unique = true, name = "login")
     private String login;
 
     @NonNull
@@ -35,7 +42,15 @@ public class User {
     @NonNull
     private LocalDate registrationDate;
 
-    private boolean isAdmin;
+    public User(String login, @NonNull String password, List<GrantedAuthority> authorities) {
+        this.login = login;
+        this.password = password;
+        this.authorities = authorities;
+    }
+
+    public User(String login) {
+        this.login = login;
+    }
 
     private boolean prefersOfflineEvents;
 
@@ -49,7 +64,8 @@ public class User {
     @ToString.Exclude
     private Set<PhoneToken> tokens;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     @ToString.Exclude
     private Set<ChatUser> chats;
 
@@ -59,6 +75,7 @@ public class User {
 
     @OneToMany(mappedBy = "owner")
     @ToString.Exclude
+    @JsonIgnore
     private Set<Event> createdEvents;
 
     @ManyToMany

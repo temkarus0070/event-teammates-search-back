@@ -1,66 +1,107 @@
 package org.netcracker.eventteammatessearch.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@ToString
 public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String theme;
+
     @NonNull
     private String name;
 
-    @NonNull
+    @ManyToOne
+    private EventType eventType;
+
+
     private String description;
 
     @NonNull
     private LocalDateTime dateTimeStart;
 
-    @NonNull
+
     private LocalDateTime dateTimeEnd;
 
     private int maxNumberOfGuests;
 
-    private int price;
+    private float price;
 
+    @JsonProperty("isPrivate")
     private boolean isPrivate;
 
+    @JsonProperty("isOnline")
     private boolean isOnline;
 
+    @JsonProperty("isHidden")
     private boolean isHidden;
 
-    private Long chatId;
+    @OneToOne(mappedBy = "event")
+    @JsonIgnore
+    private Chat chat;
 
     private String url;
 
     @Transient
     private double avgMark;
 
-    @ManyToOne
+    @Transient
+    private boolean currentUserInvited;
+
+    @Transient
+    private boolean currentUserEntered;
+
+
+    @ManyToOne(cascade = CascadeType.ALL)
     private Location location;
 
     @ManyToOne
     private User owner;
 
     @OneToMany(mappedBy = "event")
+    @ToString.Exclude
     private Set<EventAttendance> guests;
 
     @OneToMany(mappedBy = "event")
+    @ToString.Exclude
     private Set<Complaint> complaints;
 
     @ManyToMany
+    @ToString.Exclude
     private Set<User> invitedGuests;
 
-    @ManyToMany
-    private Set<ThemeTag> themeTags;
+
+    @ManyToMany(mappedBy = "events", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Set<Tag> tags;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Event event = (Event) o;
+        return id != null && Objects.equals(id, event.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+
 }
