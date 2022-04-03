@@ -70,6 +70,15 @@ public class FriendController {
         relationshipRepository.save(temp);
     }
 
+    @PostMapping("/api/deleteSendedRequest")
+    public void deleteSendedRequest(HttpServletRequest request, Principal principal) {
+        User owner = new User();
+        owner.setLogin(principal.getName());
+        User friend = new User();
+        friend.setLogin(request.getHeader("friendName"));
+        relationshipRepository.delete(relationshipRepository.getRelationshipByUsersLogin(owner, friend));
+    }
+
     //------------------------------------------------------------------ get functions
 
     @GetMapping("/api/getRequests")
@@ -84,6 +93,13 @@ public class FriendController {
         User owner = new User();
         owner.setLogin(principal.getName());
         return relationshipRepository.getRelationshipsFriendsByOwner(owner);
+    }
+
+    @GetMapping("/api/getSendedRequests")
+    public List<Relationship> getSendedRequests(Principal principal) {
+        User owner = new User();
+        owner.setLogin(principal.getName());
+        return relationshipRepository.getRelationshipSendedRequestsByOwner(owner);
     }
 
 }
