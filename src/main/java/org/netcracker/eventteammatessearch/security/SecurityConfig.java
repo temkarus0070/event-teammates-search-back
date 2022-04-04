@@ -4,6 +4,7 @@ import org.netcracker.eventteammatessearch.security.Filters.JWTFilter;
 import org.netcracker.eventteammatessearch.security.Filters.UsernamePasswordFilter;
 import org.netcracker.eventteammatessearch.security.Providers.JwtAuthProvider;
 import org.netcracker.eventteammatessearch.security.Providers.UsernamePasswordAuthProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -28,6 +29,8 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity()
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Value("${FRONTEND}")
+    private String frontendAddress;
     private JwtAuthProvider jwtAuthProvider;
     private JWTFilter jwtFilter;
     private UsernamePasswordAuthProvider usernamePasswordAuthProvider;
@@ -88,7 +91,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:4200");
+        corsConfiguration.addAllowedOrigin(frontendAddress);
         corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
         corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
         corsConfiguration.setExposedHeaders(Arrays.asList("refreshToken", "token"));
