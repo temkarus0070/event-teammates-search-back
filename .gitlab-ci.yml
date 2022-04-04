@@ -5,7 +5,6 @@ services:
 stages:
   - build_jar
   - build_image
-  - test
   - deploy
 
 maven-build:
@@ -23,10 +22,6 @@ docker-build:
     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
     - docker push "$CI_REGISTRY_IMAGE${tag}"
 
-maven-test:
-  image: maven:latest
-  stage: test
-  script: "mvn test"
 
 deploy:
   stage: deploy
