@@ -3,20 +3,14 @@ package org.netcracker.eventteammatessearch;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.netcracker.eventteammatessearch.entity.mongoDB.EventLengthMark;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Review;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
 import java.util.List;
 
-
-@DataMongoTest
-@ExtendWith(SpringExtension.class)
 
 public class MongoTest {
 
