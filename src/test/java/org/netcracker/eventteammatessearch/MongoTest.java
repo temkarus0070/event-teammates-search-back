@@ -19,10 +19,12 @@ import java.util.List;
 
 public class MongoTest {
 
+
     @Autowired  ReviewRepository reviewRepository;
 
     @DisplayName("test avg calculate")
     public void test() {
+
         reviewRepository.save(new Review(new Review.ReviewId(1, "1"), "1", "", 9,
                 1, 1, 0.5, EventLengthMark.FINE, new HashSet<>()));
         reviewRepository.save(new Review(new Review.ReviewId(1, "2"), "1", "", 9,
