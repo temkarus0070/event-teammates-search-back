@@ -13,12 +13,10 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Table(name = "app_users")
 public class User {
     @ElementCollection
-    @JsonIgnore
     private List<GrantedAuthority> authorities;
 
     @Id
@@ -48,10 +46,6 @@ public class User {
         this.authorities = authorities;
     }
 
-    public User(String login) {
-        this.login = login;
-    }
-
     private boolean prefersOfflineEvents;
 
     private boolean isBlocked;
@@ -64,8 +58,7 @@ public class User {
     @ToString.Exclude
     private Set<PhoneToken> tokens;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "user")
     @ToString.Exclude
     private Set<ChatUser> chats;
 
@@ -82,7 +75,9 @@ public class User {
     @ToString.Exclude
     private Set<Event> invitations;
 
-    private boolean isCommercialUserCreated;
+    @OneToOne(mappedBy = "user")
+    private Survey surveyResult;
+
 
     private boolean isCommercialUser;
 
