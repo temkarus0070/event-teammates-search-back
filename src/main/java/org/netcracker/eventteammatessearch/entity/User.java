@@ -19,6 +19,7 @@ public class User {
     @ElementCollection
     private List<GrantedAuthority> authorities;
 
+
     @Id
     @Column(unique = true, name = "login")
     private String login;
@@ -39,6 +40,11 @@ public class User {
 
     @NonNull
     private LocalDate registrationDate;
+
+
+    public User(String login) {
+        this.login = login;
+    }
 
     public User(String login, @NonNull String password, List<GrantedAuthority> authorities) {
         this.login = login;
