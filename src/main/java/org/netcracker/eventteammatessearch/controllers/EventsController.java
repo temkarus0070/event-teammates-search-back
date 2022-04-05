@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -16,11 +17,13 @@ import java.util.Set;
 
 @RequestMapping(value = "/api/events")
 @RestController
+@PreAuthorize("isAuthenticated() || isAnonymous()")
 public class EventsController {
     @Autowired
     private EventsService eventsService;
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public void add(@RequestBody Event event, Principal principal) {
         eventsService.add(event, principal);
     }
@@ -41,6 +44,7 @@ public class EventsController {
     }
 
     @PostMapping("/assignOnEvent")
+    @PreAuthorize("isAuthenticated()")
     public Map assignOnEvents(@RequestParam long eventId, Principal principal) {
         eventsService.assignOnEvent(eventId, principal);
         return Map.of("response", principal.getName());
@@ -64,16 +68,19 @@ public class EventsController {
     }
 
     @PatchMapping
-    public void update(@RequestBody Event event) {
+    @PreAuthorize("isAuthenticated() && #event.owner.login.equals(#principal.name)")
+    public void update(@RequestBody Event event, Principal principal) {
         eventsService.update(event);
     }
 
     @DeleteMapping
-    public void delete(@RequestParam Long eventId) {
+    @PreAuthorize("isAuthenticated() && eventsService.get(#eventId).owner.login.equals(#principal.name)")
+    public void delete(@RequestParam Long eventId, Principal principal) {
         eventsService.delete(eventId);
     }
 
     @DeleteMapping("/deleteCurrentUserFromEvent")
+    @PreAuthorize("isAuthenticated()")
     public Map deleteCurrentUserFromEvent(Principal principal, @RequestParam long eventId) {
         this.eventsService.removeUserFromEvent(principal, eventId);
         return Map.of("response", principal.getName());
