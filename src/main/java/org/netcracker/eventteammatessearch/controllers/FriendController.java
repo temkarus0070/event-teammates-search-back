@@ -6,12 +6,14 @@ import org.netcracker.eventteammatessearch.persistence.repositories.Relationship
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
 
+@RequestMapping("/api/friends")
 @RestController
 public class FriendController {
 
@@ -20,7 +22,7 @@ public class FriendController {
 
     //------------------------------------------------------------------ post finctions
 
-    @PostMapping("/api/requestFriend")
+    @PostMapping("/requestFriend")
     public Relationship requestFriend(HttpServletRequest request, Principal principal) {
         Relationship relationship = new Relationship();
         User owner = new User();
@@ -48,7 +50,7 @@ public class FriendController {
 
     }
 
-    @PostMapping("/api/cancelFriend")
+    @PostMapping("/cancelFriend")
     public void deleteFriendRequest(HttpServletRequest request, Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());
@@ -57,7 +59,7 @@ public class FriendController {
         relationshipRepository.delete(relationshipRepository.getRelationshipByUsersLogin(friend, owner));
     }
 
-    @PostMapping("/api/deleteFriend")
+    @PostMapping("/deleteFriend")
     public void deleteFriend(HttpServletRequest request, Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());
@@ -70,7 +72,7 @@ public class FriendController {
         relationshipRepository.save(temp);
     }
 
-    @PostMapping("/api/deleteSendedRequest")
+    @PostMapping("/deleteSendedRequest")
     public void deleteSendedRequest(HttpServletRequest request, Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());
@@ -81,21 +83,21 @@ public class FriendController {
 
     //------------------------------------------------------------------ get functions
 
-    @GetMapping("/api/getRequests")
+    @GetMapping("/getRequests")
     public List<Relationship> getRequests(Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());
         return relationshipRepository.getRelationshipsRequestsByOwner(owner);
     }
 
-    @GetMapping("/api/getFriends")
+    @GetMapping("/getFriends")
     public List<Relationship> getFriends(Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());
         return relationshipRepository.getRelationshipsFriendsByOwner(owner);
     }
 
-    @GetMapping("/api/getSendedRequests")
+    @GetMapping("/getSendedRequests")
     public List<Relationship> getSendedRequests(Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());

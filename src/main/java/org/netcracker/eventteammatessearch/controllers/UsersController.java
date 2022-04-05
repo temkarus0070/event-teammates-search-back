@@ -30,6 +30,17 @@ public class UsersController {
         return userService.getUserByLogin(userLogin);
     }
 
+    @GetMapping("/usersListByLogin")
+    public List<User> getUsersListByLogin(@RequestParam String login) {
+        return userRepository.getUsersByLogin(login);
+    }
+
+    @GetMapping("/usersListByName")
+    public List<User> getUsersListByName(@RequestParam String name) {
+        String tempName[] = name.split(" ");
+        return userRepository.getUsersByName(tempName[0], tempName[1]);
+    }
+
     @PatchMapping("/updateUser")
     public void updateUser(@RequestBody User user) {
         userService.updateUser(user);
@@ -39,7 +50,7 @@ public class UsersController {
     public boolean approvePassword(@RequestParam String login, @RequestParam String password) {
         return userService.approvePassword(login, password);
     }
-    @GetMapping("/api/usersList")
+    @GetMapping("/usersList")
     public List<User> get(HttpServletRequest request, Principal principal) {
         return userRepository.getUsersByLogin(request.getHeader("login"));
     }
