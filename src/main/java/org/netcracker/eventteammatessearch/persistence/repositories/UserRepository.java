@@ -22,5 +22,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query(value = "select u from User u where u.login like :login")
     List<User> getUsersByLogin(String login);
 
-
+    @Query(value = "select u from User u where (u.firstName like :firstName and u.lastName like :lastName) or (u.firstName like :lastName and u.lastName like :firstName)")
+    List<User> getUsersByName(String firstName, String lastName);
 }

@@ -17,8 +17,13 @@ public class UsersController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/api/usersList")
-    public List<User> get(HttpServletRequest request, Principal principal) {
+    @GetMapping("/api/usersListByLogin")
+    public List<User> getUsersListByLogin(HttpServletRequest request, Principal principal) {
         return userRepository.getUsersByLogin(request.getHeader("login"));
+    }
+
+    @GetMapping("/api/usersListByName")
+    public List<User> getUsersListByName(HttpServletRequest request, Principal principal) {
+        return userRepository.getUsersByName(request.getHeader("firstName"), request.getHeader("lastName"));
     }
 }
