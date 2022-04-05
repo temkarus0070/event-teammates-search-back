@@ -166,6 +166,14 @@ public class EventsService {
                     return predicate;
                 }
         );
+
+        specificationList.add((root, query, criteriaBuilder) -> {
+                    Predicate predicate = null;
+                    if (!filterData.isFreeEvents() && filterData.getPriceFrom() == 0 && filterData.getPriceTo() == 0)
+                        predicate = criteriaBuilder.notEqual(root.get(Event_.price), 0);
+                    return predicate;
+                }
+        );
         specificationList.add((root, query, criteriaBuilder) -> filterData.getTheme() != null && !filterData.getTheme().equals("") ? criteriaBuilder.equal(root.get(Event_.theme), filterData.getTheme()) : null);
         specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
                 criteriaBuilder.equal(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("ONLINE")),
@@ -244,6 +252,15 @@ public class EventsService {
                     return predicate;
                 }
         );
+
+        specificationList.add((root, query, criteriaBuilder) -> {
+                    Predicate predicate = null;
+                    if (!filterData.isFreeEvents() && filterData.getPriceFrom() == 0 && filterData.getPriceTo() == 0)
+                        predicate = criteriaBuilder.notEqual(root.get(Event_.price), 0);
+                    return predicate;
+                }
+        );
+
         specificationList.add((root, query, criteriaBuilder) -> filterData.getTheme() != null && !filterData.getTheme().equals("") ? criteriaBuilder.equal(root.get(Event_.theme), filterData.getTheme()) : null);
         specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
                 criteriaBuilder.equal(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("ONLINE")),
