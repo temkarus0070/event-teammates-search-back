@@ -42,6 +42,7 @@ public class Location {
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Location location = (Location) o;

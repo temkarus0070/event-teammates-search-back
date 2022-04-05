@@ -4,12 +4,13 @@ import org.netcracker.eventteammatessearch.security.Filters.JWTFilter;
 import org.netcracker.eventteammatessearch.security.Filters.UsernamePasswordFilter;
 import org.netcracker.eventteammatessearch.security.Providers.JwtAuthProvider;
 import org.netcracker.eventteammatessearch.security.Providers.UsernamePasswordAuthProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,6 +29,8 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity()
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Value("${FRONTEND}")
+    private String frontendAddress;
     private JwtAuthProvider jwtAuthProvider;
     private JWTFilter jwtFilter;
     private UsernamePasswordAuthProvider usernamePasswordAuthProvider;
@@ -41,6 +44,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring()
+                .mvcMatchers("/chatService/**");
+    }
+
     @Bean
     public RequestMatcher requestMatcher() {
         return new MvcRequestMatcher(new HandlerMappingIntrospector(), "/login");
@@ -48,15 +57,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
-
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.parentAuthenticationManager(authenticationManager());
-
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
 
@@ -67,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 httpBasic().disable()
                 .csrf().disable()
                 .authorizeRequests()
-                .mvcMatchers("/register")
+                .mvcMatchers("/register", "/refreshToken")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -90,7 +93,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:4200");
+        corsConfiguration.addAllowedOrigin(frontendAddress);
         corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
         corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
         corsConfiguration.setExposedHeaders(Arrays.asList("refreshToken", "token"));

@@ -5,7 +5,6 @@ services:
 stages:
   - build_jar
   - build_image
-  - test
   - deploy
 
 maven-build:
@@ -15,6 +14,8 @@ maven-build:
   artifacts:
     paths:
       - target/*.jar
+  only:
+    - main
 
 docker-build:
   stage: build_image
@@ -22,11 +23,9 @@ docker-build:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
     - docker push "$CI_REGISTRY_IMAGE${tag}"
+  only:
+    - main
 
-maven-test:
-  image: maven:latest
-  stage: test
-  script: "mvn test"
 
 deploy:
   stage: deploy

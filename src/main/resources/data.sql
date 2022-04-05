@@ -8,3 +8,5 @@ values ('Деловые'),
         ,
        ('Другое')
 on conflict do nothing;
+
+

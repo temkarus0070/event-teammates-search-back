@@ -28,7 +28,7 @@ public class Message implements Serializable {
 
     private long chatId;
 
-    private long userId;
+    private String userId;
 
     private boolean isRemoved;
 

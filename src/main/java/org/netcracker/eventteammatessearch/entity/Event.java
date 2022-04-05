@@ -13,9 +13,8 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@ToString
-@RequiredArgsConstructor
 @NoArgsConstructor
+@ToString
 public class Event {
 
     @Id
@@ -41,7 +40,7 @@ public class Event {
 
     private int maxNumberOfGuests;
 
-    private int price;
+    private float price;
 
     @JsonProperty("isPrivate")
     private boolean isPrivate;
@@ -52,12 +51,20 @@ public class Event {
     @JsonProperty("isHidden")
     private boolean isHidden;
 
-    private Long chatId;
+    @OneToOne(mappedBy = "event")
+    @JsonIgnore
+    private Chat chat;
 
     private String url;
 
     @Transient
     private double avgMark;
+
+    @Transient
+    private boolean currentUserInvited;
+
+    @Transient
+    private boolean currentUserEntered;
 
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -96,4 +103,6 @@ public class Event {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+
 }

@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.security.Entity;
 
 import io.jsonwebtoken.Jwts;
+import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -11,22 +12,32 @@ public class JWTAuthentication implements Authentication {
     private io.jsonwebtoken.JwtParser parser;
     private boolean isAuthenticated;
     private String refreshToken;
+    private UserDetailsManager userDetailsManager;
+    private String username;
 
-    public JWTAuthentication(String jwt, String secretKey, String refreshToken) {
+    public JWTAuthentication(String jwt, UserDetailsManager userDetailsManager) {
+        this.jwt = jwt;
+        this.userDetailsManager = userDetailsManager;
+    }
+
+
+    public JWTAuthentication(String jwt, String secretKey, String refreshToken, UserDetailsManager userDetailsManager) {
         this.jwt = jwt;
         this.parser = Jwts.parser().setSigningKey(secretKey);
         this.refreshToken = refreshToken;
         this.isAuthenticated = true;
+        this.userDetailsManager = userDetailsManager;
     }
 
-    public JWTAuthentication(String jwt, String secretKey) {
+    public JWTAuthentication(String jwt, String secretKey, UserDetailsManager userDetailsManager) {
         this.jwt = jwt;
         this.parser = Jwts.parser().setSigningKey(secretKey);
+        this.userDetailsManager = userDetailsManager;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return (Collection<? extends GrantedAuthority>) parser.parseClaimsJws(jwt).getBody().get("authorities");
+        return userDetailsManager.loadUserByUsername(getPrincipal().toString()).getAuthorities();
     }
 
     @Override
@@ -39,9 +50,15 @@ public class JWTAuthentication implements Authentication {
         return refreshToken;
     }
 
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
     @Override
     public Object getPrincipal() {
-        return String.valueOf(parser.parseClaimsJws(jwt).getBody().get("username"));
+        if (username == null)
+            username = String.valueOf(parser.parseClaimsJws(jwt).getBody().get("username"));
+        return username;
     }
 
     @Override

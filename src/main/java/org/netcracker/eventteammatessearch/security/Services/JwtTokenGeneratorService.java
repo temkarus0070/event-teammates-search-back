@@ -3,8 +3,10 @@ package org.netcracker.eventteammatessearch.security.Services;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.hibernate.ObjectNotFoundException;
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.JwtUserEntity;
+import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
 import org.netcracker.eventteammatessearch.security.Persistence.JwtTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,9 @@ public class JwtTokenGeneratorService {
     @Autowired
     private JwtTokenRepository jwtTokenRepository;
 
+    @Autowired
+    private UserDetailsManager userDetailsManager;
+
     public JWTAuthentication generate(Authentication userDetails) {
         JwtUserEntity jwtUserEntity = new JwtUserEntity();
         if (jwtBuilder == null)
@@ -39,12 +44,27 @@ public class JwtTokenGeneratorService {
                 .setIssuedAt(current)
                 .setExpiration(new Date(current.getTime() + expireTime))
                 .claim("username", userDetails.getName())
-                .claim("roles", userDetails.getAuthorities())
                 .signWith(SignatureAlgorithm.HS512, secret);
-        jwtUserEntity.setJwtUserKey(new JwtUserEntity.JwtUserKey(userDetails.getName(), jwtBuilder.compact()));
+        jwtUserEntity.setId(new JwtUserEntity.JwtUserKey(userDetails.getName(), jwtBuilder.compact()));
         jwtUserEntity.setRefreshToken(generateRefresh());
         jwtTokenRepository.save(jwtUserEntity);
-        return new JWTAuthentication(jwtUserEntity.getJwtUserKey().getJwt(), secret, jwtUserEntity.getRefreshToken());
+        return new JWTAuthentication(jwtUserEntity.getId().getJwt(), secret, jwtUserEntity.getRefreshToken(), userDetailsManager);
+    }
+
+    public JwtUserEntity generate(JwtUserEntity userDetails) {
+        JwtUserEntity jwtUserEntity = new JwtUserEntity();
+        if (jwtBuilder == null)
+            jwtBuilder = Jwts.builder();
+        Date current = new Date();
+        JwtBuilder jwtBuilder = this.jwtBuilder
+                .setIssuedAt(current)
+                .setExpiration(new Date(current.getTime() + expireTime))
+                .claim("username", userDetails.getId().getUsername())
+                .signWith(SignatureAlgorithm.HS512, secret);
+        jwtUserEntity.setId(new JwtUserEntity.JwtUserKey(userDetails.getId().getUsername(), jwtBuilder.compact()));
+        jwtUserEntity.setRefreshToken(generateRefresh());
+        jwtTokenRepository.saveAndFlush(jwtUserEntity);
+        return jwtUserEntity;
     }
 
     private String generateRefresh() {
@@ -55,6 +75,17 @@ public class JwtTokenGeneratorService {
                 .claim("random", random.nextDouble())
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
+    }
+
+    public JwtUserEntity refreshToken(JwtUserEntity jwtUser) {
+        JwtUserEntity token = jwtTokenRepository.findJwtUserEntityById_JwtAndRefreshToken(jwtUser.getId().getJwt(), jwtUser.getRefreshToken());
+        if (token == null) {
+            throw new ObjectNotFoundException(jwtUser.getId().getJwt(), JwtUserEntity.class.getName());
+        } else {
+            JwtUserEntity jwtUserEntity = generate(token);
+            jwtTokenRepository.delete(token);
+            return jwtUserEntity;
+        }
     }
 
 }

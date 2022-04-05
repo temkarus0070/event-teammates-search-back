@@ -7,13 +7,14 @@ import lombok.Setter;
 import org.netcracker.eventteammatessearch.entity.EventType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventFilterData {
-    private String keyWords;
+    private List<String> keyWords;
     private EventType eventType;
     private long eventLengthFrom;
     private long eventLengthTo;
@@ -21,12 +22,14 @@ public class EventFilterData {
     private LocalDateTime eventBeginTimeTo;
     private int guestsCountFrom;
     private int guestsCountTo;
-    private double priceFrom;
-    private double priceTo;
+    private float priceFrom;
+    private float priceTo;
     private String theme;
     private double maxDistance;
     private double eventOwnerRating;
-    private String eventFormat;
+    private List<String> eventFormats;
+    private double[] userLocation;
+    private boolean freeEvents;
 
 
 }

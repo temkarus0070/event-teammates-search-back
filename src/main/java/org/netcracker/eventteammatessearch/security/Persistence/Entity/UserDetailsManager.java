@@ -22,7 +22,7 @@ public class UserDetailsManager implements org.springframework.security.provisio
 
     @Override
     public void createUser(UserDetails user) {
-        org.netcracker.eventteammatessearch.security.Entity.UserDetails userDetails = (org.netcracker.eventteammatessearch.security.Entity.UserDetails) user;
+       org.netcracker.eventteammatessearch.security.Entity.UserDetails userDetails = (org.netcracker.eventteammatessearch.security.Entity.UserDetails) user;
         userDetails.getUser().setPassword(passwordEncoder.encode(userDetails.getPassword()));
         if (userRepository.findById(userDetails.getUsername()).isEmpty())
             userRepository.save(userDetails.getUser());

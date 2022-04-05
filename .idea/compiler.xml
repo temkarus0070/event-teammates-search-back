@@ -12,11 +12,13 @@
         <outputRelativeToContentRoot value="true" />
         <module name="eventTeammatesSearch" />
         <module name="eventSearch_1" />
+        <module name="eventSearch_back" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="eventSearch_back" options="-parameters" />
       <module name="eventTeammatesSearch" options="-parameters" />
     </option>
   </component>

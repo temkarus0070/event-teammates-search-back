@@ -17,7 +17,9 @@ import java.util.Set;
 @Table(name = "app_users")
 public class User {
     @ElementCollection
+    @JsonIgnore
     private List<GrantedAuthority> authorities;
+
 
     @Id
     @Column(unique = true, name = "login")
@@ -39,6 +41,11 @@ public class User {
 
     @NonNull
     private LocalDate registrationDate;
+
+
+    public User(String login) {
+        this.login = login;
+    }
 
     public User(String login, @NonNull String password, List<GrantedAuthority> authorities) {
         this.login = login;
