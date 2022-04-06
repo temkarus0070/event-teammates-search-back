@@ -3,7 +3,6 @@ package org.netcracker.eventteammatessearch.Services;
 import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,7 @@ public class UserService {
     UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     public User getUserByLogin(String login) {
         return userRepository.findById(login).orElse(null);
@@ -33,6 +32,7 @@ public class UserService {
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setPhone(user.getPhone());
+        existingUser.setPictureUrl(user.getPictureUrl());
 
         String newPassword = passwordEncoder.encode(user.getPassword());
         existingUser.setPassword(newPassword);
@@ -40,14 +40,17 @@ public class UserService {
         userRepository.save(existingUser);
     }
 
+    public void uploadUserPhoto(String login, String pictureUrl) {
+        User existingUser = userRepository.findById(login).orElse(null);
+        existingUser.setPictureUrl(pictureUrl);
+
+        userRepository.save(existingUser);
+    }
+
     public boolean approvePassword(String login, String password) {
         User existingUser = userRepository.findById(login).orElse(null);
-        String encodedPassword = passwordEncoder.encode(password);
 
-        System.out.println("encoded pass from req = " + encodedPassword);
-        System.out.println("encoded pass from db = " + existingUser.getPassword());
-
-        boolean result = encodedPassword.equals(existingUser.getPassword());
+        boolean result = passwordEncoder.matches(password, existingUser.getPassword());
         return result;
     }
 }
