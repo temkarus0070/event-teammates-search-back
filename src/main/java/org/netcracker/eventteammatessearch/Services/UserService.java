@@ -32,9 +32,17 @@ public class UserService {
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setPhone(user.getPhone());
+        existingUser.setPictureUrl(user.getPictureUrl());
 
         String newPassword = passwordEncoder.encode(user.getPassword());
         existingUser.setPassword(newPassword);
+
+        userRepository.save(existingUser);
+    }
+
+    public void uploadUserPhoto(String login, String pictureUrl) {
+        User existingUser = userRepository.findById(login).orElse(null);
+        existingUser.setPictureUrl(pictureUrl);
 
         userRepository.save(existingUser);
     }
