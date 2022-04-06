@@ -31,16 +31,16 @@ public class UsersController {
     }
 
     @GetMapping("/usersListByLogin")
-    public List<User> getUsersListByLogin(@RequestParam String login) {
-        return userRepository.getUsersByLogin(login);
+    public List<User> getUsersListByLogin(@RequestParam String login, Principal principal) {
+        return userRepository.getUsersListByLoginWithValidation(login, principal.getName());
     }
 
     @GetMapping("/usersListByName")
-    public List<User> getUsersListByName(@RequestParam String name) {
+    public List<User> getUsersListByName(@RequestParam String name, Principal principal) {
         String tempName[] = name.split(" ");
         System.out.println("\n\n\n\n\n" +tempName);
-        if (tempName.length > 1)  return userRepository.getUsersByName(tempName[0], tempName[1]);
-        else return userRepository.getUsersByName(tempName[0]);
+        if (tempName.length > 1)  return userRepository.getUsersByName(tempName[0], tempName[1], principal.getName());
+        else return userRepository.getUsersByName(tempName[0], principal.getName());
     }
 
     @PatchMapping("/updateUser")
@@ -53,7 +53,7 @@ public class UsersController {
         return userService.approvePassword(login, password);
     }
     @GetMapping("/usersList")
-    public List<User> get(HttpServletRequest request, Principal principal) {
+    public List<User> get(HttpServletRequest request) {
         return userRepository.getUsersByLogin(request.getHeader("login"));
     }
 }
