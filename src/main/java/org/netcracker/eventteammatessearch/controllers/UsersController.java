@@ -38,7 +38,9 @@ public class UsersController {
     @GetMapping("/usersListByName")
     public List<User> getUsersListByName(@RequestParam String name) {
         String tempName[] = name.split(" ");
-        return userRepository.getUsersByName(tempName[0], tempName[1]);
+        System.out.println("\n\n\n\n\n" +tempName);
+        if (tempName.length > 1)  return userRepository.getUsersByName(tempName[0], tempName[1]);
+        else return userRepository.getUsersByName(tempName[0]);
     }
 
     @PatchMapping("/updateUser")
