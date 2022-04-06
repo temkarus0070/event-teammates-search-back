@@ -5,7 +5,6 @@ import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetai
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -32,6 +33,15 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        Authentication authentication = attemptAuthentication((HttpServletRequest) request, (HttpServletResponse) response);
+        if (authentication != null && authentication.isAuthenticated()) {
+            successfulAuthentication((HttpServletRequest) request, (HttpServletResponse) response, chain, authentication);
+        } else
+            chain.doFilter(request, response);
+    }
+
+    @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
 
         String authorizationToken = request.getHeader("Authorization");
@@ -41,7 +51,7 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
         Authentication authenticate = null;
         if (authorizationToken != null)
             authenticate = this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey, userDetailsManager));
-        else throw new BadCredentialsException("you dont have token");
+        else return null;
         return authenticate;
     }
 

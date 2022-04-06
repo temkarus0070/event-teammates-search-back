@@ -4,7 +4,6 @@ import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Services.JwtTokenGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -15,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -30,12 +31,21 @@ public class UsernamePasswordFilter extends AbstractAuthenticationProcessingFilt
     }
 
     @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        Authentication authentication = attemptAuthentication((HttpServletRequest) request, (HttpServletResponse) response);
+        if (authentication != null && authentication.isAuthenticated()) {
+            successfulAuthentication((HttpServletRequest) request, (HttpServletResponse) response, chain, authentication);
+        } else
+            chain.doFilter(request, response);
+    }
+
+    @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String username = request.getHeader("username");
         String password = request.getHeader("password");
         if (username != null && password != null)
             return this.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        else throw new BadCredentialsException("you have not typed your login or pass");
+        else return null;
     }
 
 

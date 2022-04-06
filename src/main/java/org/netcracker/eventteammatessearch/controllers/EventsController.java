@@ -27,9 +27,7 @@ public class EventsController {
         eventsService.add(event, principal);
     }
 
-    @PreAuthorize("permitAll()")
     @GetMapping("/getEventsWithinRadius")
-
     public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius, Principal principal) {
         return eventsService.getEventsByRadius(lon, lat, radius, principal);
     }

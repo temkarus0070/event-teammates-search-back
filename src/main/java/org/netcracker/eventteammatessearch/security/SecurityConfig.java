@@ -70,9 +70,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.
                 cors().and().
                 httpBasic().disable()
-                .csrf().disable()
+                .csrf().disable().anonymous().and()
                 .authorizeRequests()
-                .mvcMatchers("/register", "/refreshToken")
+                .mvcMatchers("/register", "/refreshToken", "/api/events/getEventsWithinRadius", "/api/events/filter", "/api/eventTypes/**")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()
