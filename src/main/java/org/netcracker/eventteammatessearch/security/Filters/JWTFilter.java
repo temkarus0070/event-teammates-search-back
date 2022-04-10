@@ -43,7 +43,9 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-
+        if (request.getHeader("username") != null && request.getHeader("password") != null) {
+            return this.getAuthenticationManager().authenticate(SecurityContextHolder.getContext().getAuthentication());
+        }
         String authorizationToken = request.getHeader("Authorization");
         if (authorizationToken == null) {
             authorizationToken = response.getHeader("token");
