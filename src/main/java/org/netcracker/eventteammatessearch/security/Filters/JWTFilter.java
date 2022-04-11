@@ -62,6 +62,7 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         SecurityContextHolder.getContext().setAuthentication(authResult);
+        response.setHeader("username", String.valueOf(authResult.getPrincipal()));
         chain.doFilter(request, response);
     }
 

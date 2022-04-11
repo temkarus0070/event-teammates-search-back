@@ -5,6 +5,7 @@ import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
 import org.netcracker.eventteammatessearch.entity.mongoDB.sequenceGenerators.SequenceGeneratorService;
 import org.netcracker.eventteammatessearch.persistence.repositories.ChatRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,24 +26,36 @@ public class ChatService {
     private ChatRepository chatRepository;
     @Autowired
     private MessageRepository messageRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public long createForUser(String username, Principal principal) {
         Chat chat = chatRepository.getByPrivateTrueAndChatUsersContains(username);
         if (chat == null) {
             chat = new Chat();
+            chat.setName("");
             chat.setPrivate(true);
+            chat = chatRepository.save(chat);
             ChatUser owner = new ChatUser();
             owner.setUser(new User(principal.getName()));
             owner.setChat(chat);
-            owner.setChatUserType(ChatUserType.ADMIN);
-
+            owner.setChatUserType(ChatUserType.READ_WRITE);
+            ChatUserKey chatUserKey = new ChatUserKey();
+            chatUserKey.setChatId(chat.getId());
+            chatUserKey.setUserId(principal.getName());
+            owner.setId(chatUserKey);
             ChatUser user = new ChatUser();
             user.setUser(new User(username));
             user.setChatUserType(ChatUserType.READ_WRITE);
             user.setChat(chat);
-
-            Set<ChatUser> chatUsers = Set.of(user, owner);
+            ChatUserKey chatUserKey1 = new ChatUserKey();
+            chatUserKey1.setChatId(chat.getId());
+            chatUserKey1.setUserId(username);
+            user.setId(chatUserKey1);
+            Set<ChatUser> chatUsers = new HashSet<>();
+            chatUsers.add(owner);
+            chatUsers.add(user);
             chat.setChatUsers(chatUsers);
             chat = chatRepository.save(chat);
         }
@@ -111,6 +124,12 @@ public class ChatService {
         if (chats != null) {
 
             List<Message> messageList = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chats.stream().map(chat -> {
+                if (chat.isPrivate()) {
+                    Optional<ChatUser> chatUser = chat.getChatUsers().stream().filter(e -> !e.getUser().getLogin().equals(principal.getName())).findFirst();
+                    if (chatUser.isPresent()) {
+                        chat.setName(chatUser.get().getUser().getFirstName() + " " + chatUser.get().getUser().getLastName());
+                    } else chat.setName("PRIVATE CHAT " + chat.getId());
+                }
                 map.put(chat.getId(), chat);
                 return chat.getId();
             }).collect(Collectors.toList()));

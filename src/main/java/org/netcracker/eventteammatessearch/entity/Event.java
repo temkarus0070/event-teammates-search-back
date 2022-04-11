@@ -42,6 +42,8 @@ public class Event {
 
     private float price;
 
+    private boolean hasChatWithOwner;
+
     @JsonProperty("isPrivate")
     private boolean isPrivate;
 

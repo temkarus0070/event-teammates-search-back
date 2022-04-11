@@ -22,6 +22,13 @@ public class ChatRestController {
         return this.chatService.createForEvent(event, principal);
     }
 
+
+    @PostMapping("/createChatWithUser")
+    public long createChatWithUser(@RequestParam String username, Principal principal) {
+        return this.chatService.createForUser(username, principal);
+    }
+
+
     @GetMapping
     public Chat get(@RequestParam long chatId) {
         return this.chatService.get(chatId).get();

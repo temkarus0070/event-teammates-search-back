@@ -55,6 +55,7 @@ public class UsernamePasswordFilter extends AbstractAuthenticationProcessingFilt
             JWTAuthentication generate = jwtTokenGeneratorService.generate(authenticate);
             response.setHeader("token", String.valueOf(generate.getCredentials()));
             response.setHeader("refreshToken", String.valueOf(generate.getDetails()));
+            response.setHeader("username", String.valueOf(authenticate.getPrincipal()));
             SecurityContextHolder.getContext().setAuthentication(generate);
         }
         chain.doFilter(request, response);
