@@ -9,8 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ChatRepository extends JpaRepository<Chat, Long> {
-    @Query("SELECT  c from  Chat c inner join ChatUser  cu on cu.chat=c where cu.user.login=:chatUser and c.isPrivate=true ")
-    public Chat getByPrivateTrueAndChatUsersContains(String chatUser);
+    @Query("SELECT  c from  Chat c  where (select  COUNT(cu) from ChatUser cu where (cu.user.login=:chatUser or cu.user.login=:callerLogin) and cu.chat=c)=2  and c.isPrivate=true ")
+    public Chat getByPrivateTrueAndChatUsersContains(String chatUser, String callerLogin);
 
     public Chat getByEvent_Id(long id);
 

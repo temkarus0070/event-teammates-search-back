@@ -31,7 +31,7 @@ public class ChatService {
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public long createForUser(String username, Principal principal) {
-        Chat chat = chatRepository.getByPrivateTrueAndChatUsersContains(username);
+        Chat chat = chatRepository.getByPrivateTrueAndChatUsersContains(username, principal.getName());
         if (chat == null) {
             chat = new Chat();
             chat.setName("");
