@@ -40,9 +40,13 @@ public class UserService {
         userRepository.save(existingUser);
     }
 
-    public void uploadUserPhoto(String login, String pictureUrl) {
-        User existingUser = userRepository.findById(login).orElse(null);
-        existingUser.setPictureUrl(pictureUrl);
+    public void updateUserPhoto(User user) {
+        User existingUser = userRepository.findById(user.getLogin()).orElse(null);
+        existingUser.setEmail(user.getEmail());
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setPhone(user.getPhone());
+        existingUser.setPictureUrl(user.getPictureUrl());
 
         userRepository.save(existingUser);
     }

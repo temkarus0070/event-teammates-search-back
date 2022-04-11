@@ -30,6 +30,11 @@ public class UsersController {
         userService.updateUser(user);
     }
 
+    @PatchMapping("/updateUserPhoto")
+    public void updateUserPhoto(@RequestBody User user) {
+        userService.updateUserPhoto(user);
+    }
+
     @GetMapping("/approvePassword")
     public boolean approvePassword(@RequestParam String login, @RequestParam String password) {
         return userService.approvePassword(login, password);
