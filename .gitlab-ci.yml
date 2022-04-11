@@ -18,7 +18,7 @@ stages:
 maven-build:
   image: maven:latest
   stage: build_jar
-  script: "mvn package $MAVEN_CLI_OPTS $MAVEN_OPTS deploy -DskipTests -B"
+  script: "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS  package -DskipTests -B"
   artifacts:
     paths:
       - target/*.jar
