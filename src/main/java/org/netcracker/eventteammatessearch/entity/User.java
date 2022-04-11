@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
@@ -69,10 +70,12 @@ public class User {
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
     @JsonManagedReference
+
     private Set<ChatUser> chats;
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
+    @JsonIdentityReference(alwaysAsId = true)
     private Set<EventAttendance> eventAttendances;
 
     @OneToMany(mappedBy = "owner")

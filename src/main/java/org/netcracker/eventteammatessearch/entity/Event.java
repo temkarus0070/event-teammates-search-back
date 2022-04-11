@@ -77,6 +77,7 @@ public class Event {
 
     @OneToMany(mappedBy = "event")
     @ToString.Exclude
+
     private Set<EventAttendance> guests;
 
     @OneToMany(mappedBy = "event")

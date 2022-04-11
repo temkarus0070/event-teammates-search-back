@@ -1,8 +1,6 @@
 package org.netcracker.eventteammatessearch.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
@@ -12,6 +10,8 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class UserEventKey implements Serializable {
 
     private Long eventId;
