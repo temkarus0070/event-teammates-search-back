@@ -73,6 +73,7 @@ public class Event {
     private Location location;
 
     @ManyToOne
+
     private User owner;
 
     @OneToMany(mappedBy = "event")
