@@ -7,14 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -33,38 +32,29 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        Authentication authentication = attemptAuthentication((HttpServletRequest) request, (HttpServletResponse) response);
-        if (authentication != null && authentication.isAuthenticated()) {
-            successfulAuthentication((HttpServletRequest) request, (HttpServletResponse) response, chain, authentication);
-        } else
-            chain.doFilter(request, response);
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+        String authorizationToken = request.getHeader("Authorization");
+        return this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey, userDetailsManager));
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-        if (request.getHeader("username") != null && request.getHeader("password") != null) {
-            return this.getAuthenticationManager().authenticate(SecurityContextHolder.getContext().getAuthentication());
-        }
-        String authorizationToken = request.getHeader("Authorization");
-        if (authorizationToken == null) {
-            authorizationToken = response.getHeader("token");
-        }
-        Authentication authenticate = null;
-        if (authorizationToken != null)
-            authenticate = this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey, userDetailsManager));
-        else if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            authenticate = this.getAuthenticationManager().authenticate(SecurityContextHolder.getContext().getAuthentication());
-        } else return null;
-        return authenticate;
+    protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        String requestURI = request.getRequestURI();
+
+        return request.getHeader("Authorization") != null && !requestURI.equals("/refreshToken");
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        response.sendError(403);
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        SecurityContextHolder.getContext().setAuthentication(authResult);
-        response.setHeader("username", String.valueOf(authResult.getPrincipal()));
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authResult);
+        SecurityContextHolder.setContext(context);
         chain.doFilter(request, response);
+
     }
-
-
 }

@@ -42,7 +42,7 @@ public class AuthInterceptor implements ChannelInterceptor {
             Object raw = message.getHeaders().get(SimpMessageHeaderAccessor.NATIVE_HEADERS);
 
             if (raw instanceof Map) {
-                String jwt = ((ArrayList<String>) ((Map) raw).get("jwt")).get(0);
+                String jwt = ((ArrayList<String>) ((Map) raw).get("Authorization")).get(0);
                 Authentication authenticate = jwtAuthProvider.authenticate(new JWTAuthentication(jwt, secret, userDetailsManager));
                 UserPrincipal principal = new UserPrincipal(authenticate.getName());
                 accessor.setUser(principal);

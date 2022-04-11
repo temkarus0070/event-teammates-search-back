@@ -110,12 +110,14 @@ public class EventsService {
     public List<Event> getEventsByRadius(double lon, double lat, double radius, Principal principal) {
         Point p = factory.createPoint(new Coordinate(lon, lat));
         List<Event> nearWithinDistance = eventRepository.findNearWithinDistance(p, radius);
-        nearWithinDistance.forEach(event -> {
-            if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
-                event.setCurrentUserEntered(true);
-            if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
-                event.setCurrentUserInvited(true);
-        });
+        if (principal != null) {
+            nearWithinDistance.forEach(event -> {
+                if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
+                    event.setCurrentUserEntered(true);
+                if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
+                    event.setCurrentUserInvited(true);
+            });
+        }
         return nearWithinDistance;
     }
 
@@ -196,12 +198,14 @@ public class EventsService {
         }
         Page<Event> eventPage = eventRepository.findAll(endSpec, pageable);
         List<Event> events = eventPage.getContent();
-        events.forEach(event -> {
-            if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
-                event.setCurrentUserEntered(true);
-            if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
-                event.setCurrentUserInvited(true);
-        });
+        if (principal != null) {
+            events.forEach(event -> {
+                if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
+                    event.setCurrentUserEntered(true);
+                if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
+                    event.setCurrentUserInvited(true);
+            });
+        }
         return eventPage;
     }
 
@@ -282,12 +286,13 @@ public class EventsService {
             } else endSpec = endSpec.and(eventSpecification);
         }
         List<Event> events = eventRepository.findAll(endSpec);
-        events.forEach(event -> {
-            if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
-                event.setCurrentUserEntered(true);
-            if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
-                event.setCurrentUserInvited(true);
-        });
+        if (principal != null)
+            events.forEach(event -> {
+                if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
+                    event.setCurrentUserEntered(true);
+                if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
+                    event.setCurrentUserInvited(true);
+            });
         return events;
     }
 
