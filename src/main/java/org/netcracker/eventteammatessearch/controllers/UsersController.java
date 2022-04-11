@@ -30,6 +30,19 @@ public class UsersController {
         return userService.getUserByLogin(userLogin);
     }
 
+    @GetMapping("/usersListByLogin")
+    public List<User> getUsersListByLogin(@RequestParam String login, Principal principal) {
+        return userRepository.getUsersListByLoginWithValidation(login, principal.getName());
+    }
+
+    @GetMapping("/usersListByName")
+    public List<User> getUsersListByName(@RequestParam String name, Principal principal) {
+        String tempName[] = name.split(" ");
+        System.out.println("\n\n\n\n\n" +tempName);
+        if (tempName.length > 1)  return userRepository.getUsersByName(tempName[0], tempName[1], principal.getName());
+        else return userRepository.getUsersByName(tempName[0], principal.getName());
+    }
+
     @PatchMapping("/updateUser")
     public void updateUser(@RequestBody User user) {
         userService.updateUser(user);
@@ -39,8 +52,8 @@ public class UsersController {
     public boolean approvePassword(@RequestParam String login, @RequestParam String password) {
         return userService.approvePassword(login, password);
     }
-    @GetMapping("/api/usersList")
-    public List<User> get(HttpServletRequest request, Principal principal) {
+    @GetMapping("/usersList")
+    public List<User> get(HttpServletRequest request) {
         return userRepository.getUsersByLogin(request.getHeader("login"));
     }
 }
