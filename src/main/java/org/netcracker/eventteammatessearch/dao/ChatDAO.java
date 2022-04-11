@@ -1,8 +1,8 @@
 package org.netcracker.eventteammatessearch.dao;
 
 import lombok.*;
+import org.netcracker.eventteammatessearch.entity.ChatUser;
 import org.netcracker.eventteammatessearch.entity.Event;
-import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
 
 import java.util.List;
@@ -25,5 +25,5 @@ public class ChatDAO {
 
     private Message message;
 
-    private List<User> users;
+    private List<ChatUser> chatUsers;
 }

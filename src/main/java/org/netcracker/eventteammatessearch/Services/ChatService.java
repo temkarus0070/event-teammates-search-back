@@ -110,6 +110,7 @@ public class ChatService {
     }
 
     public Optional<Chat> get(long id) {
+
         return this.chatRepository.findById(id);
     }
 
@@ -135,8 +136,7 @@ public class ChatService {
             }).collect(Collectors.toList()));
             messageList.forEach(message -> {
                 Chat chat = map.get(message.getChatId());
-                List<User> users = chat.getChatUsers().stream().map(e -> e.getUser()).collect(Collectors.toList());
-                ChatDAO chatDAO = new ChatDAO(message.getChatId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, users);
+                ChatDAO chatDAO = new ChatDAO(message.getChatId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()));
                 chatDAOList.add(chatDAO);
             });
         }

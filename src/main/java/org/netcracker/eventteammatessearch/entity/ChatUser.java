@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +27,7 @@ public class ChatUser {
 
     @ManyToOne
     @MapsId("userId")
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
     @Enumerated

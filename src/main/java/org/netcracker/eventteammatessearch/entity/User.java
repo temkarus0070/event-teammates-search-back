@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -67,6 +68,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
+    @JsonManagedReference
     private Set<ChatUser> chats;
 
     @OneToMany(mappedBy = "user")

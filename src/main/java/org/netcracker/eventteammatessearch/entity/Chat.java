@@ -27,7 +27,6 @@ public class Chat {
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
     @ToString.Exclude
-    @JsonIgnore
     private Set<ChatUser> chatUsers;
 
     @OneToOne
