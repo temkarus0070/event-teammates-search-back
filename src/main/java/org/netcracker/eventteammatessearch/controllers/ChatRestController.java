@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.controllers;
 
 import org.netcracker.eventteammatessearch.Services.ChatService;
+import org.netcracker.eventteammatessearch.dao.ChatDAO;
 import org.netcracker.eventteammatessearch.entity.Chat;
 import org.netcracker.eventteammatessearch.entity.Event;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
@@ -30,5 +31,10 @@ public class ChatRestController {
     @GetMapping("/getMessages")
     public List<Message> getMessagesFromChat(@RequestParam long chatId) {
         return this.chatService.getMessages(chatId);
+    }
+
+    @GetMapping("/getCurrentChats")
+    public List<ChatDAO> getAllChatsOfUser(Principal principal) {
+        return chatService.getUserChats(principal);
     }
 }

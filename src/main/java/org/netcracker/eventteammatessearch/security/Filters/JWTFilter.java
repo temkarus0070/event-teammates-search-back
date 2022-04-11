@@ -53,7 +53,9 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
         Authentication authenticate = null;
         if (authorizationToken != null)
             authenticate = this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey, userDetailsManager));
-        else return null;
+        else if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            authenticate = this.getAuthenticationManager().authenticate(SecurityContextHolder.getContext().getAuthentication());
+        } else return null;
         return authenticate;
     }
 

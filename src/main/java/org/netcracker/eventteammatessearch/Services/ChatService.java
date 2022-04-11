@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.Services;
 
+import org.netcracker.eventteammatessearch.dao.ChatDAO;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
 import org.netcracker.eventteammatessearch.entity.mongoDB.sequenceGenerators.SequenceGeneratorService;
@@ -11,10 +12,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
@@ -105,4 +104,23 @@ public class ChatService {
         return messageRepository.findMessagesByChatId(chatId);
     }
 
+    public List<ChatDAO> getUserChats(Principal principal) {
+        List<ChatDAO> chatDAOList = new ArrayList<>();
+        HashMap<Long, Chat> map = new HashMap<>();
+        List<Chat> chats = this.chatRepository.getAllByChatUsersContains(principal.getName());
+        if (chats != null) {
+
+            List<Message> messageList = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chats.stream().map(chat -> {
+                map.put(chat.getId(), chat);
+                return chat.getId();
+            }).collect(Collectors.toList()));
+            messageList.forEach(message -> {
+                Chat chat = map.get(message.getChatId());
+                List<User> users = chat.getChatUsers().stream().map(e -> e.getUser()).collect(Collectors.toList());
+                ChatDAO chatDAO = new ChatDAO(message.getChatId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, users);
+                chatDAOList.add(chatDAO);
+            });
+        }
+        return chatDAOList;
+    }
 }
