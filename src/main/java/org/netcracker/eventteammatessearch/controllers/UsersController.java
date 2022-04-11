@@ -35,6 +35,11 @@ public class UsersController {
         userService.updateUserPhoto(user);
     }
 
+    @PatchMapping("/deleteUserPhoto")
+    public void deleteUserPhoto(@RequestBody User user) {
+        userService.deleteUserPhoto(user);
+    }
+
     @GetMapping("/approvePassword")
     public boolean approvePassword(@RequestParam String login, @RequestParam String password) {
         return userService.approvePassword(login, password);

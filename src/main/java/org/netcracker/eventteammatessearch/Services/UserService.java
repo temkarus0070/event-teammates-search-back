@@ -51,6 +51,17 @@ public class UserService {
         userRepository.save(existingUser);
     }
 
+    public void deleteUserPhoto(User user) {
+        User existingUser = userRepository.findById(user.getLogin()).orElse(null);
+        existingUser.setEmail(user.getEmail());
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setPhone(user.getPhone());
+        existingUser.setPictureUrl(null);
+
+        userRepository.save(existingUser);
+    }
+
     public boolean approvePassword(String login, String password) {
         User existingUser = userRepository.findById(login).orElse(null);
 
