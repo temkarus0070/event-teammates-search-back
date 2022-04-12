@@ -30,8 +30,8 @@ public class ChatRestController {
 
 
     @GetMapping
-    public Chat get(@RequestParam long chatId) {
-        return this.chatService.get(chatId).get();
+    public Chat get(@RequestParam long chatId, Principal principal) {
+        return this.chatService.get(chatId, principal).get();
     }
 
 
@@ -43,5 +43,10 @@ public class ChatRestController {
     @GetMapping("/getCurrentChats")
     public List<ChatDAO> getAllChatsOfUser(Principal principal) {
         return chatService.getUserChats(principal);
+    }
+
+    @PatchMapping("/updateLastReadMessage")
+    public void updateLastReadedMessage(Principal principal, @RequestParam long messageId, @RequestParam long chatId) {
+        this.chatService.updateLastSeenMessage(principal, chatId, messageId);
     }
 }

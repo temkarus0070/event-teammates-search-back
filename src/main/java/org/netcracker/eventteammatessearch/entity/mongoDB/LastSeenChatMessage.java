@@ -2,6 +2,7 @@ package org.netcracker.eventteammatessearch.entity.mongoDB;
 
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -11,7 +12,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "last_messages")
 @ToString
 public class LastSeenChatMessage {
-    private long chatId;
+
+    @Id
+    private LastSeenMessageId id;
     private long messageId;
-    private String username;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LastSeenMessageId {
+        private long chatId;
+        private String username;
+    }
 }
+

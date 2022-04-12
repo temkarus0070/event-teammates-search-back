@@ -2,10 +2,12 @@ package org.netcracker.eventteammatessearch.Services;
 
 import org.netcracker.eventteammatessearch.dao.ChatDAO;
 import org.netcracker.eventteammatessearch.entity.*;
+import org.netcracker.eventteammatessearch.entity.mongoDB.LastSeenChatMessage;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
 import org.netcracker.eventteammatessearch.entity.mongoDB.sequenceGenerators.SequenceGeneratorService;
 import org.netcracker.eventteammatessearch.persistence.repositories.ChatRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.mongo.LastMessagesRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class ChatService {
     private MessageRepository messageRepository;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private LastMessagesRepository lastMessagesRepository;
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public long createForUser(String username, Principal principal) {
@@ -78,13 +83,12 @@ public class ChatService {
             chat.setName("Чат события " + event.getName());
             event.setChat(chat);
             chat.setEvent(event);
-            ChatUser admin = new ChatUser();
+            chat1 = chatRepository.save(chat);
 
+            ChatUser admin = new ChatUser();
             admin.setChat(chat);
             admin.setChatUserType(ChatUserType.MAIN_ADMIN);
             admin.setUser(event.getOwner());
-
-            chat1 = chatRepository.save(chat);
             ChatUserKey chatUserKey = new ChatUserKey();
             chatUserKey.setUserId(event.getOwner().getLogin());
             chatUserKey.setChatId(chat1.getId());
@@ -109,9 +113,20 @@ public class ChatService {
         return chat1.getId();
     }
 
-    public Optional<Chat> get(long id) {
+    public Optional<Chat> get(long id, Principal principal) {
+        Optional<Chat> chatOptional = this.chatRepository.findById(id);
+        if (chatOptional.isPresent()) {
+            Optional<LastSeenChatMessage> lastSeenChatMessage1 = lastMessagesRepository.findById(new LastSeenChatMessage.LastSeenMessageId(id, principal.getName()));
+            lastSeenChatMessage1.ifPresent(lastSeenChatMessage -> chatOptional.get().setLastReadMessage(lastSeenChatMessage.getMessageId()));
+        }
+        return chatOptional;
+    }
 
-        return this.chatRepository.findById(id);
+    public void updateLastSeenMessage(Principal principal, long chatId, long messageId) {
+        LastSeenChatMessage lastSeenChatMessage = new LastSeenChatMessage();
+        lastSeenChatMessage.setMessageId(messageId);
+        lastSeenChatMessage.setId(new LastSeenChatMessage.LastSeenMessageId(chatId, principal.getName()));
+        this.lastMessagesRepository.save(lastSeenChatMessage);
     }
 
     public List<Message> getMessages(long chatId) {

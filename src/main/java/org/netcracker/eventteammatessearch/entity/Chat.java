@@ -34,6 +34,9 @@ public class Chat {
     @JsonIgnore
     private Event event;
 
+    @Transient
+    private long lastReadMessage;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

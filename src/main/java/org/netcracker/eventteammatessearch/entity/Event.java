@@ -54,7 +54,6 @@ public class Event {
     private boolean isHidden;
 
     @OneToOne(mappedBy = "event")
-    @JsonIgnore
     private Chat chat;
 
     private String url;
@@ -85,7 +84,7 @@ public class Event {
     @ToString.Exclude
     private Set<Complaint> complaints;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @ToString.Exclude
     @JsonIgnore
     private Set<User> invitedGuests;
