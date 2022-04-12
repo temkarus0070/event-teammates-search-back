@@ -148,9 +148,8 @@ public class ChatService {
         List<Chat> chats = this.chatRepository.getAllByChatUsersContains(principal.getName());
         if (chats != null) {
             List<Long> chatIds = chats.stream().map(Chat::getId).collect(Collectors.toList());
-            List<MessagesRemainCountData> messagesRemainCountData = messageRepository.countMessagesByChatIdIn(chatIds);
             Map<Long, LastSeenChatMessage> chatMessageMap = this.lastMessagesRepository.findAllById_ChatIdInAndId_Username(chatIds, principal.getName()).stream().collect(Collectors.toMap(e -> e.getId().getChatId(), e -> e));
-
+            getDataAboutRemainImages(chatIds, chatMessageMap);
             List<Message> messageList = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chats.stream().map(chat -> {
                 if (chat.isPrivate()) {
                     Optional<ChatUser> chatUser = chat.getChatUsers().stream().filter(e -> !e.getUser().getLogin().equals(principal.getName())).findFirst();
@@ -174,17 +173,18 @@ public class ChatService {
     public void getDataAboutRemainImages(List<Long> chatIds, Map<Long, LastSeenChatMessage> chatMessageMap) {
 
         Criteria criteria = null;
+        List<Criteria> criteria1 = new ArrayList<>();
         for (var entry : chatMessageMap.entrySet()) {
-            if (criteria == null) {
-                criteria = Criteria.where("chatId").is(entry.getKey()).andOperator(Criteria.where("id").gt(entry.getValue().getMessageId()));
-            } else
-                criteria = criteria.orOperator(Criteria.where("chatId").is(entry.getKey()).andOperator(Criteria.where("id").gt(entry.getValue().getMessageId())));
+            criteria1.add(Criteria.where("chatId").is(entry.getKey()).andOperator(Criteria.where("id").gt(entry.getValue().getMessageId())));
         }
-        if (criteria != null) {
-            Aggregation aggregation = newAggregation(match(criteria),
-                    group("chatId"),
-                    group().count().as("count"));
+        if (criteria1.size() > 0) {
+            criteria = new Criteria().orOperator(criteria1);
 
+            Aggregation aggregation = newAggregation(match(criteria),
+                    group("chatId").count().as("count"));
+
+            List<MessagesRemainCountData> mappedResults = mongoTemplate.aggregate(aggregation, Message.class, MessagesRemainCountData.class).getMappedResults();
+            System.out.println(mappedResults);
         }
     }
 }
