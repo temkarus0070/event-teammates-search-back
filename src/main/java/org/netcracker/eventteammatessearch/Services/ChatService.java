@@ -181,7 +181,8 @@ public class ChatService {
             criteria = new Criteria().orOperator(criteria1);
 
             Aggregation aggregation = newAggregation(match(criteria),
-                    group("chatId").count().as("count"));
+                    group("chatId"),
+                    group().count().as("count"));
 
             List<MessagesRemainCountData> mappedResults = mongoTemplate.aggregate(aggregation, Message.class, MessagesRemainCountData.class).getMappedResults();
             System.out.println(mappedResults);
