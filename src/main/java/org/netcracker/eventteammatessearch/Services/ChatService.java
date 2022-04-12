@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.Services;
 
 import org.netcracker.eventteammatessearch.dao.ChatDAO;
+import org.netcracker.eventteammatessearch.dao.MessagesRemainCountData;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.LastSeenChatMessage;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
@@ -10,6 +11,9 @@ import org.netcracker.eventteammatessearch.persistence.repositories.UserReposito
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.LastMessagesRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Service
 public class ChatService {
@@ -30,6 +36,9 @@ public class ChatService {
     private MessageRepository messageRepository;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private LastMessagesRepository lastMessagesRepository;
@@ -138,6 +147,9 @@ public class ChatService {
         HashMap<Long, Chat> map = new HashMap<>();
         List<Chat> chats = this.chatRepository.getAllByChatUsersContains(principal.getName());
         if (chats != null) {
+            List<Long> chatIds = chats.stream().map(Chat::getId).collect(Collectors.toList());
+            List<MessagesRemainCountData> messagesRemainCountData = messageRepository.countMessagesByChatIdIn(chatIds);
+            Map<Long, LastSeenChatMessage> chatMessageMap = this.lastMessagesRepository.findAllById_ChatIdInAndId_Username(chatIds, principal.getName()).stream().collect(Collectors.toMap(e -> e.getId().getChatId(), e -> e));
 
             List<Message> messageList = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chats.stream().map(chat -> {
                 if (chat.isPrivate()) {
@@ -151,10 +163,28 @@ public class ChatService {
             }).collect(Collectors.toList()));
             messageList.forEach(message -> {
                 Chat chat = map.get(message.getChatId());
-                ChatDAO chatDAO = new ChatDAO(message.getChatId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()));
+                LastSeenChatMessage lastSeenChatMessage = chatMessageMap.get(chat.getId());
+                ChatDAO chatDAO = new ChatDAO(message.getChatId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()), lastSeenChatMessage.getMessageId());
                 chatDAOList.add(chatDAO);
             });
         }
         return chatDAOList;
+    }
+
+    public void getDataAboutRemainImages(List<Long> chatIds, Map<Long, LastSeenChatMessage> chatMessageMap) {
+
+        Criteria criteria = null;
+        for (var entry : chatMessageMap.entrySet()) {
+            if (criteria == null) {
+                criteria = Criteria.where("chatId").is(entry.getKey()).andOperator(Criteria.where("id").gt(entry.getValue().getMessageId()));
+            } else
+                criteria = criteria.orOperator(Criteria.where("chatId").is(entry.getKey()).andOperator(Criteria.where("id").gt(entry.getValue().getMessageId())));
+        }
+        if (criteria != null) {
+            Aggregation aggregation = newAggregation(match(criteria),
+                    group("chatId"),
+                    group().count().as("count"));
+
+        }
     }
 }

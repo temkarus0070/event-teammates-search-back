@@ -26,4 +26,6 @@ public class ChatDAO {
     private Message message;
 
     private List<ChatUser> chatUsers;
+
+    private long lastReadMessage;
 }
