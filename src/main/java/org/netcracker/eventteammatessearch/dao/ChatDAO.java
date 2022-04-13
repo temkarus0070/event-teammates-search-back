@@ -28,4 +28,6 @@ public class ChatDAO {
     private List<ChatUser> chatUsers;
 
     private long lastReadMessage;
+
+    private long unReadCount;
 }

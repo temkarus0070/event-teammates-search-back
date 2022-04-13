@@ -149,7 +149,7 @@ public class ChatService {
         if (chats != null) {
             List<Long> chatIds = chats.stream().map(Chat::getId).collect(Collectors.toList());
             Map<Long, LastSeenChatMessage> chatMessageMap = this.lastMessagesRepository.findAllById_ChatIdInAndId_Username(chatIds, principal.getName()).stream().collect(Collectors.toMap(e -> e.getId().getChatId(), e -> e));
-            getDataAboutRemainImages(chatIds, chatMessageMap);
+
             List<Message> messageList = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chats.stream().map(chat -> {
                 if (chat.isPrivate()) {
                     Optional<ChatUser> chatUser = chat.getChatUsers().stream().filter(e -> !e.getUser().getLogin().equals(principal.getName())).findFirst();
@@ -160,17 +160,26 @@ public class ChatService {
                 map.put(chat.getId(), chat);
                 return chat.getId();
             }).collect(Collectors.toList()));
+            Map<Long, Long> dataAboutRemainMessages = getDataAboutRemainMessages(chatIds, chatMessageMap);
             messageList.forEach(message -> {
                 Chat chat = map.get(message.getChatId());
                 LastSeenChatMessage lastSeenChatMessage = chatMessageMap.get(chat.getId());
-                ChatDAO chatDAO = new ChatDAO(message.getChatId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()), lastSeenChatMessage.getMessageId());
+                long lastMessageId = 0;
+                if (lastSeenChatMessage != null) {
+                    lastMessageId = lastSeenChatMessage.getMessageId();
+                }
+                long count = 0;
+                if (dataAboutRemainMessages.get(chat.getId()) != null) {
+                    count = dataAboutRemainMessages.get(chat.getId());
+                }
+                ChatDAO chatDAO = new ChatDAO(message.getChatId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()), lastMessageId, count);
                 chatDAOList.add(chatDAO);
             });
         }
         return chatDAOList;
     }
 
-    public void getDataAboutRemainImages(List<Long> chatIds, Map<Long, LastSeenChatMessage> chatMessageMap) {
+    public Map<Long, Long> getDataAboutRemainMessages(List<Long> chatIds, Map<Long, LastSeenChatMessage> chatMessageMap) {
 
         Criteria criteria = null;
         List<Criteria> criteria1 = new ArrayList<>();
@@ -181,11 +190,11 @@ public class ChatService {
             criteria = new Criteria().orOperator(criteria1);
 
             Aggregation aggregation = newAggregation(match(criteria),
-                    group("chatId"),
-                    group().count().as("count"));
+                    group("chatId").count().as("count"), addFields().addField("chatId").withValueOfExpression("'$_id'").build());
 
             List<MessagesRemainCountData> mappedResults = mongoTemplate.aggregate(aggregation, Message.class, MessagesRemainCountData.class).getMappedResults();
-            System.out.println(mappedResults);
+            return mappedResults.stream().collect(Collectors.toMap(e -> e.getChatId(), e -> e.getCount()));
         }
+        return new HashMap<>();
     }
 }
