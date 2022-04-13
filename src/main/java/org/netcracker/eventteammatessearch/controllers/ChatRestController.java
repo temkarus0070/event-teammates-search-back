@@ -49,4 +49,9 @@ public class ChatRestController {
     public void updateLastReadedMessage(Principal principal, @RequestParam long messageId, @RequestParam long chatId) {
         this.chatService.updateLastSeenMessage(principal, chatId, messageId);
     }
+
+    @GetMapping("/getMessageBefore")
+    public Message getMessageBefore(@RequestParam long chatId, @RequestParam long id) {
+        return chatService.getMessageBefore(chatId, id);
+    }
 }

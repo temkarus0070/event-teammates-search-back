@@ -7,6 +7,7 @@ import org.netcracker.eventteammatessearch.entity.mongoDB.LastSeenChatMessage;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
 import org.netcracker.eventteammatessearch.entity.mongoDB.sequenceGenerators.SequenceGeneratorService;
 import org.netcracker.eventteammatessearch.persistence.repositories.ChatRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.ChatUserRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.LastMessagesRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.MessageRepository;
@@ -39,6 +40,9 @@ public class ChatService {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private ChatUserRepository chatUserRepository;
 
     @Autowired
     private LastMessagesRepository lastMessagesRepository;
@@ -139,30 +143,32 @@ public class ChatService {
     }
 
     public List<Message> getMessages(long chatId) {
-        return messageRepository.findMessagesByChatId(chatId);
+        return messageRepository.findMessagesByChatIdOrderBySendTime(chatId);
+    }
+
+    public Message getMessageBefore(long chatId, long messageId) {
+        Message topByChatIdAndIdBefore = this.messageRepository.findTopByChatIdAndIdBeforeOrderByIdDesc(chatId, messageId);
+        return topByChatIdAndIdBefore;
     }
 
     public List<ChatDAO> getUserChats(Principal principal) {
         List<ChatDAO> chatDAOList = new ArrayList<>();
-        HashMap<Long, Chat> map = new HashMap<>();
         List<Chat> chats = this.chatRepository.getAllByChatUsersContains(principal.getName());
         if (chats != null) {
             List<Long> chatIds = chats.stream().map(Chat::getId).collect(Collectors.toList());
             Map<Long, LastSeenChatMessage> chatMessageMap = this.lastMessagesRepository.findAllById_ChatIdInAndId_Username(chatIds, principal.getName()).stream().collect(Collectors.toMap(e -> e.getId().getChatId(), e -> e));
 
-            List<Message> messageList = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chats.stream().map(chat -> {
+            Map<Long, Message> messageMap = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chatIds)
+                    .stream().collect(Collectors.toMap((Message e) -> e.getChatId(), (Message e) -> e));
+
+            Map<Long, Long> dataAboutRemainMessages = getDataAboutRemainMessages(chatIds, chatMessageMap);
+            chats.forEach(chat -> {
                 if (chat.isPrivate()) {
                     Optional<ChatUser> chatUser = chat.getChatUsers().stream().filter(e -> !e.getUser().getLogin().equals(principal.getName())).findFirst();
                     if (chatUser.isPresent()) {
                         chat.setName(chatUser.get().getUser().getFirstName() + " " + chatUser.get().getUser().getLastName());
                     } else chat.setName("PRIVATE CHAT " + chat.getId());
                 }
-                map.put(chat.getId(), chat);
-                return chat.getId();
-            }).collect(Collectors.toList()));
-            Map<Long, Long> dataAboutRemainMessages = getDataAboutRemainMessages(chatIds, chatMessageMap);
-            messageList.forEach(message -> {
-                Chat chat = map.get(message.getChatId());
                 LastSeenChatMessage lastSeenChatMessage = chatMessageMap.get(chat.getId());
                 long lastMessageId = 0;
                 if (lastSeenChatMessage != null) {
@@ -172,7 +178,8 @@ public class ChatService {
                 if (dataAboutRemainMessages.get(chat.getId()) != null) {
                     count = dataAboutRemainMessages.get(chat.getId());
                 }
-                ChatDAO chatDAO = new ChatDAO(message.getChatId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()), lastMessageId, count);
+                Message message = messageMap.get(chat.getId());
+                ChatDAO chatDAO = new ChatDAO(chat.getId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()), lastMessageId, count);
                 chatDAOList.add(chatDAO);
             });
         }
@@ -180,7 +187,14 @@ public class ChatService {
     }
 
     public void remove(Message message) {
-        this.messageRepository.removeMessageByChatIdAndIdAndAndUserId(message.getChatId(), message.getId(), message.getUserId());
+        this.messageRepository.removeMessageByChatIdAndIdAndUserId(message.getChatId(), message.getId(), message.getUserId());
+    }
+
+    public void removeUserFromChat(String username, long eventId) {
+        Chat byEvent_id = this.chatRepository.getByEvent_Id(eventId);
+        if (byEvent_id != null) {
+            chatUserRepository.deleteById(new ChatUserKey(byEvent_id.getId(), username));
+        }
     }
 
     public Map<Long, Long> getDataAboutRemainMessages(List<Long> chatIds, Map<Long, LastSeenChatMessage> chatMessageMap) {

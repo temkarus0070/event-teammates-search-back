@@ -46,6 +46,9 @@ public class EventsService {
     @Autowired
     private TagRepository tagRepository;
 
+    @Autowired
+    private ChatService chatService;
+
     private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
 
     private WKTReader wktReader = new WKTReader();
@@ -317,6 +320,7 @@ public class EventsService {
 
     public void removeUserFromEvent(Principal principal, long eventId) {
         UserEventKey userEventKey = new UserEventKey(eventId, principal.getName());
+        chatService.removeUserFromChat(principal.getName(), eventId);
         this.eventAttendanceRepository.deleteById(userEventKey);
     }
 

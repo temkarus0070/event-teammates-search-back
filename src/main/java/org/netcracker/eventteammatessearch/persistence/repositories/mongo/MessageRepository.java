@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface MessageRepository extends MongoRepository<Message, Long> {
-    public List<Message> findMessagesByChatId(long chatId);
+    public List<Message> findMessagesByChatIdOrderBySendTime(long chatId);
 
     @Aggregation(pipeline = {"{$match:{chatId:{$in:?0}}}", "{$sort:{sendTime:-1}}", "{$group:{\n" +
             "  _id: \"$chatId\",\n" +
@@ -25,9 +25,14 @@ public interface MessageRepository extends MongoRepository<Message, Long> {
             "  },\n" +
             "  chatId:{\n" +
             "    $first:'$chatId'\n" +
-            "  }\n" +
+            "  },\n" +
+            "messageId:{$first:'$_id'}" +
+            "}}", "{$addFields:{\n" +
+            "  id: '$messageId'\n" +
             "}}"})
     public List<Message> findByChatIdInAndOrderBySendTimeDesc(List<Long> chatIds);
 
-    public void removeMessageByChatIdAndIdAndAndUserId(@Param("chatId") long chatId, @Param("id") long id, String userId);
+    public void removeMessageByChatIdAndIdAndUserId(@Param("chatId") long chatId, @Param("id") long id, String userId);
+
+    public Message findTopByChatIdAndIdBeforeOrderByIdDesc(long chatId, long id);
 }
