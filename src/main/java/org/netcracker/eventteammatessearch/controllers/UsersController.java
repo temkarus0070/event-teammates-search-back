@@ -40,6 +40,11 @@ public class UsersController {
         userService.deleteUserPhoto(user);
     }
 
+    @PatchMapping("/updateCommercialAcc")
+    public void updateCommercialAcc(@RequestBody User user) {
+        userService.updateCommercialAcc(user);
+    }
+
     @GetMapping("/approvePassword")
     public boolean approvePassword(@RequestParam String login, @RequestParam String password) {
         return userService.approvePassword(login, password);

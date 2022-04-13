@@ -33,6 +33,10 @@ public class UserService {
         existingUser.setLastName(user.getLastName());
         existingUser.setPhone(user.getPhone());
         existingUser.setPictureUrl(user.getPictureUrl());
+        existingUser.setOrganizationName(user.getOrganizationName());
+        existingUser.setDescription(user.getDescription());
+        existingUser.setCommercialUser(user.isCommercialUser());
+        existingUser.setCommercialUserCreated(user.isCommercialUserCreated());
 
         String newPassword = passwordEncoder.encode(user.getPassword());
         existingUser.setPassword(newPassword);
@@ -46,6 +50,11 @@ public class UserService {
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setPhone(user.getPhone());
+        existingUser.setOrganizationName(user.getOrganizationName());
+        existingUser.setDescription(user.getDescription());
+        existingUser.setCommercialUser(user.isCommercialUser());
+        existingUser.setCommercialUserCreated(user.isCommercialUserCreated());
+
         existingUser.setPictureUrl(user.getPictureUrl());
 
         userRepository.save(existingUser);
@@ -57,7 +66,27 @@ public class UserService {
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setPhone(user.getPhone());
+        existingUser.setOrganizationName(user.getOrganizationName());
+        existingUser.setDescription(user.getDescription());
+        existingUser.setCommercialUser(user.isCommercialUser());
+        existingUser.setCommercialUserCreated(user.isCommercialUserCreated());
+
         existingUser.setPictureUrl(null);
+
+        userRepository.save(existingUser);
+    }
+
+    public void updateCommercialAcc(User user) {
+        User existingUser = userRepository.findById(user.getLogin()).orElse(null);
+        existingUser.setEmail(user.getEmail());
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setPhone(user.getPhone());
+        existingUser.setPictureUrl(user.getPictureUrl());
+        existingUser.setOrganizationName(user.getOrganizationName());
+        existingUser.setDescription(user.getDescription());
+        existingUser.setCommercialUser(user.isCommercialUser());
+        existingUser.setCommercialUserCreated(user.isCommercialUserCreated());
 
         userRepository.save(existingUser);
     }
