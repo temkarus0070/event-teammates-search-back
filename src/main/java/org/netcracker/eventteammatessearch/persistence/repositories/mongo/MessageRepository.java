@@ -3,6 +3,7 @@ package org.netcracker.eventteammatessearch.persistence.repositories.mongo;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,4 +28,6 @@ public interface MessageRepository extends MongoRepository<Message, Long> {
             "  }\n" +
             "}}"})
     public List<Message> findByChatIdInAndOrderBySendTimeDesc(List<Long> chatIds);
+
+    public void removeMessageByChatIdAndIdAndAndUserId(@Param("chatId") long chatId, @Param("id") long id, String userId);
 }

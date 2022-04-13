@@ -20,9 +20,13 @@ public class ChatController {
     @MessageMapping("/sendMessage/{chatId}")
     @SendTo("/chat/messages/{chatId}")
     public Message sendMessage(@DestinationVariable long chatId, @Payload Message message, SimpMessageHeaderAccessor headerAccessor) {
-        Principal user = headerAccessor.getUser();
-        message.setUserId(user.getName());
-        message = chatService.saveMessage(message);
+        if (message.isRemoved()) {
+            chatService.remove(message);
+        } else {
+            Principal user = headerAccessor.getUser();
+            message.setUserId(user.getName());
+            message = chatService.saveMessage(message);
+        }
         return message;
     }
 

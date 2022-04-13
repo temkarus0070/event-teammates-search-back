@@ -34,5 +34,8 @@ public class Message implements Serializable {
 
     private Set<String> messageImagesUrls;
 
+    @Transient
+    private boolean removed;
+
 
 }

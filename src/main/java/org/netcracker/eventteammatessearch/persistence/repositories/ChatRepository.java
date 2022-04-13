@@ -19,4 +19,6 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     @Query("SELECT  c from  Chat c  where EXISTS(SELECT cu from ChatUser cu where cu.user.login=:chatUser and cu.chat=c)")
     public List<Chat> getAllByChatUsersContains(String chatUser);
+
+
 }

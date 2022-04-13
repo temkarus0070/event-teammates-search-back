@@ -2,7 +2,10 @@ package org.netcracker.eventteammatessearch;
 
 import com.sun.security.auth.UserPrincipal;
 import org.netcracker.eventteammatessearch.entity.Chat;
+import org.netcracker.eventteammatessearch.entity.ChatUser;
+import org.netcracker.eventteammatessearch.entity.ChatUserType;
 import org.netcracker.eventteammatessearch.persistence.repositories.ChatRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.ChatUserRepository;
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
 import org.netcracker.eventteammatessearch.security.Providers.JwtAuthProvider;
@@ -34,6 +37,9 @@ public class AuthInterceptor implements ChannelInterceptor {
     @Autowired
     private ChatRepository chatRepository;
 
+    @Autowired
+    private ChatUserRepository chatUserRepository;
+
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
@@ -59,7 +65,19 @@ public class AuthInterceptor implements ChannelInterceptor {
                     throw new AuthorizationServiceException("you cant participate at this chat");
             }
         }
-
+        if (accessor.getCommand() == StompCommand.MESSAGE) {
+            org.netcracker.eventteammatessearch.entity.mongoDB.Message messagePayload = (org.netcracker.eventteammatessearch.entity.mongoDB.Message) message.getPayload();
+            if (messagePayload.isRemoved()) {
+                if (messagePayload.getUserId().equals(accessor.getUser().getName())) {
+                    return message;
+                } else {
+                    ChatUser userAtChat = chatUserRepository.findChatUserByChat_IdAndUser_Login(messagePayload.getChatId(), accessor.getUser().getName());
+                    if (userAtChat.getChatUserType() == ChatUserType.ADMIN || userAtChat.getChatUserType() == ChatUserType.MAIN_ADMIN) {
+                        return message;
+                    } else throw new AuthorizationServiceException("you cant remove this message");
+                }
+            }
+        }
         return message;
     }
 }

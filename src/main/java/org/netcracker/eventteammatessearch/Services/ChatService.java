@@ -179,6 +179,10 @@ public class ChatService {
         return chatDAOList;
     }
 
+    public void remove(Message message) {
+        this.messageRepository.removeMessageByChatIdAndIdAndAndUserId(message.getChatId(), message.getId(), message.getUserId());
+    }
+
     public Map<Long, Long> getDataAboutRemainMessages(List<Long> chatIds, Map<Long, LastSeenChatMessage> chatMessageMap) {
 
         Criteria criteria = null;
