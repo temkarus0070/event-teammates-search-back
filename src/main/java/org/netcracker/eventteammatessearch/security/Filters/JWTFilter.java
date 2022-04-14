@@ -41,7 +41,7 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String requestURI = request.getRequestURI();
 
-        return request.getHeader("Authorization") != null && !requestURI.equals("/refreshToken");
+        return request.getHeader("Authorization") != null && !requestURI.equals("/refreshToken") && response.getStatus() != 403;
     }
 
     @Override

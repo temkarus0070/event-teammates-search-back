@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 @RequestMapping(value = "/api/users")
 @RestController
@@ -30,6 +29,11 @@ public class UsersController {
         return userService.getUserByLogin(userLogin);
     }
 
+    @GetMapping("/checkUser")
+    public Object checkUser() {
+        return 1;
+    }
+
     @GetMapping("/usersListByLogin")
     public List<User> getUsersListByLogin(@RequestParam String login, Principal principal) {
         return userRepository.getUsersListByLoginWithValidation(login, principal.getName());
@@ -38,7 +42,7 @@ public class UsersController {
     @GetMapping("/usersListByName")
     public List<User> getUsersListByName(@RequestParam String name, Principal principal) {
         String tempName[] = name.split(" ");
-        System.out.println("\n\n\n\n\n" +tempName);
+        System.out.println("\n\n\n\n\n" + tempName);
         if (tempName.length > 1)  return userRepository.getUsersByName(tempName[0], tempName[1], principal.getName());
         else return userRepository.getUsersByName(tempName[0], principal.getName());
     }
