@@ -83,7 +83,7 @@ public class Event {
 
     @ManyToMany
     @ToString.Exclude
-    @JsonIgnore
+
     private Set<User> invitedGuests;
 
 

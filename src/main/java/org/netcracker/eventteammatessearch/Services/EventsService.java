@@ -10,17 +10,13 @@ import org.locationtech.jts.io.WKTReader;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
-import org.netcracker.eventteammatessearch.persistence.repositories.EventInvitedGuests;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -29,7 +25,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.security.Principal;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.geolatte.geom.builder.DSL.g;
@@ -45,8 +40,6 @@ public class EventsService {
     @Autowired
     private ReviewRepository reviewRepository;
 
-    @Autowired
-    private EventInvitedGuests invitesRepository;
 
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
@@ -101,15 +94,6 @@ public class EventsService {
             }
         }
         eventRepository.save(event);
-        if (event.getUrl() != null) {
-            Long tempId = eventRepository.findByUrl(event.getUrl()).getId();
-            for (User tempUser: event.getInvitedGuests()) {
-                Invite invite = new Invite();
-                invite.setId(tempId);
-                invite.setLogin(tempUser.getLogin());
-                invitesRepository.save(invite);
-            }
-        }
     }
 
     public Set<String> getWords(String word) {
