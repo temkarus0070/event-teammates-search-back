@@ -38,4 +38,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "  cross join lateral unnest(string_to_array(t1.name,' ')) as t3 (word)\n" +
             "where t3.word like concat(:word,'%');", nativeQuery = true)
     Set<String> getWords(String word);
+
+    Event findByUrl(String url);
 }

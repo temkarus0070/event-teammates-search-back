@@ -22,11 +22,23 @@ public class EventsController {
     @Autowired
     private EventsService eventsService;
 
+
+
+
+
+    /* add event */
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public void add(@RequestBody Event event, Principal principal) {
         eventsService.add(event, principal);
     }
+
+
+
+
+
+
+
 
     @GetMapping("/getEventsWithinRadius")
     public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius, Principal principal) {
