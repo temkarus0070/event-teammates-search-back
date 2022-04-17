@@ -2,8 +2,10 @@ package org.netcracker.eventteammatessearch.security;
 
 import org.netcracker.eventteammatessearch.security.Filters.JWTFilter;
 import org.netcracker.eventteammatessearch.security.Filters.UsernamePasswordFilter;
+import org.netcracker.eventteammatessearch.security.OAuth.OAuthSuccessHandler;
 import org.netcracker.eventteammatessearch.security.Providers.JwtAuthProvider;
 import org.netcracker.eventteammatessearch.security.Providers.UsernamePasswordAuthProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +16,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -37,6 +37,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private JWTFilter jwtFilter;
     private UsernamePasswordAuthProvider usernamePasswordAuthProvider;
     private UsernamePasswordFilter usernamePasswordFilter;
+
+    @Autowired
+    private OAuthSuccessHandler oAuthSuccessHandler;
 
     public SecurityConfig(@Lazy JwtAuthProvider jwtAuthProvider, @Lazy JWTFilter jwtFilter, @Lazy UsernamePasswordAuthProvider usernamePasswordAuthProvider, @Lazy UsernamePasswordFilter usernamePasswordFilter) {
         this.jwtAuthProvider = jwtAuthProvider;
@@ -72,11 +75,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 httpBasic().disable()
                 .csrf().disable()
                 .authorizeRequests()
-                .mvcMatchers("/register", "/refreshToken", "/api/events/getEventsWithinRadius", "/api/events/filter", "/api/eventTypes/**", "/error/**")
+                .mvcMatchers("/register", "/refreshToken", "/api/events/getEventsWithinRadius", "/api/events/filter", "/api/eventTypes/**", "/error/**", "/oauth2/**", "/login**", "/generateRefreshToken")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .oauth2Login().and()
+                .oauth2Login().successHandler(oAuthSuccessHandler).and()
                 .addFilterAt(
                         usernamePasswordFilter,
                         UsernamePasswordAuthenticationFilter.class)
@@ -88,10 +91,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     protected CorsConfigurationSource corsConfigurationSource() {

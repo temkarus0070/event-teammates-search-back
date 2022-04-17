@@ -2,8 +2,8 @@ package org.netcracker.eventteammatessearch.security.Filters;
 
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -23,12 +23,11 @@ import java.io.IOException;
 public class JWTFilter extends AbstractAuthenticationProcessingFilter {
     @Value("${jwt.secretKey}")
     private String secretKey;
-
-    @Autowired
     private UserDetailsManager userDetailsManager;
 
-    protected JWTFilter(@Value("/api/**") String defaultFilterProcessesUrl, AuthenticationManager authenticationManager) {
+    protected JWTFilter(@Value("/api/**") String defaultFilterProcessesUrl, AuthenticationManager authenticationManager, @Lazy UserDetailsManager userDetailsManager) {
         super(defaultFilterProcessesUrl, authenticationManager);
+        this.userDetailsManager = userDetailsManager;
     }
 
     @Override

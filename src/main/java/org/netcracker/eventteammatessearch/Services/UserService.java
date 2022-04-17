@@ -18,7 +18,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public User getUserByLogin(String login) {
-        return userRepository.findById(login).orElse(null);
+        User user = userRepository.findById(login).orElse(null);
+        return user;
     }
 
     public List<User> getAll() {

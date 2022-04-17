@@ -33,4 +33,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query(value = "select u from User u where (lower(u.firstName) like lower(:name) or lower(u.lastName) like lower(:name)) and lower(u.login) not like lower(:userLogin)")
     List<User> getUsersByName(String name, String userLogin);
+
+    User findByOauthUserTrueAndOauthServiceAndOauthKey(String oauthService, String key);
 }

@@ -94,6 +94,9 @@ public class User {
 
     private String description;
 
+    private boolean oauthUser;
+    private String oauthService;
+    private String oauthKey;
 
 
 }

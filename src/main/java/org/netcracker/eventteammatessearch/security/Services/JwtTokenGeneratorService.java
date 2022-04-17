@@ -66,7 +66,9 @@ public class JwtTokenGeneratorService {
         return jwtUserEntity;
     }
 
-    private String generateRefresh() {
+    public String generateRefresh() {
+        if (jwtBuilder == null)
+            jwtBuilder = Jwts.builder();
         Date current = new Date();
         Random random = new Random(current.getTime());
         return jwtBuilder.setIssuedAt(current)
