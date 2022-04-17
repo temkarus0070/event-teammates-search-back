@@ -76,6 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()
+                .oauth2Login().and()
                 .addFilterAt(
                         usernamePasswordFilter,
                         UsernamePasswordAuthenticationFilter.class)
@@ -85,6 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

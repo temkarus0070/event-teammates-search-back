@@ -37,8 +37,12 @@ public class RegistrationController {
     }
 
     @PostMapping("/refreshToken")
-    public JwtUserEntity refreshToken(@RequestBody JwtUserEntity jwtUser) {
-        return jwtTokenGeneratorService.refreshToken(jwtUser);
+    public JwtUserEntity refreshToken(@RequestBody JwtUserEntity jwtUser) throws TokenNotFoundException {
+        JwtUserEntity jwtUserEntity = jwtTokenGeneratorService.refreshToken(jwtUser);
+        if (jwtUserEntity == null) {
+            throw new TokenNotFoundException();
+        }
+        return jwtUserEntity;
     }
 
 }

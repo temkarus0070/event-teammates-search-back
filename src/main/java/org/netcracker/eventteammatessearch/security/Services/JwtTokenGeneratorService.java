@@ -3,7 +3,6 @@ package org.netcracker.eventteammatessearch.security.Services;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.hibernate.ObjectNotFoundException;
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.JwtUserEntity;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
@@ -80,7 +79,7 @@ public class JwtTokenGeneratorService {
     public JwtUserEntity refreshToken(JwtUserEntity jwtUser) {
         JwtUserEntity token = jwtTokenRepository.findJwtUserEntityById_JwtAndRefreshToken(jwtUser.getId().getJwt(), jwtUser.getRefreshToken());
         if (token == null) {
-            throw new ObjectNotFoundException(jwtUser.getId().getJwt(), JwtUserEntity.class.getName());
+          return null;
         } else {
             JwtUserEntity jwtUserEntity = generate(token);
             jwtTokenRepository.delete(token);

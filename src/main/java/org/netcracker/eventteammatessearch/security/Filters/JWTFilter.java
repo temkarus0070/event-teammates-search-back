@@ -37,12 +37,7 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
         return this.getAuthenticationManager().authenticate(new JWTAuthentication(authorizationToken, secretKey, userDetailsManager));
     }
 
-    @Override
-    protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        String requestURI = request.getRequestURI();
 
-        return request.getHeader("Authorization") != null && !requestURI.equals("/refreshToken") && response.getStatus() != 403;
-    }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
