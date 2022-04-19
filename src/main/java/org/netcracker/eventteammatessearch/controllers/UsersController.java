@@ -2,9 +2,11 @@ package org.netcracker.eventteammatessearch.controllers;
 
 import org.netcracker.eventteammatessearch.Services.UserService;
 import org.netcracker.eventteammatessearch.entity.User;
+import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +17,9 @@ public class UsersController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("/getUsers")
     public List<User> getUsers() {
         return userService.getAll();
@@ -23,6 +28,11 @@ public class UsersController {
     @GetMapping("/getUserByLogin")
     public User getByLogin(@RequestParam String userLogin) {
         return userService.getUserByLogin(userLogin);
+    }
+
+    @GetMapping("/checkUser")
+    public Object checkUser() {
+        return 1;
     }
 
     @PatchMapping("/updateUser")
