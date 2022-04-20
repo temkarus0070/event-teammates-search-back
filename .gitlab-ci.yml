@@ -31,7 +31,9 @@ maven-build:
     paths:
       - target/*.jar
   only:
-    - main
+    refs:
+      - main
+
 
 docker-build:
   stage: build_image
@@ -40,7 +42,8 @@ docker-build:
     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
     - docker push "$CI_REGISTRY_IMAGE${tag}"
   only:
-    - main
+    refs:
+      - main
 
 
 deploy:
@@ -52,4 +55,5 @@ deploy:
     - gem install dpl
     - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
   only:
-    - main
+    refs:
+      - main
