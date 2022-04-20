@@ -90,6 +90,8 @@ public class User {
 
     private boolean isCommercialUser;
 
+    private boolean isCommercialUserCreated;
+
     private String organizationName;
 
     private String description;
