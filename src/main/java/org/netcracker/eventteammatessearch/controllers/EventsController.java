@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -49,6 +50,11 @@ public class EventsController {
         return Map.of("response", principal.getName());
     }
 
+    @GetMapping("/getEndedEvents")
+    public List<Event> getUserEndedEvents(Principal principal) {
+        return eventsService.getFinishedEventsOfUser(principal);
+    }
+
     @GetMapping("/getEvent")
     public Event get(@RequestParam Long eventId) {
         return eventsService.get(eventId);
@@ -73,8 +79,8 @@ public class EventsController {
     }
 
     @DeleteMapping
-    @PreAuthorize("isAuthenticated() && eventsService.get(#eventId).owner.login.equals(#principal.name)")
-    public void delete(@RequestParam Long eventId, Principal principal) {
+    @PreAuthorize("isAuthenticated() && (eventsService.get(#eventId).owner.login.equals(#principal.name) || principal.getAuthorities().?[#this.getAuthority() eq \"ADMIN\"])")
+    public void delete(@RequestParam Long eventId, Authentication principal) {
         eventsService.delete(eventId);
     }
 

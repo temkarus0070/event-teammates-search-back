@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,11 +17,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 
 
 @Component
 @RequiredArgsConstructor
 public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+    @Autowired
+    private OAuthUserExtractor oAuthUserExtractor;
 
     @Autowired
     private final OAuthTokenGenerator tokenProvider;
@@ -45,8 +47,6 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-
-
         if (response.isCommitted()) {
             return;
         }
@@ -60,23 +60,8 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         OAuth2AuthenticationToken auth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
         User user = userRepository.findByOauthUserTrueAndOauthServiceAndOauthKey(auth2AuthenticationToken.getAuthorizedClientRegistrationId(), auth2AuthenticationToken.getPrincipal().getName());
         if (user == null) {
-            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
-            String email = defaultOAuth2User.getAttribute("email");
-            String name = defaultOAuth2User.getAttribute("name");
-            String pictureUrl = defaultOAuth2User.getAttribute("picture");
-            user = new User();
-            user.setLogin(auth2AuthenticationToken.getAuthorizedClientRegistrationId() + "-" + defaultOAuth2User.getName());
-            if (name != null)
-                user.setFirstName(name);
-            if (email != null) {
-                user.setEmail(email);
-            }
-            if (pictureUrl != null) {
-                user.setPictureUrl(pictureUrl);
-            }
-            user.setOauthUser(true);
-            user.setOauthService(auth2AuthenticationToken.getAuthorizedClientRegistrationId());
-            user.setOauthKey(defaultOAuth2User.getName());
+            user = oAuthUserExtractor.extract(auth2AuthenticationToken);
+            user.setRegistrationDate(LocalDate.now());
             user = userRepository.save(user);
         }
         return user;

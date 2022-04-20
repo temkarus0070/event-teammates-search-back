@@ -9,12 +9,16 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.*;
+import org.netcracker.eventteammatessearch.entity.mongoDB.Review;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -26,12 +30,14 @@ import javax.persistence.criteria.Root;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.geolatte.geom.builder.DSL.g;
 import static org.geolatte.geom.crs.CoordinateReferenceSystems.WGS84;
 
 @Component
 public class EventsService {
+    private static final Logger logger = LoggerFactory.getLogger(EventsService.class);
 
 
     @Autowired
@@ -39,6 +45,9 @@ public class EventsService {
 
     @Autowired
     private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
@@ -55,14 +64,34 @@ public class EventsService {
 
 
     public Event get(Long id) {
-        Event event = eventRepository.getById(id);
-        double avgMark = reviewRepository.averageReviewNumber(event.getOwner().getLogin());
-        event.setAvgMark(avgMark);
-        return event;
+        Optional<Event> eventOptional = eventRepository.findById(id);
+        if (eventOptional.isPresent()) {
+            Event event = eventOptional.get();
+            String login = event.getOwner().getLogin();
+            try {
+                double avgMark = reviewRepository.averageReviewNumber(login);
+                event.setAvgMark(avgMark);
+            } catch (NullPointerException nullPointerException) {
+                logger.info("event owner marks have not been found", nullPointerException);
+            }
+            return event;
+        } else throw new ObjectNotFoundException(id, "Event");
+    }
+
+    public List<Event> getFinishedEventsOfUser(Principal principal) {
+        List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEvents(principal.getName());
+        List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
+        Map<Long, Review> reviewMap = Stream.of(reviewRepository.getReviewsById_UserIdAndId_EventIdIn(principal.getName(), ids)).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.<Review, Long, Review>toMap(
+                (Review e) -> e.getId().getEventId(),
+                (Review e) -> e));
+        allUserEndedEvents = allUserEndedEvents.stream().filter(e -> reviewMap.get(e.getId()) == null).collect(Collectors.toList());
+        return allUserEndedEvents;
     }
 
     public List<Event> get() {
-        return eventRepository.findAll();
+        List<Event> eventList = eventRepository.findAll();
+        reviewService.setMarksToEvents(eventList);
+        return eventList;
     }
 
     public void assignOnEvent(Long eventId, Principal principal) {
@@ -121,6 +150,7 @@ public class EventsService {
                     event.setCurrentUserInvited(true);
             });
         }
+        reviewService.setMarksToEvents(nearWithinDistance);
         return nearWithinDistance;
     }
 
@@ -209,6 +239,13 @@ public class EventsService {
                     event.setCurrentUserInvited(true);
             });
         }
+
+        reviewService.setMarksToEvents(eventPage.toList());
+        if (filterData.getEventOwnerRating() > 0) {
+            List<Event> eventList = eventPage.toList().stream().filter(e -> e.getAvgMark() >= filterData.getEventOwnerRating()).collect(Collectors.toList());
+            Page<Event> eventPage1 = new PageImpl<>(eventList, eventPage.getPageable(), eventPage.getTotalElements());
+            return eventPage1;
+        }
         return eventPage;
     }
 
@@ -296,6 +333,10 @@ public class EventsService {
                 if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
                     event.setCurrentUserInvited(true);
             });
+        reviewService.setMarksToEvents(events);
+        if (filterData.getEventOwnerRating() > 0) {
+            events = events.stream().filter(e -> e.getAvgMark() >= filterData.getEventOwnerRating()).collect(Collectors.toList());
+        }
         return events;
     }
 

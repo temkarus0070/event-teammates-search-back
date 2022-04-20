@@ -38,4 +38,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "  cross join lateral unnest(string_to_array(t1.name,' ')) as t3 (word)\n" +
             "where t3.word like concat(:word,'%');", nativeQuery = true)
     Set<String> getWords(String word);
+
+    @Query("SELECT e from Event e where e.dateTimeEnd is not null  and e.dateTimeEnd<CURRENT_TIMESTAMP and exists (SELECT  ea from EventAttendance  ea where  ea.user.login=:login and ea.event=e)")
+    List<Event> findAllUserEndedEvents(String login);
 }
