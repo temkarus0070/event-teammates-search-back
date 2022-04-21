@@ -26,7 +26,6 @@ public class User {
     @Column(unique = true, name = "login")
     private String login;
 
-    @NonNull
     private String firstName;
 
     private String lastName;
@@ -35,7 +34,7 @@ public class User {
 
     private String phone;
 
-    @NonNull
+    @JsonIgnore
     private String password;
 
     private String pictureUrl;
