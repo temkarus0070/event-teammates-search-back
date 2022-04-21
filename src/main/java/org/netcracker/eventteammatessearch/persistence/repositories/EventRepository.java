@@ -39,5 +39,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "where t3.word like concat(:word,'%');", nativeQuery = true)
     Set<String> getWords(String word);
 
-    Event findByUrl(String url);
+    @Query("SELECT e from Event e inner join User u on u member of e.invitedGuests and u.login=:login")
+    List<Event> findUsersInvitedEvents(String login);
 }

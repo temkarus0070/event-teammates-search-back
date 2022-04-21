@@ -22,23 +22,12 @@ public class EventsController {
     @Autowired
     private EventsService eventsService;
 
-
-
-
-
     /* add event */
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public void add(@RequestBody Event event, Principal principal) {
         eventsService.add(event, principal);
     }
-
-
-
-
-
-
-
 
     @GetMapping("/getEventsWithinRadius")
     public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius, Principal principal) {
@@ -96,5 +85,21 @@ public class EventsController {
     public Map deleteCurrentUserFromEvent(Principal principal, @RequestParam long eventId) {
         this.eventsService.removeUserFromEvent(principal, eventId);
         return Map.of("response", principal.getName());
+    }
+
+    @GetMapping("/getInvitesEvent")
+    public List<Event> getInvitesEvent(Principal principal) { return eventsService.getInvitesEvent(principal.getName()); }
+
+    @GetMapping("/getInvitesEventCheck")
+    public boolean isInvited(Principal principal) {
+        if (eventsService.getInvitesEvent(principal.getName()).size() != 0) return true;
+        else return false;
+    }
+
+    @PostMapping("/rejectInvite")
+    @PreAuthorize("isAuthenticated()")
+    public void rejectInvite(@RequestParam long eventId, Principal principal) {
+        System.out.println("\n\n\n\n reject in controller \n\n\n\n");
+        eventsService.removeInvite(eventId, principal.getName());
     }
 }
