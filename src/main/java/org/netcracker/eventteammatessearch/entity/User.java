@@ -39,7 +39,7 @@ public class User {
 
     private String pictureUrl;
 
-    @NonNull
+
     private LocalDate registrationDate;
 
 
@@ -47,7 +47,7 @@ public class User {
         this.login = login;
     }
 
-    public User(String login, @NonNull String password, List<GrantedAuthority> authorities) {
+    public User(String login,  String password, List<GrantedAuthority> authorities) {
         this.login = login;
         this.password = password;
         this.authorities = authorities;

@@ -3,11 +3,9 @@ package org.netcracker.eventteammatessearch.security.Persistence.Entity;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
+import org.netcracker.eventteammatessearch.entity.User;
 
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -24,6 +22,11 @@ public class JwtUserEntity {
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String refreshToken;
+
+
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    private String userData;
 
     @Override
     public boolean equals(Object o) {

@@ -87,7 +87,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 httpBasic().disable()
                 .csrf().disable()
                 .authorizeRequests()
-                .mvcMatchers("/register", "/refreshToken", "/api/events/getEventsWithinRadius", "/api/events/filter", "/api/eventTypes/**", "/error/**", "/oauth2/**", "/login**", "/generateRefreshToken")
+                .mvcMatchers("/register", "/refreshToken", "/api/events/getEventsWithinRadius", "/api/events/filter", "/api/eventTypes/**", "/error/**", "/oauth2/**", "/login**", "/generateRefreshToken","/completeOauth")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()

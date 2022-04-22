@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,6 +23,7 @@ public class UserDetailsManager implements org.springframework.security.provisio
     private PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void createUser(UserDetails user) {
        org.netcracker.eventteammatessearch.security.Entity.UserDetails userDetails = (org.netcracker.eventteammatessearch.security.Entity.UserDetails) user;
         userDetails.getUser().setPassword(passwordEncoder.encode(userDetails.getPassword()));

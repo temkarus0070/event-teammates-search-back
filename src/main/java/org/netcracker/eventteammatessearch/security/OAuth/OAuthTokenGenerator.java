@@ -18,6 +18,9 @@ public class OAuthTokenGenerator {
     @Value("${jwt.secretKey}")
     private String secret;
 
+    @Value("${jwt.tempSecretKey}")
+    private String tempSecret;
+
     @Value("${jwt.expireTime}")
     private long expireTime;
 
@@ -34,12 +37,20 @@ public class OAuthTokenGenerator {
 
         Date expiryDate = new Date(now.getTime() + expireTime);
 
+        if (user.getRegistrationDate()!=null)
         return Jwts.builder()
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .claim("username", user.getLogin())
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
+        else
+            return Jwts.builder()
+                    .setIssuedAt(new Date())
+                    .setExpiration(expiryDate)
+                    .claim("username", user.getLogin())
+                    .signWith(SignatureAlgorithm.HS512,tempSecret)
+                    .compact();
     }
 
     public String getUserIdFromToken(String token) {

@@ -1,8 +1,11 @@
 package org.netcracker.eventteammatessearch.security.OAuth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
+import org.netcracker.eventteammatessearch.security.Persistence.Entity.JwtUserEntity;
 import org.netcracker.eventteammatessearch.security.Persistence.JwtTokenRepository;
 import org.netcracker.eventteammatessearch.security.Services.JwtTokenGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +64,6 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         User user = userRepository.findByOauthUserTrueAndOauthServiceAndOauthKey(auth2AuthenticationToken.getAuthorizedClientRegistrationId(), auth2AuthenticationToken.getPrincipal().getName());
         if (user == null) {
             user = oAuthUserExtractor.extract(auth2AuthenticationToken);
-            user.setRegistrationDate(LocalDate.now());
-            user = userRepository.save(user);
         }
         return user;
     }
@@ -70,9 +71,23 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication, User user) {
         String url = frontend + "/login/oauth2";
         String token = tokenProvider.createToken(authentication, user);
-
+        if (user.getRegistrationDate()!=null){
+            return UriComponentsBuilder.fromUriString(url)
+                    .queryParam("token", token)
+                    .build().toUriString();
+        }
+        ObjectMapper objectMapper=new ObjectMapper();
+        try {
+            String json = objectMapper.writeValueAsString(user);
+            JwtUserEntity jwtUserEntity = new JwtUserEntity(new JwtUserEntity.JwtUserKey(user.getLogin(), token), null, json);
+            jwtTokenRepository.save(jwtUserEntity);
+        }
+        catch (JsonProcessingException processingException){
+            processingException.printStackTrace();
+        }
         return UriComponentsBuilder.fromUriString(url)
                 .queryParam("token", token)
+                .queryParam("notRegistered",true)
                 .build().toUriString();
     }
 
