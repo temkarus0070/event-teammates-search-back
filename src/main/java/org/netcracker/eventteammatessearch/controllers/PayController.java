@@ -16,7 +16,7 @@ public class PayController {
     private PayService payService;
 
     @GetMapping("/getReceipt")
-    public void payForCommercialAccount(Principal principal) {
-        payService.pay(principal);
+    public String payForCommercialAccount(Principal principal) {
+        payService.payForCommercial(principal);
     }
 }
