@@ -2,7 +2,10 @@ package org.netcracker.eventteammatessearch.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -86,6 +89,9 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Survey surveyResult;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private Set<PayingInfo> receipts;
 
     private boolean isCommercialUser;
 

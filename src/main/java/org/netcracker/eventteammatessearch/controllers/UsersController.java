@@ -60,4 +60,5 @@ public class UsersController {
     public List<User> get(HttpServletRequest request) {
         return userRepository.getUsersByLogin(request.getHeader("login"));
     }
+
 }

@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.ZonedDateTime;
 
 @Entity
@@ -22,9 +19,13 @@ public class PayingInfo {
     private long billId;
 
     private double amount;
+    @Enumerated(EnumType.STRING)
+    private PaidService paidService;
     private String currency;
     private String comment;
     private ZonedDateTime expirationDateTime;
-    private String payerLogin;
+    @ManyToOne
+    private User user;
     private String successUrl;
+
 }

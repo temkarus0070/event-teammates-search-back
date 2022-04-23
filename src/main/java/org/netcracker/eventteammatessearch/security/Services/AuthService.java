@@ -35,7 +35,7 @@ public JwtUserEntity register(JwtUserEntity jwtUserEntity) throws Exception {
                         User user = objectMapper.readValue(jwtUserEntityById_jwt.getUserData(), User.class);
                     user.setLogin(jwtUserEntity.getId().getUsername());
                    if(userRepository.findById(user.getLogin()).isPresent()) {
-                       throw new HibernateException("this username already has used");
+                       throw new HibernateException("Такое имя пользователя уже занято");
                    }
                    user.setRegistrationDate(LocalDate.now());
                         userRepository.save(user);
