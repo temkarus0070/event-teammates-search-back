@@ -52,8 +52,10 @@ public class PayService {
 
     private BillPaymentClient client;
 
+    @Value("${qiwi}")
+    private String secretKey;
+
     public PayService() {
-        String secretKey = "eyJ2ZXJzaW9uIjoiUDJQIiwiZGF0YSI6eyJwYXlpbl9tZXJjaGFudF9zaXRlX3VpZCI6ImMzejZrYy0wMCIsInVzZXJfaWQiOiI3OTUxODUwNTEwNyIsInNlY3JldCI6ImE1MTVjMDI1ZGZiZjJlYjA1NTM4ZjQwN2ZkNGViZGIyNjE3MTUzMjY5MWVhYjFiYWM5MmI5NjFlYTc5ODdlNGMifX0=";
         client = BillPaymentClientFactory.createDefault(secretKey);
 
     }
