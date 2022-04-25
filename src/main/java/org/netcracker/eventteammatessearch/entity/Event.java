@@ -86,7 +86,7 @@ public class Event {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @ToString.Exclude
-    @JsonIgnore
+
     private Set<User> invitedGuests;
 
 

@@ -46,6 +46,7 @@ public class EventsService {
     @Autowired
     private ReviewRepository reviewRepository;
 
+
     @Autowired
     private ReviewService reviewService;
 
@@ -365,5 +366,14 @@ public class EventsService {
         this.eventAttendanceRepository.deleteById(userEventKey);
     }
 
+    public List<Event> getInvitesEvent(String name) { return eventRepository.findUsersInvitedEvents(name); }
 
+    public void removeInvite(long eventId, String login){
+        Optional<Event> eventOptional = eventRepository.findById(eventId);
+        if (eventOptional.isPresent()){
+            Event event = eventOptional.get();
+            event.setInvitedGuests(event.getInvitedGuests().stream().filter(u->!u.getLogin().equals(login)).collect(Collectors.toSet()));
+            eventRepository.save(event);
+        }
+    }
 }

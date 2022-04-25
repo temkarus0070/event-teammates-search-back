@@ -82,8 +82,9 @@ public class User {
     @JsonIgnore
     private Set<Event> createdEvents;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "invitedGuests")
     @ToString.Exclude
+    @JsonIgnore
     private Set<Event> invitations;
 
     @OneToOne(mappedBy = "user")

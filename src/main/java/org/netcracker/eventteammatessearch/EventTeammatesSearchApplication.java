@@ -14,7 +14,6 @@ public class EventTeammatesSearchApplication {
     public static void main(String[] args) {
         init();
         SpringApplication.run(EventTeammatesSearchApplication.class, args);
-
     }
 
 
