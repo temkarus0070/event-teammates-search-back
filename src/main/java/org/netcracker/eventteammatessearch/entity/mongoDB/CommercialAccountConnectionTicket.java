@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class CommercialAccountConnectionTicket {
     @Id
     private String userLogin;
+    private long receiptId;
     private boolean isCommercialUser;
 
     private String organizationName;

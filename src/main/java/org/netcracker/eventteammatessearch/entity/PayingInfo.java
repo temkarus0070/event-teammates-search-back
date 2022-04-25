@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.entity;
 
+import com.qiwi.billpayments.sdk.model.BillStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,5 +28,7 @@ public class PayingInfo {
     @ManyToOne
     private User user;
     private String successUrl;
+    @Enumerated(EnumType.STRING)
+    private BillStatus billStatus;
 
 }

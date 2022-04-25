@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/paid")
@@ -16,8 +18,10 @@ public class PayController {
     private PayService payService;
 
     @PostMapping("/getReceiptAndRegisterCommAccount")
-    public String payForCommercialAccount(Principal principal, @RequestBody User user) {
-        return payService.payForCommercial(principal, user);
+    public Map<String, String> payForCommercialAccount(Principal principal, @RequestBody User user) {
+        Map map = new HashMap();
+        map.put("url", payService.payForCommercial(principal, user));
+        return map;
     }
 
     @GetMapping("/getPaymentStatus")
