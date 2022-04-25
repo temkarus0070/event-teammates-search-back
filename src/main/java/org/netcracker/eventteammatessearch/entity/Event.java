@@ -1,6 +1,5 @@
 package org.netcracker.eventteammatessearch.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -84,7 +83,7 @@ public class Event {
     @ToString.Exclude
     private Set<Complaint> complaints;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.REFRESH)
     @ToString.Exclude
 
     private Set<User> invitedGuests;

@@ -21,7 +21,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -136,8 +138,16 @@ public class EventsService {
         eventRepository.deleteById(eventId);
     }
 
-    public void update(Event event) {
-        this.eventRepository.save(event);
+    public void update(Event event, Principal principal) {
+        Optional<Event> optionalEvent = this.eventRepository.findById(event.getId());
+        if (optionalEvent.isPresent()) {
+            if (optionalEvent.get().getOwner().getLogin().equals(principal.getName())) {
+                event.setOwner(optionalEvent.get().getOwner());
+                event.setChat(optionalEvent.get().getChat());
+                event.setComplaints(optionalEvent.get().getComplaints());
+                this.eventRepository.save(event);
+            } else throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Вы не можете редактировать данное событие");
+        } else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "НЕ НАЙДЕНО СОБЫТИЕ С id = " + event.getId());
     }
 
     public List<Event> getEventsByRadius(double lon, double lat, double radius, Principal principal) {

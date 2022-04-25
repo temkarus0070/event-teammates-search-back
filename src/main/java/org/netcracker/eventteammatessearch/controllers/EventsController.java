@@ -74,9 +74,9 @@ public class EventsController {
     }
 
     @PatchMapping
-    @PreAuthorize("isAuthenticated() && #event.owner.login.equals(#principal.name)")
+    @PreAuthorize("isAuthenticated()")
     public void update(@RequestBody Event event, Principal principal) {
-        eventsService.update(event);
+        eventsService.update(event, principal);
     }
 
     @DeleteMapping
