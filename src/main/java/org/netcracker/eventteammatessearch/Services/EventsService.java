@@ -66,6 +66,7 @@ public class EventsService {
     private WKTReader wktReader = new WKTReader();
 
 
+
     public Event get(Long id) {
         Optional<Event> eventOptional = eventRepository.findById(id);
         if (eventOptional.isPresent()) {
@@ -146,7 +147,10 @@ public class EventsService {
                 event.setChat(optionalEvent.get().getChat());
                 event.setComplaints(optionalEvent.get().getComplaints());
                 this.eventRepository.save(event);
-            } else throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Вы не можете редактировать данное событие");
+            } else {
+                logger.warn(String.format("Пользователь %s пытался редактировать не свой эвент с id = %d", principal.getName(), event.getId()));
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Вы не можете редактировать данное событие");
+            }
         } else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "НЕ НАЙДЕНО СОБЫТИЕ С id = " + event.getId());
     }
 

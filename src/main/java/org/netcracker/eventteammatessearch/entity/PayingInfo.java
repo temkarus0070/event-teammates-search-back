@@ -1,10 +1,7 @@
 package org.netcracker.eventteammatessearch.entity;
 
 import com.qiwi.billpayments.sdk.model.BillStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -14,9 +11,11 @@ import java.time.ZonedDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SequenceGenerator(name = "seq", initialValue = 255, allocationSize = 1)
+@ToString
 public class PayingInfo {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
     private long billId;
 
     private double amount;
@@ -25,7 +24,7 @@ public class PayingInfo {
     private String currency;
     private String comment;
     private ZonedDateTime expirationDateTime;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private User user;
     private String successUrl;
     @Enumerated(EnumType.STRING)

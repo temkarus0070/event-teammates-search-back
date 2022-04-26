@@ -22,7 +22,7 @@ public class Tag {
     private String name;
 
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "tags")
     @ToString.Exclude
     @JsonIgnore
     private Set<Event> events;

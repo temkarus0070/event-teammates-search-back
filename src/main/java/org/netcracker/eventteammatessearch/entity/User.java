@@ -22,6 +22,7 @@ import java.util.Set;
 public class User {
     @ElementCollection
     @JsonIgnore
+    @ToString.Exclude
     private List<GrantedAuthority> authorities;
 
 
@@ -37,7 +38,6 @@ public class User {
 
     private String phone;
 
-    @JsonIgnore
     private String password;
 
     private String pictureUrl;
@@ -92,6 +92,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore
+    @ToString.Exclude
     private Set<PayingInfo> receipts;
 
     private boolean isCommercialUser;
