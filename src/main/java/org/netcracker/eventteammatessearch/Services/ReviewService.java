@@ -39,7 +39,7 @@ public class ReviewService {
         Map<String, Double> usersRatingMap = reviewRepository.getReviewsByEventOwnerIdIsIn(logins).stream().collect(Collectors.toMap(e -> e.getEventOwnerId(), e -> e.getMark()));
         eventList.forEach(event -> {
             if (usersRatingMap.containsKey(event.getOwner().getLogin())) {
-                event.setAvgMark(usersRatingMap.get(event.getOwner().getLogin()));
+                event.setAvgMark(Math.floor(usersRatingMap.get(event.getOwner().getLogin())));
             }
         });
     }
