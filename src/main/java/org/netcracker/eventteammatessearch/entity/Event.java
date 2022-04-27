@@ -52,7 +52,7 @@ public class Event {
     @JsonProperty("isHidden")
     private boolean isHidden;
 
-    @OneToOne(mappedBy = "event")
+    @OneToOne(mappedBy = "event", cascade = CascadeType.REMOVE)
     private Chat chat;
 
     private String url;
@@ -74,12 +74,12 @@ public class Event {
 
     private User owner;
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE)
     @ToString.Exclude
 
     private Set<EventAttendance> guests;
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private Set<Complaint> complaints;
 

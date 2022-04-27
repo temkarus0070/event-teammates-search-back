@@ -44,6 +44,16 @@ public class EventsController {
         return eventsService.get();
     }
 
+    @GetMapping("/getUsersCreatedEventsByLogin")
+    public List<Event> getUsersCreatedEventsByLogin(@RequestParam String userLogin) {
+        return eventsService.getUsersCreatedEventsByLogin(userLogin);
+    }
+
+    @GetMapping("/getUsersAttendedEventsByLogin")
+    public List<Event> getUsersAttendedEventsByLogin(@RequestParam String userLogin) {
+        return eventsService.getUsersAttendedEventsByLogin(userLogin);
+    }
+
     @PostMapping("/assignOnEvent")
     @PreAuthorize("isAuthenticated()")
     public Map assignOnEvents(@RequestParam long eventId, Principal principal) {
@@ -80,7 +90,7 @@ public class EventsController {
     }
 
     @DeleteMapping
-    @PreAuthorize("isAuthenticated() && (eventsService.get(#eventId).owner.login.equals(#principal.name) || principal.getAuthorities().?[#this.getAuthority() eq \"ADMIN\"])")
+    @PreAuthorize("isAuthenticated()")
     public void delete(@RequestParam Long eventId, Authentication principal) {
         eventsService.delete(eventId);
     }
