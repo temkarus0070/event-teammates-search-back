@@ -90,7 +90,7 @@ public class EventsController {
     }
 
     @DeleteMapping
-    @PreAuthorize("isAuthenticated() && (eventsService.get(#eventId).owner.login.equals(#principal.name) || principal.getAuthorities().?[#this.getAuthority() eq \"ADMIN\"])")
+    @PreAuthorize("isAuthenticated()")
     public void delete(@RequestParam Long eventId, Authentication principal) {
         eventsService.delete(eventId);
     }
