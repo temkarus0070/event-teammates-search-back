@@ -28,4 +28,14 @@ public class PayController {
     public void getPaymentStatus(Principal principal, PaidService paidService) {
 
     }
+
+    @GetMapping("/getPayingUrl")
+    public String getPayingUrl(Principal principal) {
+        return payService.getUrlForPaying(principal);
+    }
+
+    @GetMapping("/getNewUrl")
+    public String getNewUrl(Principal principal) {
+        return payService.getNewUrlForPaying(principal);
+    }
 }

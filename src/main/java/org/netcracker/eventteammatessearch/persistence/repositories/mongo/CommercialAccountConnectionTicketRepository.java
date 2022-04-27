@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CommercialAccountConnectionTicketRepository extends MongoRepository<CommercialAccountConnectionTicket, String> {
+    CommercialAccountConnectionTicket findCommercialAccountConnectionTicketByUserLogin(String userLogin);
 }

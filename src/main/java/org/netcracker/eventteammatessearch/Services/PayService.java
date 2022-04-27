@@ -57,9 +57,7 @@ public class PayService {
 
     public PayService(@Value("${qiwi}")
                               String secretKey) {
-        ;
         client = BillPaymentClientFactory.createDefault(secretKey);
-
     }
 
     public String payForCommercial(Principal principal, User user) {
@@ -81,6 +79,8 @@ public class PayService {
                     currency), payingInfo.getComment(), payingInfo.getExpirationDateTime(),
                     new Customer(user.getEmail(), user.getLogin(), user.getPhone()), frontendAddress + "/events/map"));
             pendingPaymentsCount.incrementAndGet();
+            payingInfo.setSuccessUrl(billResponse.getPayUrl());
+            payingInfoRepository.save(payingInfo);
             return billResponse.getPayUrl();
         } catch (Exception ex) {
             logger.error("Ошибка при оплате, payingInfo=  " + payingInfo + " \n заявка на подключения коммерческого аккаунта " + commercialAccountConnectionTicket + "\n error: " + ex.getMessage());
@@ -153,5 +153,45 @@ public class PayService {
             commercialAccountConnectionTicketRepository.delete(accountConnectionTicket);
         } else
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "не найдена заявка на подключение коммерческого аккаунта");
+    }
+
+    public CommercialAccountConnectionTicket getExistingCommercialUserRegistration(Principal principal) {
+        return commercialAccountConnectionTicketRepository.findCommercialAccountConnectionTicketByUserLogin(principal.getName());
+    }
+
+    public String getUrlForPaying(Principal principal) {
+        List<PayingInfo> allByUserAndPaidService = payingInfoRepository.findAllByUserAndPaidService(new User(principal.getName()), PaidService.COMMERCIAL_ACCOUNT);
+        for (PayingInfo payingInfo : allByUserAndPaidService) {
+            if (payingInfo.getExpirationDateTime().isBefore(ZonedDateTime.now())) {
+                return payingInfo.getSuccessUrl();
+            }
+        }
+        return null;
+    }
+
+    public String getNewUrlForPaying(Principal principal) {
+        Optional<CommercialAccountConnectionTicket> accountConnectionTicket = commercialAccountConnectionTicketRepository.findById(principal.getName());
+        if (accountConnectionTicket.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Отсутствует заявка на подключение коммерческого аккаунта");
+        }
+        CommercialAccountConnectionTicket commercialAccountConnectionTicket = accountConnectionTicket.get();
+        User user = userRepository.getUserByLogin(principal.getName());
+        Currency currency = Currency.getInstance("RUB");
+        PayingInfo payingInfo = new PayingInfo(0, commercialPrice, PaidService.COMMERCIAL_ACCOUNT, "RUB", "Pay for commercial account",
+                ZonedDateTime.now().plus(Duration.ofHours(1)), user, "", BillStatus.WAITING);
+        payingInfoRepository.save(payingInfo);
+        try {
+            BillResponse billResponse = client.createBill(new CreateBillInfo(String.valueOf(payingInfo.getBillId()), new MoneyAmount(BigDecimal.valueOf(commercialPrice),
+                    currency), payingInfo.getComment(), payingInfo.getExpirationDateTime(),
+                    new Customer(user.getEmail(), user.getLogin(), user.getPhone()), frontendAddress + "/events/map"));
+            pendingPaymentsCount.incrementAndGet();
+            payingInfo.setSuccessUrl(billResponse.getPayUrl());
+            payingInfoRepository.save(payingInfo);
+            return billResponse.getPayUrl();
+        } catch (Exception ex) {
+            logger.error("Ошибка при оплате, payingInfo=  " + payingInfo + " \n заявка на подключения коммерческого аккаунта " + commercialAccountConnectionTicket + "\n error: " + ex.getMessage());
+            payingInfoRepository.delete(payingInfo);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ошибка при оплате");
+        }
     }
 }

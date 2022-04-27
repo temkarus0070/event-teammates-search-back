@@ -5,10 +5,6 @@ import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-<<<<<<< HEAD
-
-=======
->>>>>>> 7dbc8cc (.)
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
@@ -19,12 +15,12 @@ public class UsersController {
 
     @Autowired
     UserService userService;
-<<<<<<< HEAD
-=======
 
->>>>>>> 7dbc8cc (.)
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PayService payService;
 
     @GetMapping("/getUsers")
     public List<User> getUsers() {
@@ -86,6 +82,11 @@ public class UsersController {
     @GetMapping("/usersListByEmail")
     public List<User> getUsersByEmail(@RequestParam String mail) {
         return userRepository.getUsersByEmail(mail);
+    }
+
+    @GetMapping("/getExistingCommercialRegistration")
+    public CommercialAccountConnectionTicket getExistingCommercialRegistration(Principal principal) {
+        return payService.getExistingCommercialUserRegistration(principal);
     }
 
 }
