@@ -61,4 +61,9 @@ public class UsersController {
         return userRepository.getUsersByLogin(request.getHeader("login"));
     }
 
+    @GetMapping("/usersListByEmail")
+    public List<User> getUsersByEmail(@RequestParam String mail) {
+        return userRepository.getUsersByEmail(mail);
+    }
+
 }

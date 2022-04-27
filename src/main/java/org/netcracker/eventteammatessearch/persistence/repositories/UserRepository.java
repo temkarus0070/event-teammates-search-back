@@ -35,4 +35,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> getUsersByName(String name, String userLogin);
 
     User findByOauthUserTrueAndOauthServiceAndOauthKey(String oauthService, String key);
+
+    List<User> getUsersByEmail(String mail);
 }
