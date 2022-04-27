@@ -98,6 +98,14 @@ public class EventsService {
         return eventList;
     }
 
+    public List<Event> getUsersCreatedEventsByLogin(String userLogin) {
+        return eventRepository.getUsersCreatedEventsByLogin(userLogin);
+    }
+
+    public List<Event> getUsersAttendedEventsByLogin(String userLogin) {
+        return eventAttendanceRepository.getUsersAttendedEventsByLogin(userLogin);
+    }
+
     public void assignOnEvent(Long eventId, Principal principal) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isPresent()) {

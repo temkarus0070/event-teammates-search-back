@@ -57,7 +57,6 @@ public class PayService {
 
     public PayService(@Value("${qiwi}")
                               String secretKey) {
-        secretKey = null;
         client = BillPaymentClientFactory.createDefault(secretKey);
 
     }

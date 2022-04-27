@@ -24,7 +24,7 @@ public class PayingInfo {
     private String currency;
     private String comment;
     private ZonedDateTime expirationDateTime;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private User user;
     private String successUrl;
     @Enumerated(EnumType.STRING)
