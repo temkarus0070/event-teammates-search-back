@@ -48,8 +48,17 @@ public class EventsController {
     @PreAuthorize("isAuthenticated()")
     public Map assignOnEvents(@RequestParam long eventId, Principal principal) {
         eventsService.assignOnEvent(eventId, principal);
+        rejectInvite(eventId, principal);
         return Map.of("response", principal.getName());
     }
+
+
+
+
+
+
+
+
 
     @GetMapping("/getEndedEvents")
     public List<Event> getUserEndedEvents(Principal principal) {
