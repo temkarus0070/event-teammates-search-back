@@ -34,7 +34,6 @@ public class Review implements Serializable {
 
     private Set<String> reviewImagesUrls;
 
-
     @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
@@ -42,9 +41,6 @@ public class Review implements Serializable {
     @Setter
     public static class ReviewId implements Serializable {
         private long eventId;
-
         private String userId;
-
-
     }
 }

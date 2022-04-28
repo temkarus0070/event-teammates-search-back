@@ -143,7 +143,8 @@ public class ChatService {
     }
 
     public List<Message> getMessages(long chatId) {
-        return messageRepository.findMessagesByChatIdOrderBySendTime(chatId);
+        List<Message> messagesByChatIdOrderBySendTime = messageRepository.findMessagesByChatIdOrderBySendTime(chatId);
+        return messagesByChatIdOrderBySendTime;
     }
 
     public Message getMessageBefore(long chatId, long messageId) {

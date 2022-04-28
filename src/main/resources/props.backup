@@ -15,3 +15,6 @@ spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.Ph
 jwt.secretKey=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANZw/nm/ybwiTba6w8Uikbxgt9PkeuI2ZBb8jDbQ6agWFWsxy99kh+x6HcRN2ewNVQQusqnlBTO1RVm6xTiogOUCAwEAAQ==
 jwt.expireTime=8640000
 jwt.refreshExpireTime=3155692600
+jwt.tempSecretKey=abcdhenmtai1337
+qiwi=${QIWI_KEY:1}
+commercial_price=${commercial_price:100}
