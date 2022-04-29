@@ -43,4 +43,9 @@ public class ReviewService {
             }
         });
     }
+
+    public List<Review> getReviewsForUserEvents(String login){
+        List<Review> reviewList = reviewRepository.getAllByEventOwnerId(login);
+        return reviewList;
+    }
 }

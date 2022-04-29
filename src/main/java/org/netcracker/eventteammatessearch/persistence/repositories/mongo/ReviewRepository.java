@@ -21,5 +21,7 @@ public interface ReviewRepository extends MongoRepository<Review, Review.ReviewI
             "{$group:{ _id: '$eventOwnerId', mark: {$avg: {$multiply: ['$eventMark','$reviewWeight']}}  }}", "{'$addFields':{'eventOwnerId':'$_id'}}"})
     List<ReviewData> getReviewsByEventOwnerIdIsIn(List<String> login);
 
+    public List<Review> getAllByEventOwnerId(String login);
+
 
 }
