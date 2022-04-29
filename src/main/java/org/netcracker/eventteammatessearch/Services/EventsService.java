@@ -12,6 +12,7 @@ import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Review;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.SurveyRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.slf4j.Logger;
@@ -23,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -31,6 +34,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.security.Principal;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,6 +56,9 @@ public class EventsService {
 
     @Autowired
     private ReviewService reviewService;
+
+    @Autowired
+    private SurveyRepository surveyRepository;
 
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
@@ -106,15 +114,19 @@ public class EventsService {
         return eventAttendanceRepository.getUsersAttendedEventsByLogin(userLogin);
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void assignOnEvent(Long eventId, Principal principal) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isPresent()) {
             Event event = eventOptional.get();
-            EventAttendance eventAttendance = new EventAttendance();
-            eventAttendance.setId(new UserEventKey(event.getId(), principal.getName()));
-            eventAttendance.setEvent(event);
-            eventAttendance.setUser(new User(principal.getName()));
-            eventAttendanceRepository.save(eventAttendance);
+            if (event.getMaxNumberOfGuests() == 0 || event.getGuests().size() < event.getMaxNumberOfGuests()) {
+                EventAttendance eventAttendance = new EventAttendance();
+                eventAttendance.setId(new UserEventKey(event.getId(), principal.getName()));
+                eventAttendance.setEvent(event);
+                eventAttendance.setUser(new User(principal.getName()));
+                eventAttendanceRepository.save(eventAttendance);
+            }
+            else throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Превышен лимит участников мероприятия");
         } else throw new ObjectNotFoundException(eventId, "Event");
     }
 
@@ -166,7 +178,14 @@ public class EventsService {
         Point p = factory.createPoint(new Coordinate(lon, lat));
         List<Event> nearWithinDistance = eventRepository.findNearWithinDistance(p, radius);
         if (principal != null) {
+            Survey survey = surveyRepository.findByUser_login(principal.getName());
+
             nearWithinDistance.forEach(event -> {
+                if (survey!=null){
+                        if (isEventFitSurvey(event,survey)){
+                            event.setRecommendedBySurvey(true);
+                        }
+                }
                 if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
                     event.setCurrentUserEntered(true);
                 if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
@@ -177,6 +196,47 @@ public class EventsService {
         return nearWithinDistance;
     }
 
+   private boolean isEventFitSurvey(Event event,Survey survey){
+       int guestsCount = event.getGuests().size();
+        if ((event.isOnline() && survey.getFormat().stream().anyMatch(e-> e.equalsIgnoreCase("online")))
+        ||(!event.isOnline()&& survey.getFormat().stream().anyMatch(e-> e.equalsIgnoreCase("offline")))){
+            if (event.getDateTimeEnd()!=null ){
+                if (!(event.getDateTimeEnd().isBefore(survey.getDateTimeEnd()) || event.getDateTimeEnd().isEqual(survey.getDateTimeEnd()))){
+                    return false;
+                }
+            }
+            if (!(event.getDateTimeStart().isAfter(survey.getDateTimeStart())|| event.getDateTimeStart().isEqual(survey.getDateTimeStart()))){
+                return false;
+            }
+            if ((guestsCount>survey.getMaxNumberOfGuests()&&survey.getMinNumberOfGuests()!=0) || (guestsCount<survey.getMinNumberOfGuests()&&survey.getMinNumberOfGuests()!=0)){
+                return false;
+            }
+            if (survey.getType().stream().noneMatch(e-> event.getEventType().getName().equalsIgnoreCase(e))) {
+                return false;
+            }
+            if ((event.getPrice()>survey.getMaxPrice()&&survey.getMaxPrice()!=0)||(event.getPrice()<survey.getMinPrice()&&survey.getMinPrice()!=0)){
+                return false;
+            }
+            if (survey.getMinPrice()==0 && survey.getMaxPrice()==0 && event.getPrice()!=0){
+                return false;
+            }
+            if (!getCityFromAddress(event.getLocation().getName()).equalsIgnoreCase(survey.getLocation())){
+                return false;
+            }
+        }
+        else return false;
+        return true;
+    }
+
+    private String getCityFromAddress(String address){
+        String city="";
+        Pattern patternOnlyWithCity=Pattern.compile("г\\.[а-яА-Я]*");
+        Matcher onlyAddressWithCityMatcher = patternOnlyWithCity.matcher(address);
+         if (onlyAddressWithCityMatcher.find()){
+            city = onlyAddressWithCityMatcher.group().substring(2);
+        }
+        return city;
+    }
 
     public Page<Event> filterByPage(EventFilterData filterData, Principal principal, Pageable pageable) {
         List<Specification<Event>> specificationList = new ArrayList<>();
@@ -349,13 +409,19 @@ public class EventsService {
             } else endSpec = endSpec.and(eventSpecification);
         }
         List<Event> events = eventRepository.findAll(endSpec);
-        if (principal != null)
+        if (principal != null){
+            Survey survey = surveyRepository.findByUser_login(principal.getName());
             events.forEach(event -> {
+
+                if (isEventFitSurvey(event,survey)){
+                    event.setRecommendedBySurvey(true);
+                }
                 if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
                     event.setCurrentUserEntered(true);
                 if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
                     event.setCurrentUserInvited(true);
             });
+    }
         reviewService.setMarksToEvents(events);
         if (filterData.getEventOwnerRating() > 0) {
             events = events.stream().filter(e -> e.getAvgMark() >= filterData.getEventOwnerRating()).collect(Collectors.toList());

@@ -88,6 +88,8 @@ public class Event {
 
     private Set<User> invitedGuests;
 
+    @Transient
+    private boolean recommendedBySurvey;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @ToString.Exclude
