@@ -12,6 +12,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -21,9 +22,7 @@ import java.util.Set;
 @Table(name = "app_users")
 public class User {
     @ElementCollection
-    @JsonIgnore
-    @ToString.Exclude
-    private List<GrantedAuthority> authorities;
+    private List<String> authorities;
 
 
     @Id
@@ -53,7 +52,7 @@ public class User {
     public User(String login,  String password, List<GrantedAuthority> authorities) {
         this.login = login;
         this.password = password;
-        this.authorities = authorities;
+        this.authorities = authorities.stream().map(e->e.getAuthority()).collect(Collectors.toList());
     }
 
     private boolean prefersOfflineEvents;

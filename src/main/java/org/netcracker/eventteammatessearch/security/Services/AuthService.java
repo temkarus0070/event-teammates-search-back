@@ -9,9 +9,11 @@ import org.netcracker.eventteammatessearch.security.Persistence.Entity.JwtUserEn
 import org.netcracker.eventteammatessearch.security.Persistence.JwtTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 @Service
 public class AuthService {
@@ -38,6 +40,9 @@ public JwtUserEntity register(JwtUserEntity jwtUserEntity) throws Exception {
                        throw new HibernateException("Такое имя пользователя уже занято");
                    }
                    user.setRegistrationDate(LocalDate.now());
+                    ArrayList<String> grantedAuthorities = new ArrayList<>();
+                    grantedAuthorities.add("user");
+                    user.setAuthorities(grantedAuthorities);
                         userRepository.save(user);
                     JWTAuthentication newJWT = jwtTokenGeneratorService.generate(new UsernamePasswordAuthenticationToken(jwtUserEntity.getId().getUsername(), null));
                     jwtUserEntity=new JwtUserEntity(new JwtUserEntity.JwtUserKey(newJWT.getName(), newJWT.getCredentials().toString()),newJWT.getRefreshToken(),null);

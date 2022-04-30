@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class UserService {
@@ -38,11 +41,26 @@ public class UserService {
         existingUser.setDescription(user.getDescription());
         existingUser.setCommercialUser(user.isCommercialUser());
         existingUser.setCommercialUserCreated(user.isCommercialUserCreated());
-
         String newPassword = passwordEncoder.encode(user.getPassword());
         existingUser.setPassword(newPassword);
-
         userRepository.save(existingUser);
+    }
+
+    public void updateUserAuthority(User user){
+        this.userRepository.findById(user.getLogin()).ifPresent(e-> {
+            e.setAuthorities(user.getAuthorities());
+            this.userRepository.save(e);
+        });
+    }
+    public void updateUsers(List<User> users){
+        Map<String, User> userMap = userRepository.findAllById(users.stream().map(User::getLogin).collect(Collectors.toList())).stream().collect(Collectors.<User, String, User>toMap(User::getLogin, e -> e));
+        if (userMap.size()!=users.size()){
+            throw new Error("Вы пытаетесь обновить несуществующую сущность");
+        }
+        users.forEach(e->{
+            userMap.get(e.getLogin()).setAuthorities(e.getAuthorities());
+        });
+        userRepository.saveAll(userMap.values());
     }
 
     public void updateUserPhoto(User user) {

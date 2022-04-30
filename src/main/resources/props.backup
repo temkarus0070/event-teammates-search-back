@@ -17,4 +17,4 @@ jwt.expireTime=8640000
 jwt.refreshExpireTime=3155692600
 jwt.tempSecretKey=abcdhenmtai1337
 qiwi=${QIWI_KEY:1}
-commercial_price=${commercial_price:100}
+commercial_price=${COMMERCIAL_PRICE:100}

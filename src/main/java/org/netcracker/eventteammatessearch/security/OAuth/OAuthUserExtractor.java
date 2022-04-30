@@ -33,7 +33,7 @@ public class OAuthUserExtractor {
         user.setOauthUser(true);
         user.setOauthService(authenticationToken.getAuthorizedClientRegistrationId());
         user.setOauthKey(defaultOAuth2User.getName());
-        user.setAuthorities(List.of(new SimpleGrantedAuthority("user")));
+        user.setAuthorities(List.of("user"));
         return user;
     }
 }

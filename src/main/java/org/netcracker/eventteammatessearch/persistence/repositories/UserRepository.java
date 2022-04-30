@@ -37,4 +37,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     User findByOauthUserTrueAndOauthServiceAndOauthKey(String oauthService, String key);
 
     List<User> getUsersByEmail(String mail);
+
+    List<User> findUsersByAuthoritiesContains(GrantedAuthority grantedAuthority);
 }

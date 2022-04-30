@@ -1,10 +1,7 @@
 package org.netcracker.eventteammatessearch.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.EmbeddedId;
@@ -18,6 +15,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class Complaint {
     @EmbeddedId
     private UserEventKey id;
@@ -32,11 +30,13 @@ public class Complaint {
     @JsonIgnore
     private User user;
 
+    private String text;
+
     private Status status;
 
     @ManyToOne
     @JsonIgnore
-    private User admin;
+    private User complaintResolver;
 
     @Override
     public boolean equals(Object o) {

@@ -39,7 +39,7 @@ public class RegistrationController {
 
     @PostMapping("/register")
     public void register(@RequestBody User user) {
-        user.setAuthorities(List.of(new SimpleGrantedAuthority("user")));
+        user.setAuthorities(List.of("user"));
         user.setRegistrationDate(LocalDate.now());
         userDetailsManager.createUser(new UserDetails(user));
 

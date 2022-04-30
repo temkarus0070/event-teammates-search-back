@@ -55,6 +55,16 @@ public class UsersController {
         userService.updateUser(user);
     }
 
+    @PatchMapping("/updateUserAuthority")
+    public void updateUserAuthority(@RequestBody User user) {
+        userService.updateUserAuthority(user);
+    }
+
+    @PatchMapping("/updateUsersAuthorities")
+    public void updateUsers(@RequestBody List<User> users){
+            this.userService.updateUsers(users);
+    }
+
     @PatchMapping("/updateUserPhoto")
     public void updateUserPhoto(@RequestBody User user) {
         userService.updateUserPhoto(user);
@@ -87,6 +97,11 @@ public class UsersController {
     @GetMapping("/getExistingCommercialRegistration")
     public CommercialAccountConnectionTicket getExistingCommercialRegistration(Principal principal) {
         return payService.getExistingCommercialUserRegistration(principal);
+    }
+
+    @GetMapping("/getCurrentUser")
+    public User getCurrentUser(Principal principal){
+return userService.getUserByLogin(principal.getName());
     }
 
 }
