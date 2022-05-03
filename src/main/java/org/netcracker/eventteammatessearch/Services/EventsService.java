@@ -10,10 +10,7 @@ import org.locationtech.jts.io.WKTReader;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Review;
-import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
-import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
-import org.netcracker.eventteammatessearch.persistence.repositories.SurveyRepository;
-import org.netcracker.eventteammatessearch.persistence.repositories.TagRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.*;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +20,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,13 +44,14 @@ import static org.geolatte.geom.crs.CoordinateReferenceSystems.WGS84;
 public class EventsService {
     private static final Logger logger = LoggerFactory.getLogger(EventsService.class);
 
-
     @Autowired
     private EventRepository eventRepository;
 
     @Autowired
     private ReviewRepository reviewRepository;
 
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ReviewService reviewService;
@@ -72,8 +71,6 @@ public class EventsService {
     private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
 
     private WKTReader wktReader = new WKTReader();
-
-
 
     public Event get(Long id) {
         Optional<Event> eventOptional = eventRepository.findById(id);
@@ -132,8 +129,10 @@ public class EventsService {
 
     public void add(Event event, Principal principal) {
         String name = principal.getName();
-        User user = new User();
-        user.setLogin(name);
+        User user = userRepository.getUserByLogin(name);
+        if (user.isBlocked()) {
+            throw new AccessDeniedException("Данная возможность заблокирована для вашего аккаунта");
+        }
         event.setOwner(user);
         Set<Tag> tags = new HashSet<>(tagRepository.findAllById(event.getTags() == null ? new HashSet<>() : event.getTags().stream().map(Tag::getName).collect(Collectors.toList())));
         tags.addAll(event.getTags());
@@ -162,6 +161,11 @@ public class EventsService {
     public void update(Event event, Principal principal) {
         Optional<Event> optionalEvent = this.eventRepository.findById(event.getId());
         if (optionalEvent.isPresent()) {
+            if (optionalEvent.get().isHidden()) {
+                logger.warn(String.format("Пользователь %s пытался редактировать заблокированный эвент с id = %d", principal.getName(), event.getId()));
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Вы не можете редактировать данное событие");
+            }
+
             if (optionalEvent.get().getOwner().getLogin().equals(principal.getName())) {
                 event.setOwner(optionalEvent.get().getOwner());
                 event.setChat(optionalEvent.get().getChat());
@@ -181,10 +185,10 @@ public class EventsService {
             Survey survey = surveyRepository.findByUser_login(principal.getName());
 
             nearWithinDistance.forEach(event -> {
-                if (survey!=null){
-                        if (isEventFitSurvey(event,survey)){
-                            event.setRecommendedBySurvey(true);
-                        }
+                if (survey!=null) {
+                    if (isEventFitSurvey(event, survey)) {
+                        event.setRecommendedBySurvey(true);
+                    }
                 }
                 if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
                     event.setCurrentUserEntered(true);
@@ -196,19 +200,19 @@ public class EventsService {
         return nearWithinDistance;
     }
 
-   private boolean isEventFitSurvey(Event event,Survey survey){
-       int guestsCount = event.getGuests().size();
-        if ((event.isOnline() && survey.getFormat().stream().anyMatch(e-> e.equalsIgnoreCase("online")))
-        ||(!event.isOnline()&& survey.getFormat().stream().anyMatch(e-> e.equalsIgnoreCase("offline")))){
-            if (event.getDateTimeEnd()!=null ){
-                if (!(event.getDateTimeEnd().isBefore(survey.getDateTimeEnd()) || event.getDateTimeEnd().isEqual(survey.getDateTimeEnd()))){
+    private boolean isEventFitSurvey(Event event, Survey survey) {
+        int guestsCount = event.getGuests().size();
+        if ((event.isOnline() && survey.getFormat().stream().anyMatch(e -> e.equalsIgnoreCase("online")))
+                || (!event.isOnline() && survey.getFormat().stream().anyMatch(e -> e.equalsIgnoreCase("offline")))) {
+            if (event.getDateTimeEnd() != null) {
+                if (!(event.getDateTimeEnd().isBefore(survey.getDateTimeEnd()) || event.getDateTimeEnd().isEqual(survey.getDateTimeEnd()))) {
                     return false;
                 }
             }
-            if (!(event.getDateTimeStart().isAfter(survey.getDateTimeStart())|| event.getDateTimeStart().isEqual(survey.getDateTimeStart()))){
+            if (!(event.getDateTimeStart().isAfter(survey.getDateTimeStart()) || event.getDateTimeStart().isEqual(survey.getDateTimeStart()))) {
                 return false;
             }
-            if ((guestsCount>survey.getMaxNumberOfGuests()&&survey.getMinNumberOfGuests()!=0) || (guestsCount<survey.getMinNumberOfGuests()&&survey.getMinNumberOfGuests()!=0)){
+            if ((guestsCount > survey.getMaxNumberOfGuests() && survey.getMinNumberOfGuests() != 0) || (guestsCount < survey.getMinNumberOfGuests() && survey.getMinNumberOfGuests() != 0)) {
                 return false;
             }
             if (survey.getType().stream().noneMatch(e-> event.getEventType().getName().equalsIgnoreCase(e))) {
@@ -232,7 +236,7 @@ public class EventsService {
         String city="";
         Pattern patternOnlyWithCity=Pattern.compile("г\\.[а-яА-Я]*");
         Matcher onlyAddressWithCityMatcher = patternOnlyWithCity.matcher(address);
-         if (onlyAddressWithCityMatcher.find()){
+        if (onlyAddressWithCityMatcher.find()) {
             city = onlyAddressWithCityMatcher.group().substring(2);
         }
         return city;
@@ -303,6 +307,7 @@ public class EventsService {
                         DSL.point(WGS84, g(userLocation[0], userLocation[1]))
                         , filterData.getMaxDistance()) : null);
 
+        specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get(Event_.IS_HIDDEN)));
 
         Specification<Event> endSpec = null;
         boolean isFirst = true;
@@ -388,6 +393,8 @@ public class EventsService {
                 }
         );
 
+        specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get(Event_.IS_HIDDEN)));
+
         specificationList.add((root, query, criteriaBuilder) -> filterData.getTheme() != null && !filterData.getTheme().equals("") ? criteriaBuilder.equal(root.get(Event_.theme), filterData.getTheme()) : null);
         specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
                 criteriaBuilder.equal(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("ONLINE")),
@@ -421,7 +428,7 @@ public class EventsService {
                 if (event.getInvitedGuests().parallelStream().anyMatch(user -> user.getLogin().equals(principal.getName())))
                     event.setCurrentUserInvited(true);
             });
-    }
+        }
         reviewService.setMarksToEvents(events);
         if (filterData.getEventOwnerRating() > 0) {
             events = events.stream().filter(e -> e.getAvgMark() >= filterData.getEventOwnerRating()).collect(Collectors.toList());

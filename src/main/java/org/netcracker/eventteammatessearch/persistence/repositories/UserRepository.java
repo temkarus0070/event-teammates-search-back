@@ -38,5 +38,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     List<User> getUsersByEmail(String mail);
 
-    List<User> findUsersByAuthoritiesContains(GrantedAuthority grantedAuthority);
+    @Query("select u from User  u join u.authorities a where a=?1")
+    List<User> findUsersByAuthorities(String grantedAuthority);
 }

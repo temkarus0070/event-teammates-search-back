@@ -55,7 +55,6 @@ public class User {
         this.authorities = authorities.stream().map(e->e.getAuthority()).collect(Collectors.toList());
     }
 
-    private boolean prefersOfflineEvents;
 
     private boolean isBlocked;
 

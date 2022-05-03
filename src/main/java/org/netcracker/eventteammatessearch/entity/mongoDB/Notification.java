@@ -5,11 +5,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "events")
+@Document(collection = "notifications")
 @ToString
 public class Notification {
     @Transient
@@ -20,7 +22,11 @@ public class Notification {
 
     private String userId;
 
-    private NotificationDescription notificationDescription;
+    private LocalDateTime notificationTime;
+
+    private String title;
+
+    private String description;
 
     private boolean isShown;
 }

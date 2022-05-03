@@ -1,10 +1,13 @@
 package org.netcracker.eventteammatessearch.controllers;
 
+import org.netcracker.eventteammatessearch.Services.PayService;
 import org.netcracker.eventteammatessearch.Services.UserService;
 import org.netcracker.eventteammatessearch.entity.User;
+import org.netcracker.eventteammatessearch.entity.mongoDB.CommercialAccountConnectionTicket;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
