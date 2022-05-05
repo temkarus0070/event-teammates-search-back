@@ -1,14 +1,18 @@
 package org.netcracker.eventteammatessearch.Services;
 
+import org.hibernate.ObjectNotFoundException;
 import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -19,6 +23,32 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    public boolean checkIfPhoneNotUsed(String phone) {
+        List<User> usersByPhone = userRepository.findUsersByPhone(phone);
+        if (usersByPhone.size() == 0)
+            return true;
+        return false;
+    }
+
+    public void setPhone(Principal principal, String phone) {
+        Optional<User> user = userRepository.findById(principal.getName());
+        user.ifPresent(u -> {
+            boolean checkIfPhoneNotUsed = checkIfPhoneNotUsed(phone);
+            if (!checkIfPhoneNotUsed) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Данный  номер телефона уже занят");
+            } else u.setPhone(phone);
+            //  userRepository.save(u);
+        });
+    }
+
+    public void setPhoneConfirmed(Principal principal) {
+        User userByLogin = getUserByLogin(principal.getName());
+        if (userByLogin != null) {
+            userByLogin.setPhoneConfirmed(true);
+
+        } else throw new ObjectNotFoundException(principal.getName(), "User");
+    }
 
     public User getUserByLogin(String login) {
         User user = userRepository.findById(login).orElse(null);

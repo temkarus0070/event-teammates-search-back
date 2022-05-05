@@ -40,4 +40,8 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("select u from User  u join u.authorities a where a=?1")
     List<User> findUsersByAuthorities(String grantedAuthority);
+
+
+    List<User> findUsersByPhone(String phone);
+
 }

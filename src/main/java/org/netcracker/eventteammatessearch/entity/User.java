@@ -37,6 +37,8 @@ public class User {
 
     private String phone;
 
+    private boolean isPhoneConfirmed;
+
     private String password;
 
     private String pictureUrl;
@@ -52,7 +54,7 @@ public class User {
     public User(String login,  String password, List<GrantedAuthority> authorities) {
         this.login = login;
         this.password = password;
-        this.authorities = authorities.stream().map(e->e.getAuthority()).collect(Collectors.toList());
+        this.authorities = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
     }
 
 
