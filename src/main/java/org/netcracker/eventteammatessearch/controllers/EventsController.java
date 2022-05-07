@@ -12,6 +12,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,6 +68,14 @@ public class EventsController {
     @GetMapping("/getEndedEvents")
     public List<Event> getUserEndedEvents(Principal principal) {
         return eventsService.getFinishedEventsOfUser(principal);
+    }
+
+    @GetMapping("/getEndedEventsInInterval")
+    public List<Event> getUserEndedEventsInInterval(Principal principal, @RequestParam String date1, @RequestParam String date2) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime date1LTD = LocalDateTime.parse(date1, formatter);
+        LocalDateTime date2LTD = LocalDateTime.parse(date2, formatter);
+        return eventsService.getFinishedEventsOfUserInInterval(principal, date1LTD, date2LTD);
     }
 
     @GetMapping("/getEvent")

@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -18,13 +20,13 @@ import java.util.Set;
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 
 
-    @Query(value = "SELECT e from Event  e where distance(e.location.location, :p,true) <= :distanceM")
+    @Query(value = "SELECT e from Event  e where distance(e.location.location, :p,true) <= :distanceM and (e.dateTimeEnd is null or e.dateTimeEnd > CURRENT_TIMESTAMP) and e.isHidden = false")
     List<Event> findNearWithinDistance(Point p, double distanceM);
 
     @Query(value = "SELECT e FROM Event e inner join e.tags inner join e.guests inner join e.location inner join e.eventType inner join e.owner inner join e.invitedGuests")
     List<Event> findAll(List<Specification<Event>> specifications);
 
-    @Query(value = "SELECT e FROM Event e where e.owner.login = :userLogin")
+    @Query(value = "SELECT e FROM Event e where e.owner.login = :userLogin and (e.dateTimeEnd is null or e.dateTimeEnd > CURRENT_TIMESTAMP) and e.isHidden = false")
     List<Event> getUsersCreatedEventsByLogin(String userLogin);
 
     @Query(value = "SELECT e FROM Event e inner join e.tags inner join e.guests inner join e.location inner join e.eventType inner join e.owner inner join e.invitedGuests")
@@ -43,6 +45,9 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     @Query("SELECT e from Event e where e.dateTimeEnd is not null  and e.dateTimeEnd<CURRENT_TIMESTAMP and exists (SELECT  ea from EventAttendance  ea where  ea.user.login=:login and ea.event=e)")
     List<Event> findAllUserEndedEvents(String login);
+
+    @Query("SELECT e from Event e where e.dateTimeEnd is not null  and e.dateTimeEnd>=:date1 and e.dateTimeEnd<=:date2 and exists (SELECT  ea from EventAttendance  ea where  ea.user.login=:login and ea.event=e)")
+    List<Event> findAllUserEndedEventsInInterval(String login, LocalDateTime date1, LocalDateTime date2);
 
     @Query("SELECT e from Event e inner join User u on u member of e.invitedGuests and u.login=:login")
     List<Event> findUsersInvitedEvents(String login);
