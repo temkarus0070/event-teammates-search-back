@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface EventAttendanceRepository extends JpaRepository<EventAttendance, UserEventKey> {
 
-    @Query(value = "SELECT e.event FROM EventAttendance e where e.id.userId = :userLogin")
+    @Query(value = "SELECT e.event FROM EventAttendance e where e.id.userId = :userLogin and (e.event.dateTimeEnd is null or e.event.dateTimeEnd > CURRENT_TIMESTAMP) and e.event.isHidden = false")
     List<Event> getUsersAttendedEventsByLogin(String userLogin);
 
 }

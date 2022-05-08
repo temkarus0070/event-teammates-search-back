@@ -31,6 +31,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,6 +98,16 @@ public class EventsService {
         return allUserEndedEvents;
     }
 
+    public List<Event> getFinishedEventsOfUserInInterval(Principal principal, LocalDateTime date1, LocalDateTime date2) {
+        List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEventsInInterval(principal.getName(), date1, date2);
+        List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
+        Map<Long, Review> reviewMap = Stream.of(reviewRepository.getReviewsById_UserIdAndId_EventIdIn(principal.getName(), ids)).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.<Review, Long, Review>toMap(
+                (Review e) -> e.getId().getEventId(),
+                (Review e) -> e));
+        allUserEndedEvents = allUserEndedEvents.stream().filter(e -> reviewMap.get(e.getId()) == null).collect(Collectors.toList());
+        return allUserEndedEvents;
+    }
+
     public List<Event> get() {
         List<Event> eventList = eventRepository.findAll();
         reviewService.setMarksToEvents(eventList);
@@ -112,6 +123,14 @@ public class EventsService {
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    public List<Event> getUsersCreatedEventsByLogin(String userLogin) {
+        return eventRepository.getUsersCreatedEventsByLogin(userLogin);
+    }
+
+    public List<Event> getUsersAttendedEventsByLogin(String userLogin) {
+        return eventAttendanceRepository.getUsersAttendedEventsByLogin(userLogin);
+    }
+
     public void assignOnEvent(Long eventId, Principal principal) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isPresent()) {
