@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Table(name = "app_users")
 public class User {
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> authorities;
 
 

@@ -83,8 +83,8 @@ public class JwtTokenGeneratorService {
         if (token == null) {
           return null;
         } else {
-            JwtUserEntity jwtUserEntity = generate(token);
             jwtTokenRepository.delete(token);
+            JwtUserEntity jwtUserEntity = generate(token);
             return jwtUserEntity;
         }
     }

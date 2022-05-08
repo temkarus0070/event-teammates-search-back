@@ -30,6 +30,8 @@ public class PhoneToken {
 
     private String phone;
 
+    private String code;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

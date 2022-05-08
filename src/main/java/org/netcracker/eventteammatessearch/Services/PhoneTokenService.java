@@ -15,6 +15,9 @@ public class PhoneTokenService {
     @Autowired
     private PhoneTokenRepository phoneTokenRepository;
 
+    public List<PhoneToken> getUserTokens(Principal principal){
+        return phoneTokenRepository.findAllById_UserId(principal.getName());
+    }
 
     public boolean checkIfHasNotExpired(Principal principal) {
         List<PhoneToken> phoneTokenList = phoneTokenRepository.findAllById_UserId(principal.getName());

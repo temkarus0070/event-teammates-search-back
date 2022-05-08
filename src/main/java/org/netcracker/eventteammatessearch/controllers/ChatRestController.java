@@ -54,4 +54,14 @@ public class ChatRestController {
     public Message getMessageBefore(@RequestParam long chatId, @RequestParam long id) {
         return chatService.getMessageBefore(chatId, id);
     }
+
+    @DeleteMapping("/removeUserFromChat")
+    public void removeUserFromChat(Principal principal,@RequestParam long chatId){
+        chatService.removeUserFromChat(principal.getName() ,chatId);
+    }
+
+    @GetMapping("/getChatWithUser")
+    public Chat getChatWithUser(String username,Principal principal){
+return chatService.getChatWithUser(username, principal);
+    }
 }

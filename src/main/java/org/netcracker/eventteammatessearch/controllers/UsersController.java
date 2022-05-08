@@ -67,35 +67,6 @@ public class UsersController {
             this.userService.updateUsers(users);
     }
 
-    @PatchMapping("/updateUserPhoto")
-    public void updateUserPhoto(@RequestBody User user) {
-        userService.updateUserPhoto(user);
-    }
-
-    @PatchMapping("/deleteUserPhoto")
-    public void deleteUserPhoto(@RequestBody User user) {
-        userService.deleteUserPhoto(user);
-    }
-
-    @PatchMapping("/updateCommercialAcc")
-    public void updateCommercialAcc(@RequestBody User user) {
-        userService.updateCommercialAcc(user);
-    }
-
-    @PatchMapping("/updateUserPhoto")
-    public void updateUserPhoto(@RequestBody User user) {
-        userService.updateUserPhoto(user);
-    }
-
-    @PatchMapping("/deleteUserPhoto")
-    public void deleteUserPhoto(@RequestBody User user) {
-        userService.deleteUserPhoto(user);
-    }
-
-    @PatchMapping("/updateCommercialAcc")
-    public void updateCommercialAcc(@RequestBody User user) {
-        userService.updateCommercialAcc(user);
-    }
 
     @GetMapping("/approvePassword")
     public boolean approvePassword(@RequestParam String login, @RequestParam String password) {

@@ -19,6 +19,10 @@ public class PhoneTokenController {
 
     @GetMapping("/checkCode")
     public boolean checkConfirmCode(@RequestParam String code, @RequestParam String phone, Principal principal) {
-        return smsConfirmationService.checkToken(phone, code, principal);
+        boolean result = smsConfirmationService.checkToken(phone, code, principal);
+        if (result){
+            smsConfirmationService.setPhoneConfirmationToUser(principal);
+        }
+        return result;
     }
 }

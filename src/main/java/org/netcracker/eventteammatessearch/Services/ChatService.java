@@ -47,6 +47,7 @@ public class ChatService {
     @Autowired
     private LastMessagesRepository lastMessagesRepository;
 
+
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public long createForUser(String username, Principal principal) {
         Chat chat = chatRepository.getByPrivateTrueAndChatUsersContains(username, principal.getName());
@@ -135,6 +136,11 @@ public class ChatService {
         return chatOptional;
     }
 
+    public Chat getChatWithUser(String username, Principal principal) {
+        Set<String> logins= Set.of(username, principal.getName());
+        Chat chat = this.chatRepository.findChatByPrivateTrueAndChatUsers(logins);
+       return chat;
+    }
     public void updateLastSeenMessage(Principal principal, long chatId, long messageId) {
         LastSeenChatMessage lastSeenChatMessage = new LastSeenChatMessage();
         lastSeenChatMessage.setMessageId(messageId);
@@ -167,7 +173,18 @@ public class ChatService {
                 if (chat.isPrivate()) {
                     Optional<ChatUser> chatUser = chat.getChatUsers().stream().filter(e -> !e.getUser().getLogin().equals(principal.getName())).findFirst();
                     if (chatUser.isPresent()) {
-                        chat.setName(chatUser.get().getUser().getFirstName() + " " + chatUser.get().getUser().getLastName());
+                        ChatUser chatUser1 = chatUser.get();
+                        String chatName="";
+                        if (chatUser1.getUser().getFirstName()!=null){
+                            chatName+=chatUser1.getUser().getFirstName();
+                        }
+                        if (chatUser1.getUser().getLastName()!=null){
+                            chatName+=chatUser1.getUser().getLastName();
+                        }
+                        if (chatName.equals("")){
+                            chatName=chatUser1.getUser().getLogin();
+                        }
+                        chat.setName(chatName);
                     } else chat.setName("PRIVATE CHAT " + chat.getId());
                 }
                 LastSeenChatMessage lastSeenChatMessage = chatMessageMap.get(chat.getId());
@@ -191,8 +208,8 @@ public class ChatService {
         this.messageRepository.removeMessageByChatIdAndIdAndUserId(message.getChatId(), message.getId(), message.getUserId());
     }
 
-    public void removeUserFromChat(String username, long eventId) {
-        Chat byEvent_id = this.chatRepository.getByEvent_Id(eventId);
+    public void removeUserFromChat(String username, long chatId) {
+        Chat byEvent_id = this.chatRepository.findById(chatId).get();
         if (byEvent_id != null) {
             chatUserRepository.deleteById(new ChatUserKey(byEvent_id.getId(), username));
         }

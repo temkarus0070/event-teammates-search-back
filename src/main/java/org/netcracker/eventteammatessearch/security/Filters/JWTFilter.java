@@ -10,6 +10,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
@@ -28,6 +30,14 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
     protected JWTFilter(@Value("/api/**") String defaultFilterProcessesUrl, AuthenticationManager authenticationManager, @Lazy UserDetailsManager userDetailsManager) {
         super(defaultFilterProcessesUrl, authenticationManager);
         this.userDetailsManager = userDetailsManager;
+        this.setRequiresAuthenticationRequestMatcher(new RequestMatcher(){
+            @Override
+            public boolean matches(HttpServletRequest request) {
+                String authorization = request.getHeader("Authorization");
+                String servletPath = request.getServletPath();
+                return authorization!=null&&!servletPath.equals("/refreshToken");
+            }
+        });
     }
 
     @Override
@@ -47,6 +57,7 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
         context.setAuthentication(authResult);
         SecurityContextHolder.setContext(context);
         chain.doFilter(request, response);
-
     }
+
+
 }
