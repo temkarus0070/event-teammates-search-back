@@ -161,11 +161,15 @@ public class PayService {
 
     public String getUrlForPaying(Principal principal) {
         List<PayingInfo> allByUserAndPaidService = payingInfoRepository.findAllByUserAndPaidService(new User(principal.getName()), PaidService.COMMERCIAL_ACCOUNT);
+        boolean has=false;
         for (PayingInfo payingInfo : allByUserAndPaidService) {
             if (payingInfo.getExpirationDateTime().isBefore(ZonedDateTime.now())) {
                 return payingInfo.getSuccessUrl();
             }
+            else has=true;
         }
+        if (has)
+            return "";
         return null;
     }
 
