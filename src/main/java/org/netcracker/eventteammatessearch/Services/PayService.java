@@ -166,7 +166,7 @@ public class PayService {
             if (payingInfo.getExpirationDateTime().isBefore(ZonedDateTime.now())) {
                 return payingInfo.getSuccessUrl();
             }
-            else has=true;
+            has=true;
         }
         logger.info("PAY HAS ="+has);
         if (has)
