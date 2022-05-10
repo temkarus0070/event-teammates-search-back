@@ -168,6 +168,7 @@ public class PayService {
             }
             else has=true;
         }
+        logger.info("PAY HAS ="+has);
         if (has)
 
             return "";
