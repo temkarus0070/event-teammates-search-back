@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class PayService {
     private static Logger logger = LoggerFactory.getLogger(PayService.class);
     private AtomicLong pendingPaymentsCount = new AtomicLong(1);
+    private AtomicLong trashCount=new AtomicLong(1);
     @Autowired
     private PayingInfoRepository payingInfoRepository;
     @Autowired
@@ -105,9 +106,15 @@ public class PayService {
         List<PayingInfo> payingInfoListForChanged = new ArrayList<>();
         payingInfos.forEach(e -> {
             if (e.getExpirationDateTime().isBefore(ZonedDateTime.now())) {
+                ZonedDateTime expirationDateTime = ZonedDateTime.of(e.getExpirationDateTime().toLocalDateTime(),e.getExpirationDateTime().getZone());
+                if (expirationDateTime.plusDays(1).isBefore(ZonedDateTime.now())&&e.getBillStatus()!=BillStatus.PAID){
+                    trashCount.incrementAndGet();
+                }
                 e.setBillStatus(BillStatus.EXPIRED);
+                trashCount.incrementAndGet();
                 payingInfoListForChanged.add(e);
-                pendingPaymentsCount.decrementAndGet();
+                if (pendingPaymentsCount.get()>0)
+                    pendingPaymentsCount.decrementAndGet();
             } else {
                 try {
                     BillResponse response = client.getBillInfo(String.valueOf(e.getBillId()));
@@ -126,6 +133,34 @@ public class PayService {
         payingInfoRepository.saveAll(payingInfoListForChanged);
     }
 
+   private void removeTrash(){
+       List<PayingInfo> payingInfos=payingInfoRepository.findAll();
+       List<PayingInfo>payingInfoListForRemove=new ArrayList<>();
+       payingInfos.forEach(e -> {
+           if (e.getExpirationDateTime().isBefore(ZonedDateTime.now())) {
+               ZonedDateTime expirationDateTime = ZonedDateTime.of(e.getExpirationDateTime().toLocalDateTime(),e.getExpirationDateTime().getZone());
+               if (expirationDateTime.plusDays(1).isBefore(ZonedDateTime.now())&&e.getBillStatus()!=BillStatus.PAID){
+                   try{
+                       removeCommercialAccountConnectionTicket(new UserPrincipal(e.getUser().getLogin()));
+                   }
+                   catch (Exception ex){
+                       logger.error(ex.getMessage());
+                   }
+                   payingInfoListForRemove.add(e);
+                   if (trashCount.get()>0)
+                    trashCount.decrementAndGet();
+               }
+
+           }
+       });
+       if (payingInfoListForRemove.size()==0){
+           if (trashCount.get()>0)
+               trashCount.decrementAndGet();
+       }
+       payingInfoRepository.deleteAll(payingInfoListForRemove);
+   }
+
+
     public void removeCommercialAccountConnectionTicket(Principal principal) {
         Optional<CommercialAccountConnectionTicket> accountConnectionTicket = commercialAccountConnectionTicketRepository.findById(principal.getName());
         if (accountConnectionTicket.isEmpty()) {
@@ -138,6 +173,9 @@ public class PayService {
     public void checkPaymentStatuses() {
         if (pendingPaymentsCount.get() > 0) {
             getPaymentStatus(null, null);
+        }
+        if (trashCount.get()>0){
+            removeTrash();
         }
     }
 

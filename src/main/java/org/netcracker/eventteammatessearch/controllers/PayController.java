@@ -4,7 +4,9 @@ import org.netcracker.eventteammatessearch.Services.PayService;
 import org.netcracker.eventteammatessearch.entity.PaidService;
 import org.netcracker.eventteammatessearch.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -30,12 +32,24 @@ public class PayController {
     }
 
     @GetMapping("/getPayingUrl")
-    public String getPayingUrl(Principal principal) {
-        return payService.getUrlForPaying(principal);
+    public Map<String, String> getPayingUrl(Principal principal) {
+        Map map = new HashMap();
+        map.put("url",     payService.getUrlForPaying(principal));
+        return map;
+
     }
 
     @GetMapping("/getNewUrl")
-    public String getNewUrl(Principal principal) {
-        return payService.getNewUrlForPaying(principal);
+    public Map<String, String> getNewUrl(Principal principal) {
+        try {
+            String newUrlForPaying = payService.getNewUrlForPaying(principal);
+            Map map = new HashMap();
+            map.put("url", newUrlForPaying);
+            return map;
+        }
+        catch (Exception ex){
+            System.out.println(ex);
+        }
+throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 }
