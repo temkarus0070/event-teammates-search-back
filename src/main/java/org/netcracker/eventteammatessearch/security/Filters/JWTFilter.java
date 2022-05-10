@@ -35,7 +35,7 @@ public class JWTFilter extends AbstractAuthenticationProcessingFilter {
             public boolean matches(HttpServletRequest request) {
                 String authorization = request.getHeader("Authorization");
                 String servletPath = request.getServletPath();
-                return authorization!=null&&!servletPath.equals("/refreshToken");
+                return authorization!=null&&!servletPath.equals("/refreshToken")&&request.getHeader("isOauthRegister")==null;
             }
         });
     }

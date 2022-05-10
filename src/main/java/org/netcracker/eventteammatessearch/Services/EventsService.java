@@ -91,20 +91,15 @@ public class EventsService {
     public List<Event> getFinishedEventsOfUser(Principal principal) {
         List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEvents(principal.getName());
         List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
-        Map<Long, Review> reviewMap = Stream.of(reviewRepository.getReviewsById_UserIdAndId_EventIdIn(principal.getName(), ids)).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.<Review, Long, Review>toMap(
-                (Review e) -> e.getId().getEventId(),
-                (Review e) -> e));
-        allUserEndedEvents = allUserEndedEvents.stream().filter(e -> reviewMap.get(e.getId()) == null).collect(Collectors.toList());
+        reviewService.setMarksToEvents(allUserEndedEvents);
         return allUserEndedEvents;
     }
 
     public List<Event> getFinishedEventsOfUserInInterval(Principal principal, LocalDateTime date1, LocalDateTime date2) {
         List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEventsInInterval(principal.getName(), date1, date2);
         List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
-        Map<Long, Review> reviewMap = Stream.of(reviewRepository.getReviewsById_UserIdAndId_EventIdIn(principal.getName(), ids)).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.<Review, Long, Review>toMap(
-                (Review e) -> e.getId().getEventId(),
-                (Review e) -> e));
-        allUserEndedEvents = allUserEndedEvents.stream().filter(e -> reviewMap.get(e.getId()) == null).collect(Collectors.toList());
+
+        reviewService.setMarksToEvents(allUserEndedEvents);
         return allUserEndedEvents;
     }
 
@@ -124,7 +119,9 @@ public class EventsService {
                 eventAttendance.setId(new UserEventKey(event.getId(), principal.getName()));
                 eventAttendance.setEvent(event);
                 eventAttendance.setUser(new User(principal.getName()));
+                event.setInvitedGuests(event.getInvitedGuests().stream().filter(e->!e.getLogin().equals(principal.getName())).collect(Collectors.toSet()));
                 eventAttendanceRepository.save(eventAttendance);
+
             }
             else throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Превышен лимит участников мероприятия");
         } else throw new ObjectNotFoundException(eventId, "Event");
@@ -301,6 +298,8 @@ public class EventsService {
                 }
         );
 
+        specificationList.add((Specification<Event>) (root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get(Event_.isPrivate)));
+
         specificationList.add((root, query, criteriaBuilder) -> {
                     Predicate predicate = null;
                     if (!filterData.isFreeEvents() && filterData.getPriceFrom() == 0 && filterData.getPriceTo() == 0)
@@ -370,6 +369,9 @@ public class EventsService {
             }
             return predicate;
         });
+
+        specificationList.add((Specification<Event>) (root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get(Event_.isPrivate)));
+
         specificationList.add((root, query, criteriaBuilder) -> {
             Predicate predicate = null;
             if (filterData.getGuestsCountFrom() != 0) {

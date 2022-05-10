@@ -45,7 +45,7 @@ public class ReviewService {
     }
 
     public List<Review> getReviewsForUserEvents(String login){
-        List<Review> reviewList = reviewRepository.getAllByEventOwnerId(login);
+        List<Review> reviewList = reviewRepository.getAllByEventOwnerIdAndEventMarkGreaterThan(login,0);
         return reviewList;
     }
 }

@@ -1,0 +1,26 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: ${GOOGLE_CLIENT_ID}
+            clientSecret: ${GOOGLE_CLIENT_SECRET}
+            redirectUri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - email
+              - profile
+          vk:
+            clientId: ${VK_CLIENT_ID}
+            clientSecret: ${VK_CLIENT_SECRET}
+            redirectUri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-authentication-method: post
+            authorization-grant-type: authorization_code
+            scope: email
+        provider:
+          vk:
+            #revoke=1 needs to always show vk dialog
+            authorization-uri: https://oauth.vk.com/authorize?revoke=1
+            token-uri: https://oauth.vk.com/access_token
+            user-info-uri: https://api.vk.com/method/users.get?v=5.131&fields=photo_max
+            user-name-attribute: id
