@@ -76,18 +76,22 @@ public class PayService {
 
         commercialAccountConnectionTicketRepository.save(commercialAccountConnectionTicket);
         try {
+            logger.info("TRY SEND EQUEST TO QIWI");
             BillResponse billResponse = client.createBill(new CreateBillInfo(String.valueOf(payingInfo.getBillId()), new MoneyAmount(BigDecimal.valueOf(commercialPrice),
                     currency), payingInfo.getComment(), payingInfo.getExpirationDateTime(),
                     new Customer(user.getEmail(), user.getLogin(), user.getPhone()), frontendAddress + "/events/map"));
+            logger.info("SEND EQUEST TO QIWI");
             pendingPaymentsCount.incrementAndGet();
             payingInfo.setSuccessUrl(billResponse.getPayUrl());
+            logger.info("TRY TO SAVE PAYING INFO WITH URL");
             payingInfoRepository.save(payingInfo);
+            logger.info("SAVE PAYING INFO WITH URL");
             return billResponse.getPayUrl();
         } catch (Exception ex) {
             logger.error("Ошибка при оплате, payingInfo=  " + payingInfo + " \n заявка на подключения коммерческого аккаунта " + commercialAccountConnectionTicket + "\n error: " + ex.getMessage());
             commercialAccountConnectionTicketRepository.delete(commercialAccountConnectionTicket);
             payingInfoRepository.delete(payingInfo);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ошибка при оплате");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ошибка при оплате "+ex.getMessage());
         }
     }
 

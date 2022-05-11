@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface PayingInfoRepository extends JpaRepository<PayingInfo, Long> {
+
     List<PayingInfo> findAllByUserAndPaidService(User user, PaidService paidService);
 
     List<PayingInfo> findAllByBillStatus(BillStatus billStatus);
