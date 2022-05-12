@@ -15,6 +15,7 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
     public JtsModule jtsModule() {
         return new JtsModule();

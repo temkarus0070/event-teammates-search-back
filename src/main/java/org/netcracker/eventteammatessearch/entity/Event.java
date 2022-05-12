@@ -25,8 +25,7 @@ public class Event {
     @NonNull
     private String name;
 
-    @ManyToOne
-    private EventType eventType;
+    private String eventType;
 
 
     private String description;
@@ -91,9 +90,9 @@ public class Event {
     @Transient
     private boolean recommendedBySurvey;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ElementCollection
     @ToString.Exclude
-    private Set<Tag> tags;
+    private Set<String> tags;
 
     @Override
     public boolean equals(Object o) {

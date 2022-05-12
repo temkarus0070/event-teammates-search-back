@@ -4,15 +4,15 @@ spring:
       client:
         registration:
           google:
-            clientId: ${GOOGLE_CLIENT_ID}
-            clientSecret: ${GOOGLE_CLIENT_SECRET}
+            clientId: 394823182792-1c2spaprgslrnpe97f6o7orgcecinqpi.apps.googleusercontent.com
+            clientSecret: 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
             redirectUri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope:
               - email
               - profile
           vk:
-            clientId: ${VK_CLIENT_ID}
-            clientSecret: ${VK_CLIENT_SECRET}
+            clientId: 8140521
+            clientSecret: 5nlxXBd3sTnTZtJA4dAH
             redirectUri: "{baseUrl}/login/oauth2/code/{registrationId}"
             client-authentication-method: post
             authorization-grant-type: authorization_code

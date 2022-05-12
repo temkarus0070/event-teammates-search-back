@@ -79,7 +79,7 @@ public class PayService {
             logger.info("TRY SEND EQUEST TO QIWI");
             BillResponse billResponse = client.createBill(new CreateBillInfo(String.valueOf(payingInfo.getBillId()), new MoneyAmount(BigDecimal.valueOf(commercialPrice),
                     currency), payingInfo.getComment(), payingInfo.getExpirationDateTime(),
-                    new Customer(user.getEmail(), user.getLogin(), user.getPhone()), frontendAddress + "/events/map"));
+                    new Customer(user.getEmail(), user.getLogin(), null), frontendAddress + "/events/map"));
             logger.info("SEND EQUEST TO QIWI");
             pendingPaymentsCount.incrementAndGet();
             payingInfo.setSuccessUrl(billResponse.getPayUrl());

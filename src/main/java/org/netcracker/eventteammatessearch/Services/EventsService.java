@@ -63,8 +63,6 @@ public class EventsService {
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
 
-    @Autowired
-    private TagRepository tagRepository;
 
     @Autowired
     private ChatService chatService;
@@ -134,14 +132,6 @@ public class EventsService {
             throw new AccessDeniedException("Данная возможность заблокирована для вашего аккаунта");
         }
         event.setOwner(user);
-        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(event.getTags() == null ? new HashSet<>() : event.getTags().stream().map(Tag::getName).collect(Collectors.toList())));
-        tags.addAll(event.getTags());
-        event.setTags(tags);
-        for (Tag tag : event.getTags()) {
-            if (tag.getEvents() == null)
-                tag.setEvents(new HashSet<>(List.of(event)));
-            else tag.getEvents().add(event);
-        }
         if (event.getUrl() != null) {
             if (!(event.getUrl().contains("http://") || event.getUrl().contains("https://"))) {
                 event.setUrl("http://" + event.getUrl());
@@ -485,4 +475,5 @@ public class EventsService {
             eventRepository.save(event);
         }
     }
+
 }
