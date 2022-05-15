@@ -21,14 +21,10 @@ import java.util.Set;
 @RequiredArgsConstructor
 @NoArgsConstructor
 public class Location {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @NonNull
     private String name;
 
-
+    @Id
     @Column(columnDefinition = "geometry(Point,4326)", nullable = false)
     @JsonSerialize(using = GeometrySerializer.class)
     @JsonDeserialize(using = GeometryDeserializer.class)
@@ -46,7 +42,7 @@ public class Location {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Location location = (Location) o;
-        return id != null && Objects.equals(id, location.id);
+        return location != null && Objects.equals(location.location,location);
     }
 
     @Override

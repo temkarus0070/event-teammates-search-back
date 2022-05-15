@@ -25,7 +25,8 @@ public class Event {
     @NonNull
     private String name;
 
-    private String eventType;
+    @ManyToOne
+    private EventType eventType;
 
 
     private String description;

@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.sql.Timestamp;
@@ -30,8 +32,13 @@ public class EventsController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public void add(@RequestBody Event event, Principal principal) {
-        eventsService.add(event, principal);
-    }
+        try {
+            eventsService.add(event, principal);
+        }
+        catch (Exception ex){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,ex.getMessage());
+        }
+        }
 
     @GetMapping("/getEventsWithinRadius")
     public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius, Principal principal) {

@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SequenceGenerator(name = "seq", initialValue = 800, allocationSize = 1)
+@SequenceGenerator(name = "seq", initialValue = 900, allocationSize = 1)
 @ToString
 public class PayingInfo {
     @Id

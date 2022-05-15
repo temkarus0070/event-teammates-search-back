@@ -23,10 +23,8 @@ import java.io.IOException;
 
 @Component
 public class UsernamePasswordFilter extends AbstractAuthenticationProcessingFilter {
-
     @Autowired
     private JwtTokenGeneratorService jwtTokenGeneratorService;
-
     public UsernamePasswordFilter(RequestMatcher requiresAuthenticationRequestMatcher, AuthenticationManager authenticationManager) {
         super("/login", authenticationManager);
     }

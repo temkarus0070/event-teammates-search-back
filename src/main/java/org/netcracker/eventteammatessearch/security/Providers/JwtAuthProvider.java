@@ -17,7 +17,6 @@ public class JwtAuthProvider implements AuthenticationProvider {
     private String secretKey;
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthProvider.class);
 
-
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         if (authentication.getCredentials() != null) {
@@ -26,7 +25,6 @@ public class JwtAuthProvider implements AuthenticationProvider {
                 authentication.setAuthenticated(true);
                 return authentication;
             }
-
         }
         logger.error("bad jwt token " + authentication.getCredentials());
         throw new BadCredentialsException("YOUR token is empty or invalid");

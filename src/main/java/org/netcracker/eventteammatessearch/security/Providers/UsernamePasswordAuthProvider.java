@@ -32,10 +32,8 @@ public class UsernamePasswordAuthProvider implements AuthenticationProvider {
         } else {
             logger.error(String.format("User %s entered invalid password or login", authentication.getName()));
             throw new BadCredentialsException("YOUR LOGIN OR PASS are invalid");
-
         }
     }
-
     @Override
     public boolean supports(Class<?> authentication) {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
