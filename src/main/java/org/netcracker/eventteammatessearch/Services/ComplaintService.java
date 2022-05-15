@@ -49,7 +49,6 @@ public class ComplaintService {
     }
 
     private void setComplaintResolver(Complaint complaint) {
-        List<User> all = userRepository.findAll();
         List<User> usersByAuthoritiesContains = userRepository.findUsersByAuthorities("complaint Resolver");
         int index = random.nextInt(usersByAuthoritiesContains.size());
         complaint.setComplaintResolver(usersByAuthoritiesContains.get(index));

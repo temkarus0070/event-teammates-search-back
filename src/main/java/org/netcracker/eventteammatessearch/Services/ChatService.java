@@ -208,8 +208,8 @@ public class ChatService {
         this.messageRepository.removeMessageByChatIdAndIdAndUserId(message.getChatId(), message.getId(), message.getUserId());
     }
 
-    public void removeUserFromChat(String username, long chatId) {
-        Chat byEvent_id = this.chatRepository.findById(chatId).get();
+    public void removeUserFromChat(String username, long eventId) {
+        Chat byEvent_id = this.chatRepository.getByEvent_Id(eventId);
         if (byEvent_id != null) {
             chatUserRepository.deleteById(new ChatUserKey(byEvent_id.getId(), username));
         }
