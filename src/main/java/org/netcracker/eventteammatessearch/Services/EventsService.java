@@ -421,7 +421,8 @@ public class EventsService {
             Survey survey = surveyRepository.findByUser_login(principal.getName());
             events.forEach(event -> {
 
-                if (isEventFitSurvey(event,survey)){
+
+                if (survey!=null&&isEventFitSurvey(event,survey)){
                     event.setRecommendedBySurvey(true);
                 }
                 if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
