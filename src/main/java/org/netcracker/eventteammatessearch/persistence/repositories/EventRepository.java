@@ -18,7 +18,7 @@ import java.util.Set;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
-
+    List<Event> findByIsOnlineFalseAndDateTimeEndIsNotNullAndDateTimeEndLessThan(LocalDateTime time);
 
     @Query(value = "SELECT e from Event  e where distance(e.location.location, :p,true) <= :distanceM and (e.dateTimeEnd is null or e.dateTimeEnd > CURRENT_TIMESTAMP) and e.isHidden = false and e.isPrivate = false")
     List<Event> findNearWithinDistance(Point p, double distanceM);

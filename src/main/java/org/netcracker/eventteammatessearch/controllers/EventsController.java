@@ -40,6 +40,12 @@ public class EventsController {
         }
         }
 
+
+        @PostMapping("/getVisitorsStats")
+        public Map<Long,Long> getVisitorsStats(@RequestBody List<Event> list){
+        return eventsService.getLocationStats(list);
+        }
+
     @GetMapping("/getEventsWithinRadius")
     public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius, Principal principal) {
         return eventsService.getEventsByRadius(lon, lat, radius, principal);

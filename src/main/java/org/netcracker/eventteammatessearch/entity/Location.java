@@ -36,6 +36,8 @@ public class Location {
     @ToString.Exclude
     private Set<Event> events;
 
+
+
     @Override
     public boolean equals(Object o) {
 

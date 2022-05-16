@@ -3,6 +3,8 @@ package org.netcracker.eventteammatessearch.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -26,6 +28,7 @@ public class Event {
     private String name;
 
     @ManyToOne
+    @Fetch(FetchMode.JOIN)
     private EventType eventType;
 
 
@@ -52,6 +55,7 @@ public class Event {
     @JsonProperty("isHidden")
     private boolean isHidden;
 
+    @Fetch(FetchMode.JOIN)
     @OneToOne(mappedBy = "event", cascade = CascadeType.REMOVE)
     private Chat chat;
 
@@ -67,31 +71,37 @@ public class Event {
     private boolean currentUserEntered;
 
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     private Location location;
 
+    @Fetch(FetchMode.JOIN)
     @ManyToOne
-
     private User owner;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE)
+    @Fetch(FetchMode.JOIN)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE,fetch = FetchType.EAGER)
     @ToString.Exclude
-
     private Set<EventAttendance> guests;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE)
+    @Fetch(FetchMode.JOIN)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE,fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<Complaint> complaints;
 
-    @ManyToMany(cascade = CascadeType.REFRESH)
+    @Fetch(FetchMode.JOIN)
+    @ManyToMany(cascade = CascadeType.REFRESH,fetch = FetchType.EAGER)
     @ToString.Exclude
-
     private Set<User> invitedGuests;
 
     @Transient
     private boolean recommendedBySurvey;
 
-    @ElementCollection
+    @Transient
+    private long visitorsCount;
+
+    @Fetch(FetchMode.JOIN)
+    @ElementCollection(fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<String> tags;
 
