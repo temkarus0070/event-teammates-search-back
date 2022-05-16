@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface NotificationsRepository extends MongoRepository<Notification, Long> {
-    List<Notification> findAllByUserIdOrderByShownAsc(String userId);
+    List<Notification> findAllByUserIdOrderByIsShownAsc(String userId);
 
     List<Notification> findAllByUserIdAndIsShownIsFalse(String userId);
 

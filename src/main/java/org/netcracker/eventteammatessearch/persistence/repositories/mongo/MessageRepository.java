@@ -32,7 +32,7 @@ public interface MessageRepository extends MongoRepository<Message, Long> {
             "}}"})
     public List<Message> findByChatIdInAndOrderBySendTimeDesc(List<Long> chatIds);
 
-    public void removeMessageByChatIdAndIdAndUserId(@Param("chatId") long chatId, @Param("id") long id, String userId);
+    public void removeMessageByChatIdAndIdAndUserId(@Param("chatId") long chatId, @Param("id") long id, @Param("userId") String userId);
 
     public Message findTopByChatIdAndIdBeforeOrderByIdDesc(long chatId, long id);
 }

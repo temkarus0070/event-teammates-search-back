@@ -14,7 +14,7 @@ public class NotificationService {
     private NotificationsRepository notificationsRepository;
 
     public List<Notification> checkNotifications(Principal principal) {
-        return notificationsRepository.findAllByUserIdOrderByShownAsc(principal.getName());
+        return notificationsRepository.findAllByUserIdOrderByIsShownAsc(principal.getName());
     }
 
     public boolean hasNew(Principal principal) {

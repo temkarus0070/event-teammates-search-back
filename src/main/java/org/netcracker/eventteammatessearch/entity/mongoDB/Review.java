@@ -36,11 +36,15 @@ public class Review implements Serializable {
 
     @EqualsAndHashCode
     @NoArgsConstructor
-    @AllArgsConstructor
     @Getter
     @Setter
     public static class ReviewId implements Serializable {
         private long eventId;
         private String userId;
+
+        public ReviewId(long eventId, String userId) {
+            this.eventId = eventId;
+            this.userId = userId;
+        }
     }
 }
