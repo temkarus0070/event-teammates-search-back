@@ -28,8 +28,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     List<Event> findNearWithinDistance(Point p, double distanceM);
 
     @EntityGraph(value = "event-entity-graph")
-    @Query(value = "SELECT e FROM Event e inner join e.tags inner join e.guests inner join e.location inner join e.eventType inner join e.owner inner join e.invitedGuests")
-    List<Event> findAll(List<Specification<Event>> specifications);
+    List<Event> findAll(Specification<Event> specification);
 
     @EntityGraph(value = "event-entity-graph")
     @Query(value = "SELECT e FROM Event e where e.owner.login = :userLogin and (e.dateTimeEnd is null or e.dateTimeEnd > CURRENT_TIMESTAMP) and e.isHidden = false")
