@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.entity;
 
 import lombok.*;
+import net.bytebuddy.build.HashCodeAndEqualsPlugin;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -38,6 +39,7 @@ public class Relationship {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
+    @EqualsAndHashCode
     public static class RelationshipId implements Serializable {
         @OneToOne()
         private User owner;
