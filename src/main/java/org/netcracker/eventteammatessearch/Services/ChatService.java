@@ -158,6 +158,24 @@ public class ChatService {
         return topByChatIdAndIdBefore;
     }
 
+    public Map<Long,Long> messagesCount(List<Chat> chats){
+        Criteria criteria = null;
+        List<Criteria> criteria1 = new ArrayList<>();
+        for (var entry : chats) {
+            criteria1.add(Criteria.where("chatId").is(entry.getId()));
+        }
+        if (criteria1.size() > 0) {
+            criteria = new Criteria().orOperator(criteria1);
+
+            Aggregation aggregation = newAggregation(match(criteria),
+                    group("chatId").count().as("count"), addFields().addField("chatId").withValueOfExpression("'$_id'").build());
+
+            List<MessagesRemainCountData> mappedResults = mongoTemplate.aggregate(aggregation, Message.class, MessagesRemainCountData.class).getMappedResults();
+            return mappedResults.stream().collect(Collectors.toMap(e -> e.getChatId(), e -> e.getCount()));
+        }
+        return new HashMap<>();
+    }
+
     public List<ChatDAO> getUserChats(Principal principal) {
         List<ChatDAO> chatDAOList = new ArrayList<>();
         List<Chat> chats = this.chatRepository.getAllByChatUsersContains(principal.getName());
@@ -165,10 +183,19 @@ public class ChatService {
             List<Long> chatIds = chats.stream().map(Chat::getId).collect(Collectors.toList());
             Map<Long, LastSeenChatMessage> chatMessageMap = this.lastMessagesRepository.findAllById_ChatIdInAndId_Username(chatIds, principal.getName()).stream().collect(Collectors.toMap(e -> e.getId().getChatId(), e -> e));
 
-            Map<Long, Message> messageMap = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chatIds)
+            List<Message> byChatIdInAndOrderBySendTimeDesc = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chatIds);
+            Map<Long, Message> messageMap =byChatIdInAndOrderBySendTimeDesc
                     .stream().collect(Collectors.toMap((Message e) -> e.getChatId(), (Message e) -> e));
 
             Map<Long, Long> dataAboutRemainMessages = getDataAboutRemainMessages(chatIds, chatMessageMap);
+            List<Long> remained=new ArrayList<>();
+            for(Long entry:chatIds){
+                if (chatMessageMap.get(entry)==null){
+                    remained.add(entry);
+                }
+            }
+
+            Map<Long, Long> dataAboutCountMessages = getDataAboutCountMessages(remained);
             chats.forEach(chat -> {
                 if (chat.isPrivate()) {
                     Optional<ChatUser> chatUser = chat.getChatUsers().stream().filter(e -> !e.getUser().getLogin().equals(principal.getName())).findFirst();
@@ -196,6 +223,8 @@ public class ChatService {
                 if (dataAboutRemainMessages.get(chat.getId()) != null) {
                     count = dataAboutRemainMessages.get(chat.getId());
                 }
+                else if (dataAboutCountMessages.get(chat.getId())!=null)
+                    count=dataAboutCountMessages.get(chat.getId());
                 Message message = messageMap.get(chat.getId());
                 ChatDAO chatDAO = new ChatDAO(chat.getId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()), lastMessageId, count);
                 chatDAOList.add(chatDAO);
@@ -215,8 +244,27 @@ public class ChatService {
         }
     }
 
-    public Map<Long, Long> getDataAboutRemainMessages(List<Long> chatIds, Map<Long, LastSeenChatMessage> chatMessageMap) {
 
+    public Map<Long, Long> getDataAboutCountMessages(List<Long> chatIds) {
+
+        Criteria criteria = null;
+        List<Criteria> criteria1 = new ArrayList<>();
+        for (var entry :chatIds) {
+            criteria1.add(Criteria.where("chatId").is(entry));
+        }
+        if (criteria1.size() > 0) {
+            criteria = new Criteria().orOperator(criteria1);
+
+            Aggregation aggregation = newAggregation(match(criteria),
+                    group("chatId").count().as("count"), addFields().addField("chatId").withValueOfExpression("'$_id'").build());
+
+            List<MessagesRemainCountData> mappedResults = mongoTemplate.aggregate(aggregation, Message.class, MessagesRemainCountData.class).getMappedResults();
+            return mappedResults.stream().collect(Collectors.toMap(e -> e.getChatId(), e -> e.getCount()));
+        }
+        return new HashMap<>();
+    }
+
+    public Map<Long, Long> getDataAboutRemainMessages(List<Long> chatIds, Map<Long, LastSeenChatMessage> chatMessageMap) {
         Criteria criteria = null;
         List<Criteria> criteria1 = new ArrayList<>();
         for (var entry : chatMessageMap.entrySet()) {

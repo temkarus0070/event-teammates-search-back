@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
@@ -54,7 +52,6 @@ public class JwtTokenGeneratorService {
         return new JWTAuthentication(jwtUserEntity.getId().getJwt(), secret, jwtUserEntity.getRefreshToken(), userDetailsManager);
     }
 
-
     public JwtUserEntity generate(JwtUserEntity userDetails) {
         JwtUserEntity jwtUserEntity = new JwtUserEntity();
         if (jwtBuilder == null)
@@ -88,7 +85,7 @@ public class JwtTokenGeneratorService {
         if (token == null) {
           return null;
         } else {
-            jwtTokenRepository.deleteById(token.getId());
+            jwtTokenRepository.delete(token);
             JwtUserEntity jwtUserEntity = generate(token);
             return jwtUserEntity;
         }
