@@ -57,7 +57,8 @@ private static Logger logger=LoggerFactory.getLogger(SmsConfirmationService.clas
         if (!phoneTokenService.checkIfHasNotExpired(principal)) {
           try {
               if (!phone.contains("+")){
-                  phone="+"+phone;
+                  phone="+"+phone.trim()
+                  ;
               }
               String xmlForSending = "";
               if (isProduction)
