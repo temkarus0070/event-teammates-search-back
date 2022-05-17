@@ -57,11 +57,10 @@ private static Logger logger=LoggerFactory.getLogger(SmsConfirmationService.clas
         if (!phoneTokenService.checkIfHasNotExpired(principal)) {
           try {
               if (!phone.contains("+")){
-                  phone="+"+phone.trim()
-                  ;
+                  phone="+"+phone.trim();
               }
               String xmlForSending = "";
-              if (isProduction)
+              if (true)
                   xmlForSending=getXmlForSending(phone);
                 RestTemplate restTemplate=new RestTemplate();
               HttpHeaders headers = new HttpHeaders();

@@ -9,6 +9,7 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.*;
+import org.netcracker.eventteammatessearch.entity.mongoDB.Review;
 import org.netcracker.eventteammatessearch.persistence.repositories.*;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.slf4j.Logger;
@@ -84,8 +85,15 @@ public class EventsService {
 
     public List<Event> getFinishedEventsOfUser(Principal principal) {
         List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEvents(principal.getName());
-        List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
         reviewService.setMarksToEvents(allUserEndedEvents);
+        return allUserEndedEvents;
+    }
+
+    public List<Event> getFinishedEventsOfUserWithoutReviews(Principal principal) {
+        List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEvents(principal.getName());
+        List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
+        Map<Long, Review> reviewMap = reviewService.findReviewsOfUser(principal).stream().collect(Collectors.toMap((e) -> e.getId().getEventId(), (val) -> val));
+        allUserEndedEvents=allUserEndedEvents.stream().filter(e->!reviewMap.containsKey(e.getId())).collect(Collectors.toList());
         return allUserEndedEvents;
     }
 

@@ -23,5 +23,5 @@ public interface ReviewRepository extends MongoRepository<Review, Review.ReviewI
 
     public List<Review> getAllByEventOwnerIdAndEventMarkGreaterThan(String login,int  min);
 
-
+    List<Review> findAllById_UserId(String username);
 }

@@ -44,6 +44,10 @@ public class ReviewService {
         });
     }
 
+    public List<Review> findReviewsOfUser(Principal principal){
+        return reviewRepository.findAllById_UserId(principal.getName());
+    }
+
     public List<Review> getReviewsForUserEvents(String login){
         List<Review> reviewList = reviewRepository.getAllByEventOwnerIdAndEventMarkGreaterThan(login,0);
         return reviewList;

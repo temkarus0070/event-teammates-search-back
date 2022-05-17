@@ -92,4 +92,8 @@ public class UsersController {
 return userService.getUserByLogin(principal.getName());
     }
 
+    @PatchMapping("/updateCommercialAcc")
+    public void updateCommercialAcc(@RequestBody User user) {
+        userService.updateCommercialAcc(user);
+    }
 }

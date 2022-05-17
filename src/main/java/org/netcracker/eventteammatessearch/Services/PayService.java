@@ -190,7 +190,7 @@ public class PayService {
             User user = userRepository.getUserByLogin(principal.getName());
             user.setDescription(accountConnectionTicket.getDescription());
             user.setOrganizationName(accountConnectionTicket.getOrganizationName());
-            user.setCommercialUser(true);
+            user.setCommercialUserCreated(true);
             userRepository.save(user);
             commercialAccountConnectionTicketRepository.delete(accountConnectionTicket);
         } else

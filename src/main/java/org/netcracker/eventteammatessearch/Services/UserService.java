@@ -138,4 +138,19 @@ public class UserService {
         boolean result = passwordEncoder.matches(password, existingUser.getPassword());
         return result;
     }
+
+    public void updateCommercialAcc(User user) {
+        User existingUser = userRepository.findById(user.getLogin()).orElse(null);
+        existingUser.setEmail(user.getEmail());
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setPhone(user.getPhone());
+        existingUser.setPictureUrl(user.getPictureUrl());
+        existingUser.setOrganizationName(user.getOrganizationName());
+        existingUser.setDescription(user.getDescription());
+        existingUser.setCommercialUser(user.isCommercialUser());
+        existingUser.setCommercialUserCreated(user.isCommercialUserCreated());
+
+        userRepository.save(existingUser);
+    }
 }

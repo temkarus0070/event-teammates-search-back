@@ -83,6 +83,11 @@ public class EventsController {
         return eventsService.getFinishedEventsOfUser(principal);
     }
 
+    @GetMapping("/getEndedEventsWithoutReviews")
+    public List<Event> getUserEndedEventsWithoutReviews(Principal principal) {
+        return eventsService.getFinishedEventsOfUserWithoutReviews(principal);
+    }
+
     @GetMapping("/getEndedEventsInInterval")
     public List<Event> getUserEndedEventsInInterval(Principal principal, @RequestParam String date1, @RequestParam String date2) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
