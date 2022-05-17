@@ -104,7 +104,7 @@ public class Event {
     private long visitorsCount;
 
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection()
     @ToString.Exclude
     private Set<String> tags;
 

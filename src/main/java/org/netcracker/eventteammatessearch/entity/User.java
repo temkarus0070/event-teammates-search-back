@@ -20,8 +20,10 @@ import java.util.stream.Collectors;
 @ToString
 @NoArgsConstructor
 @Table(name = "app_users")
+@NamedEntityGraph(name = "user-graph",includeAllAttributes = true)
 public class User {
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection()
+    @ToString.Exclude
     private List<String> authorities;
 
 
