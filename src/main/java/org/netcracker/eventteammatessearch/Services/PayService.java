@@ -202,6 +202,10 @@ public class PayService {
     }
 
     public String getUrlForPaying(Principal principal) {
+        CommercialAccountConnectionTicket commercialAccountConnectionTicketByUserLogin = commercialAccountConnectionTicketRepository.findCommercialAccountConnectionTicketByUserLogin(principal.getName());
+       if (commercialAccountConnectionTicketByUserLogin==null){
+           return "";
+       }
         List<PayingInfo> allByUserAndPaidService = payingInfoRepository.findAllByUserAndPaidService(new User(principal.getName()), PaidService.COMMERCIAL_ACCOUNT);
         boolean has=false;
         for (PayingInfo payingInfo : allByUserAndPaidService) {
