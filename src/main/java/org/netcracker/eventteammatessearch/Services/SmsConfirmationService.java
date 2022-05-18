@@ -153,7 +153,10 @@ private static Logger logger=LoggerFactory.getLogger(SmsConfirmationService.clas
     }
 
     public boolean checkToken(String phone, String code, Principal principal) {
-        phone="+"+phone.trim();
+        if (!phone.contains("+")){
+            phone="+"+phone.trim();
+        }
+        else phone=phone.trim();
     List<PhoneToken> userTokens = phoneTokenService.getUserTokens(principal);
         String finalPhone = phone;
         if (userTokens.stream().anyMatch(e->e.getCode().equals(code)&&e.getPhone().equals(finalPhone))){
