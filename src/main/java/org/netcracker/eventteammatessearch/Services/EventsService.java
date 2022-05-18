@@ -228,7 +228,7 @@ public class EventsService {
             if (survey.getMinPrice()==0 && survey.getMaxPrice()==0 && event.getPrice()!=0){
                 return false;
             }
-            if (!getCityFromAddress(event.getLocation().getName()).equalsIgnoreCase(survey.getLocation())){
+            if (survey.getFormat().contains("Offline") &&!event.isOnline() &&!getCityFromAddress(event.getLocation().getName()).equalsIgnoreCase(survey.getLocation())){
                 return false;
             }
         }

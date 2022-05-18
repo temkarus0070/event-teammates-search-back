@@ -173,7 +173,7 @@ public class PayService {
         commercialAccountConnectionTicketRepository.delete(accountConnectionTicket.get());
     }
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelay = 300000)
     public void checkPaymentStatuses() {
         if (pendingPaymentsCount.get() > 0) {
             getPaymentStatus(null, null);
