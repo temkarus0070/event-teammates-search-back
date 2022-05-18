@@ -60,7 +60,7 @@ private static Logger logger=LoggerFactory.getLogger(SmsConfirmationService.clas
                   phone="+"+phone.trim();
               }
               String xmlForSending = "";
-              if (true)
+              if (isProduction)
                   xmlForSending=getXmlForSending(phone);
                 RestTemplate restTemplate=new RestTemplate();
               HttpHeaders headers = new HttpHeaders();
@@ -153,8 +153,10 @@ private static Logger logger=LoggerFactory.getLogger(SmsConfirmationService.clas
     }
 
     public boolean checkToken(String phone, String code, Principal principal) {
+        phone="+"+phone.trim();
     List<PhoneToken> userTokens = phoneTokenService.getUserTokens(principal);
-    if (userTokens.stream().anyMatch(e->e.getCode().equals(code)&&e.getPhone().equals(phone))){
+        String finalPhone = phone;
+        if (userTokens.stream().anyMatch(e->e.getCode().equals(code)&&e.getPhone().equals(finalPhone))){
         return true;
     }
         return false;
