@@ -24,6 +24,19 @@ public class UsersController {
     @Autowired
     private PayService payService;
 
+
+
+
+    @PatchMapping("/updateUserPhoto")
+    public void updateUserPhoto(@RequestBody User user) {
+        userService.updateUserPhoto(user);
+    }
+
+    @PatchMapping("/deleteUserPhoto")
+    public void deleteUserPhoto(@RequestBody User user) {
+        userService.deleteUserPhoto(user);
+    }
+
     @GetMapping("/getUsers")
     public List<User> getUsers() {
         return userService.getAll();
