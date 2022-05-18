@@ -63,6 +63,7 @@ private static Logger logger=LoggerFactory.getLogger(SmsConfirmationService.clas
             tokenFromServerResponse.setId(new PhoneTokenKey(LocalDateTime.now(), principal.getName()));
             tokenFromServerResponse.setCode("88");
             tokenFromServerResponse.setPhone(phone);
+            tokenFromServerResponse.setUser(new User(principal.getName()));
             phoneTokenService.add(tokenFromServerResponse);
             return;
         }
