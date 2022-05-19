@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.Services;
 
+import com.sun.security.auth.UserPrincipal;
 import org.geolatte.geom.builder.DSL;
 import org.hibernate.ObjectNotFoundException;
 import org.locationtech.jts.geom.Coordinate;
@@ -89,6 +90,24 @@ public class EventsService {
         return allUserEndedEvents;
     }
 
+    private void hideEventsUrl(List<Event> eventList,Principal principal){
+        eventList.forEach(e->{
+            var url=e.getUrl();
+            if(e.isOnline()&& e.getDateTimeStart().isAfter(LocalDateTime.now())){
+     url="";
+        }
+            else if (e.isOnline()&&e.getDateTimeStart().isBefore(LocalDateTime.now()) &&e.getGuests().stream().noneMatch(ev->ev.getUser().getLogin().equals(principal.getName()))){
+                url="";
+            }
+            if (e.isOnline()&&e.getOwner().getLogin().equals(principal.getName())){
+                url=e.getUrl();
+            }
+
+            e.setUrl(url);
+        });
+
+    }
+
     public List<Event> getFinishedEventsOfUserWithoutReviews(Principal principal) {
         List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEvents(principal.getName());
         List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
@@ -108,14 +127,18 @@ public class EventsService {
     public List<Event> get() {
         List<Event> eventList = eventRepository.findAll();
         reviewService.setMarksToEvents(eventList);
+
         return eventList;
     }
 
 
-    public void assignOnEvent(Long eventId, Principal principal) {
+    public EventAttendance assignOnEvent(Long eventId, Principal principal) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isPresent()) {
             Event event = eventOptional.get();
+            if (event.getDateTimeEnd()!=null&&event.getDateTimeEnd().isBefore(LocalDateTime.now())){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Данное событие уже закончилось");
+            }
             if (event.getMaxNumberOfGuests() == 0 || event.getGuests().size() < event.getMaxNumberOfGuests()) {
                 EventAttendance eventAttendance = new EventAttendance();
                 eventAttendance.setId(new UserEventKey(event.getId(), principal.getName()));
@@ -123,6 +146,7 @@ public class EventsService {
                 eventAttendance.setUser(new User(principal.getName()));
                 event.setInvitedGuests(event.getInvitedGuests().stream().filter(e->!e.getLogin().equals(principal.getName())).collect(Collectors.toSet()));
                 eventAttendanceRepository.save(eventAttendance);
+                return eventAttendance;
 
             }
             else throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Превышен лимит участников мероприятия");
@@ -149,7 +173,9 @@ public class EventsService {
     }
 
     public List<Event> getUsersAttendedEventsByLogin(String userLogin) {
-        return eventAttendanceRepository.getUsersAttendedEventsByLogin(userLogin);
+        List<Event> usersAttendedEventsByLogin = eventAttendanceRepository.getUsersAttendedEventsByLogin(userLogin);
+        hideEventsUrl(usersAttendedEventsByLogin,new UserPrincipal(userLogin));
+        return usersAttendedEventsByLogin;
     }
 
 
@@ -340,6 +366,8 @@ public class EventsService {
             Page<Event> eventPage1 = new PageImpl<>(eventList, eventPage.getPageable(), eventPage.getTotalElements());
             return eventPage1;
         }
+        if (filterData.getEventFormats().contains("ONLINE"))
+        hideEventsUrl(events,principal);
         return eventPage;
     }
 
@@ -443,6 +471,8 @@ public class EventsService {
         if (filterData.getEventOwnerRating() > 0) {
             events = events.stream().filter(e -> e.getAvgMark() >= filterData.getEventOwnerRating()).collect(Collectors.toList());
         }
+        if (filterData.getEventFormats().contains("ONLINE"))
+            hideEventsUrl(events,principal);
         return events;
     }
 

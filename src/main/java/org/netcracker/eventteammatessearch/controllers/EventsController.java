@@ -3,6 +3,7 @@ package org.netcracker.eventteammatessearch.controllers;
 import org.netcracker.eventteammatessearch.Services.EventsService;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.Event;
+import org.netcracker.eventteammatessearch.entity.EventAttendance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,10 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,8 +72,11 @@ public class EventsController {
 
     @PostMapping("/assignOnEvent")
     @PreAuthorize("isAuthenticated()")
-    public Map assignOnEvents(@RequestParam long eventId, Principal principal) {
-        eventsService.assignOnEvent(eventId, principal);
+    public Map assignOnEvents(@RequestParam long eventId, Principal principal,@RequestParam()boolean isOnline) {
+        EventAttendance eventAttendance = eventsService.assignOnEvent(eventId, principal);
+        if (isOnline){
+            return Map.of("response", principal.getName(),"url",eventAttendance.getEvent().getUrl());
+        }
         return Map.of("response", principal.getName());
     }
 
