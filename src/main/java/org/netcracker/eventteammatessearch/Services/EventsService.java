@@ -230,35 +230,34 @@ public class EventsService {
         return nearWithinDistance;
     }
 
-    private boolean isEventFitSurvey(Event event, Survey survey) {
+    public boolean isEventFitSurvey(Event event, Survey survey) {
         int guestsCount = event.getGuests().size();
-        if ((event.isOnline() && survey.getFormat().stream().anyMatch(e -> e.equalsIgnoreCase("online")))
-                || (!event.isOnline() && survey.getFormat().stream().anyMatch(e -> e.equalsIgnoreCase("offline")))) {
-            if (event.getDateTimeEnd() != null) {
-                if (!(event.getDateTimeEnd().isBefore(survey.getDateTimeEnd()) || event.getDateTimeEnd().isEqual(survey.getDateTimeEnd()))) {
-                    return false;
-                }
-            }
-            if (!(event.getDateTimeStart().isAfter(survey.getDateTimeStart()) || event.getDateTimeStart().isEqual(survey.getDateTimeStart()))) {
-                return false;
-            }
-            if ((guestsCount > survey.getMaxNumberOfGuests() && survey.getMinNumberOfGuests() != 0) || (guestsCount < survey.getMinNumberOfGuests() && survey.getMinNumberOfGuests() != 0)) {
-                return false;
-            }
-            if (survey.getType().stream().noneMatch(e-> event.getEventType().getName().equalsIgnoreCase(e))) {
-                return false;
-            }
-            if ((event.getPrice()>survey.getMaxPrice()&&survey.getMaxPrice()!=0)||(event.getPrice()<survey.getMinPrice()&&survey.getMinPrice()!=0)){
-                return false;
-            }
-            if (survey.getMinPrice()==0 && survey.getMaxPrice()==0 && event.getPrice()!=0){
-                return false;
-            }
-            if (survey.getFormat().contains("Offline") &&!event.isOnline() &&!getCityFromAddress(event.getLocation().getName()).equalsIgnoreCase(survey.getLocation())){
-                return false;
-            }
+        if (event.isOnline()&& survey.getFormat().stream().noneMatch(e->e.equalsIgnoreCase("online"))){
+            return false;
         }
-        else return false;
+        if (!event.isOnline()&&survey.getFormat().stream().noneMatch(e->e.equalsIgnoreCase("offline")))
+            return false;
+
+        if (event.getDateTimeStart().isBefore(survey.getDateTimeStart())){
+            return false;
+        }
+        if (event.getDateTimeEnd()!=null&&event.getDateTimeEnd().isAfter(survey.getDateTimeEnd())){
+            return false;
+        }
+        if (guestsCount > survey.getMaxNumberOfGuests()) {
+            return false;
+        }
+        if (guestsCount<survey.getMinNumberOfGuests())
+            return false;
+        if (survey.getType().stream().noneMatch(e-> event.getEventType().getName().equalsIgnoreCase(e))) {
+            return false;
+        }
+        if (!(event.getPrice()<=survey.getMaxPrice()&&event.getPrice()>=survey.getMinPrice())){
+            return false;
+        }
+        if (survey.getFormat().contains("Offline") &&!event.isOnline() &&!getCityFromAddress(event.getLocation().getName()).equalsIgnoreCase(survey.getLocation())){
+            return false;
+        }
         return true;
     }
 

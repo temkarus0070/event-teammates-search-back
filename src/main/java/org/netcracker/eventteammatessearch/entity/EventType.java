@@ -13,6 +13,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "eventTypes")
 public class EventType {
     @Id
