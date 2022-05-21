@@ -66,6 +66,12 @@ public class UserService {
         existingUser.setEmail(user.getEmail());
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
+        if (!user.getPhone().equals(existingUser.getPhone())&&user.getPhone()!=null&&!user.getPhone().equals("")){
+            User userByPhone = userRepository.findUserByPhoneContains(user.getPhone());
+            if (userByPhone!=null){
+                throw new Error("данный номер телефона уже занят другим пользователем");
+            }
+        }
         existingUser.setPhone(user.getPhone());
         existingUser.setPictureUrl(user.getPictureUrl());
         existingUser.setOrganizationName(user.getOrganizationName());

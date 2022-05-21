@@ -14,6 +14,9 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, String> {
 
     @EntityGraph(value = "user-graph")
+    User findUserByPhoneContains(String phone);
+
+    @EntityGraph(value = "user-graph")
     @Query("select u from User u")
     List<User> findAll();
 

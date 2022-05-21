@@ -6,7 +6,10 @@ import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.entity.mongoDB.CommercialAccountConnectionTicket;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
@@ -67,7 +70,12 @@ public class UsersController {
 
     @PatchMapping("/updateUser")
     public void updateUser(@RequestBody User user) {
-        userService.updateUser(user);
+        try{
+            userService.updateUser(user);
+        }
+        catch (Exception ex){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,ex.getMessage());
+        }
     }
 
     @PatchMapping("/updateUserAuthority")
