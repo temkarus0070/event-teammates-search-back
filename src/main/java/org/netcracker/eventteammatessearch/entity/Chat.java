@@ -16,6 +16,9 @@ import java.util.Set;
 @Setter
 @ToString
 @NoArgsConstructor
+@NamedEntityGraph(name = "chat-graph",attributeNodes = {@NamedAttributeNode(value = "chatUsers",subgraph = "chat-user-graph")},
+subgraphs = {@NamedSubgraph(name = "chat-user-graph",attributeNodes = {@NamedAttributeNode(value = "user",subgraph = "user-subgraph")}),
+@NamedSubgraph(name = "user-subgraph",type = User.class,attributeNodes = {@NamedAttributeNode("surveyResult")})})
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +32,7 @@ public class Chat {
     @ToString.Exclude
     private Set<ChatUser> chatUsers;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonIgnore
     private Event event;

@@ -135,4 +135,18 @@ public class User {
         this.pictureUrl = pictureUrl;
     }
 
+    public User(List<String> authorities, String login,
+                String firstName, String lastName, String email, String phone,
+                String pictureUrl,boolean oauthUser) {
+        this.authorities = authorities;
+        this.login = login;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.pictureUrl = pictureUrl;
+        this.setOauthUser(oauthUser);
+    }
+
+
 }

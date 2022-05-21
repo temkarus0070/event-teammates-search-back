@@ -136,6 +136,15 @@ public class ChatService {
         return chatOptional;
     }
 
+    public Chat cleanFromEntities(Chat chat){
+        if (chat.getEvent()!=null)
+            chat.setEvent(new Event(chat.getEvent().getName()));
+        chat.getChatUsers().forEach(c->{
+            c.setUser(new User(c.getId().getUserId()));
+        });
+        return chat;
+    }
+
     public Chat getChatWithUser(String username, Principal principal) {
         Set<String> logins= Set.of(username, principal.getName());
         Chat chat = this.chatRepository.findChatByPrivateTrueAndChatUsers(logins);
@@ -198,7 +207,7 @@ public class ChatService {
             Map<Long, Long> dataAboutCountMessages = getDataAboutCountMessages(remained);
             chats.forEach(chat -> {
                 if (chat.isPrivate()) {
-                    Optional<ChatUser> chatUser = chat.getChatUsers().stream().filter(e -> !e.getUser().getLogin().equals(principal.getName())).findFirst();
+                    Optional<ChatUser> chatUser = chat.getChatUsers().stream().filter(e -> !e.getId().getUserId().equals(principal.getName())).findFirst();
                     if (chatUser.isPresent()) {
                         ChatUser chatUser1 = chatUser.get();
                         String chatName="";

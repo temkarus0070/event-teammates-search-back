@@ -31,7 +31,7 @@ public class ChatRestController {
 
     @GetMapping
     public Chat get(@RequestParam long chatId, Principal principal) {
-        return this.chatService.get(chatId, principal).get();
+        return chatService.cleanFromEntities(this.chatService.get(chatId, principal).get());
     }
 
 

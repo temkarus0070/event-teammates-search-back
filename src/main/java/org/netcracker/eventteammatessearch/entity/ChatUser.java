@@ -24,7 +24,7 @@ public class ChatUser {
     @JsonIgnore
     private Chat chat;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     private User user;
 

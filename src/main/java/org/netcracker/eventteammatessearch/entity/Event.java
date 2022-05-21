@@ -30,7 +30,15 @@ import java.util.Set;
         attributeNodes = {@NamedAttributeNode("guests"),@NamedAttributeNode("chat"),@NamedAttributeNode("location"),
         @NamedAttributeNode("tags")}
 )
+@NamedEntityGraph(
+        name = "event-entity-graph3",
+        attributeNodes = {@NamedAttributeNode("invitedGuests"),@NamedAttributeNode("guests")}
+)
 public class Event {
+
+    public Event(@NonNull String name) {
+        this.name = name;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,7 +77,7 @@ public class Event {
     private boolean isHidden;
 
 
-    @OneToOne(mappedBy = "event", cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "event", cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     private Chat chat;
 
     private String url;
@@ -85,11 +93,11 @@ public class Event {
 
 
 
-    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
     private Location location;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User owner;
 
 

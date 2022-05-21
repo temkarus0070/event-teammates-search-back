@@ -14,12 +14,18 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 
 @Repository
 
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
+
+    @EntityGraph(value = "event-entity-graph3")
+    @Override
+    Optional<Event> findById(Long aLong);
+
     @EntityGraph(value = "event-entity-graph2")
     List<Event> findByIsOnlineFalseAndDateTimeEndIsNotNullAndDateTimeEndLessThan(LocalDateTime time);
 

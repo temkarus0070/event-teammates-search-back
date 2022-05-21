@@ -56,7 +56,7 @@ public class UserService {
     public User getUserByLogin(String login) {
         User user = userRepository.findById(login).orElse(null);
         return new User(user.getAuthorities(),user.getLogin(),user.getFirstName(),user.getLastName()
-        ,user.getEmail(),user.getPhone(),user.getPictureUrl());
+        ,user.getEmail(),user.getPhone(),user.getPictureUrl(),user.isOauthUser());
     }
 
     public List<User> getAll() {
