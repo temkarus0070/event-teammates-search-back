@@ -169,12 +169,15 @@ public class EventsService {
     }
 
     public List<Event> getUsersCreatedEventsByLogin(String userLogin) {
-        return getDTOS(eventRepository.getUsersCreatedEventsByLogin(userLogin));
+        List<Event> dtos = getDTOS(eventRepository.getUsersCreatedEventsByLogin(userLogin));
+        reviewService.setMarksToEvents(dtos);
+        return dtos;
     }
 
     public List<Event> getUsersAttendedEventsByLogin(String userLogin) {
         List<Event> usersAttendedEventsByLogin = eventAttendanceRepository.getUsersAttendedEventsByLogin(userLogin);
         hideEventsUrl(usersAttendedEventsByLogin,new UserPrincipal(userLogin));
+        reviewService.setMarksToEvents(usersAttendedEventsByLogin);
         return getDTOS(usersAttendedEventsByLogin);
     }
 
