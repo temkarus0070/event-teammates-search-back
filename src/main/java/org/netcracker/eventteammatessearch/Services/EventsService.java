@@ -227,7 +227,42 @@ public class EventsService {
         }
         reviewService.setMarksToEvents(nearWithinDistance);
         getLocationStats(nearWithinDistance);
-        return nearWithinDistance;
+
+        return getDTOS(nearWithinDistance);
+    }
+
+    private List<Event> getDTOS(List<Event> list){
+        return list.stream().map(e -> {
+            Chat chat = null;
+            Location location = null;
+            if (e.getLocation() != null) {
+                location = new Location(e.getLocation().getName(), e.getLocation().getLocation());
+            }
+            if (e.getChat() != null) {
+                chat = new Chat();
+                chat.setId(e.getChat().getId());
+            }
+            User owner = null;
+            if (e.getOwner() != null)
+                owner = new User(e.getOwner().getLogin());
+            Set<EventAttendance> guests = new HashSet<>();
+            if (e.getGuests() != null) {
+                guests = e.getGuests().stream().map(u -> new EventAttendance(u.getId().getUserId())).collect(Collectors.toSet());
+            }
+
+            return new Event(e.getId(), e.getTheme(), e.getName(), e.getEventType(), e.getDescription(), e.getDateTimeStart(), e.getDateTimeEnd(), e.getMaxNumberOfGuests(),
+                    e.getPrice(),
+                    e.isHasChatWithOwner(), e.isPrivate(), e.isOnline(), e.isHidden(), chat, e.getUrl(), e.getAvgMark(), e.isCurrentUserInvited(), e.isCurrentUserEntered(),
+                    location,
+                    owner,
+                    guests,
+                    new HashSet<>(),
+                    new HashSet<>(),
+                    e.isRecommendedBySurvey(),
+                    e.getVisitorsCount(),
+                    e.getTags()
+            );
+        }).collect(Collectors.toList());
     }
 
     public boolean isEventFitSurvey(Event event, Survey survey) {
@@ -367,7 +402,7 @@ public class EventsService {
         }
         if (filterData.getEventFormats().contains("ONLINE"))
         hideEventsUrl(events,principal);
-        return eventPage;
+        return new PageImpl<>(getDTOS(eventPage.toList()));
     }
 
 
@@ -472,7 +507,7 @@ public class EventsService {
         }
         if (filterData.getEventFormats().contains("ONLINE"))
             hideEventsUrl(events,principal);
-        return events;
+        return getDTOS(events);
     }
 
 

@@ -32,6 +32,10 @@ public class EventAttendance {
     @JsonIgnore
     private User user;
 
+    public EventAttendance(String login) {
+        this.user = new User(login);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

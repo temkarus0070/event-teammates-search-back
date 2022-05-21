@@ -15,6 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @NamedEntityGraph(
         name = "event-entity-graph",
@@ -23,6 +24,11 @@ import java.util.Set;
 @NamedEntityGraph(
         name = "event-entity-graph1",
         attributeNodes = {@NamedAttributeNode("invitedGuests")}
+)
+@NamedEntityGraph(
+        name = "event-entity-graph2",
+        attributeNodes = {@NamedAttributeNode("guests"),@NamedAttributeNode("chat"),@NamedAttributeNode("location"),
+        @NamedAttributeNode("tags")}
 )
 public class Event {
 

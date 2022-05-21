@@ -21,6 +21,12 @@ import java.util.Set;
 @RequiredArgsConstructor
 @NoArgsConstructor
 public class Location {
+
+    public Location(@NonNull String name, Point location) {
+        this.name = name;
+        this.location = location;
+    }
+
     @NonNull
     private String name;
 

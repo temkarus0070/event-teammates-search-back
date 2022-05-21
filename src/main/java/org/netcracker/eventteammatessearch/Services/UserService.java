@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,7 +55,8 @@ public class UserService {
 
     public User getUserByLogin(String login) {
         User user = userRepository.findById(login).orElse(null);
-        return user;
+        return new User(user.getAuthorities(),user.getLogin(),user.getFirstName(),user.getLastName()
+        ,user.getEmail(),user.getPhone(),user.getPictureUrl());
     }
 
     public List<User> getAll() {

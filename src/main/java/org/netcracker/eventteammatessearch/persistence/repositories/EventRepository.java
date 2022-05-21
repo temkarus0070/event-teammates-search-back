@@ -20,7 +20,7 @@ import java.util.Set;
 @Repository
 
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
-    @EntityGraph(value = "event-entity-graph")
+    @EntityGraph(value = "event-entity-graph2")
     List<Event> findByIsOnlineFalseAndDateTimeEndIsNotNullAndDateTimeEndLessThan(LocalDateTime time);
 
     @EntityGraph(value = "event-entity-graph")
