@@ -87,7 +87,7 @@ public class EventsService {
     public List<Event> getFinishedEventsOfUser(Principal principal) {
         List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEvents(principal.getName());
         reviewService.setMarksToEvents(allUserEndedEvents);
-        return allUserEndedEvents;
+        return getDTOS(allUserEndedEvents);
     }
 
     private void hideEventsUrl(List<Event> eventList,Principal principal){
@@ -121,7 +121,7 @@ public class EventsService {
         List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
 
         reviewService.setMarksToEvents(allUserEndedEvents);
-        return allUserEndedEvents;
+        return getDTOS(allUserEndedEvents);
     }
 
     public List<Event> get() {
@@ -169,13 +169,13 @@ public class EventsService {
     }
 
     public List<Event> getUsersCreatedEventsByLogin(String userLogin) {
-        return eventRepository.getUsersCreatedEventsByLogin(userLogin);
+        return getDTOS(eventRepository.getUsersCreatedEventsByLogin(userLogin));
     }
 
     public List<Event> getUsersAttendedEventsByLogin(String userLogin) {
         List<Event> usersAttendedEventsByLogin = eventAttendanceRepository.getUsersAttendedEventsByLogin(userLogin);
         hideEventsUrl(usersAttendedEventsByLogin,new UserPrincipal(userLogin));
-        return usersAttendedEventsByLogin;
+        return getDTOS(usersAttendedEventsByLogin);
     }
 
 

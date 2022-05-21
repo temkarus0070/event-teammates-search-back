@@ -30,7 +30,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     @EntityGraph(value = "event-entity-graph")
     List<Event> findAll(Specification<Event> specification);
 
-    @EntityGraph(value = "event-entity-graph")
+    @EntityGraph(value = "event-entity-graph2")
     @Query(value = "SELECT e FROM Event e where e.owner.login = :userLogin and (e.dateTimeEnd is null or e.dateTimeEnd > CURRENT_TIMESTAMP) and e.isHidden = false")
     List<Event> getUsersCreatedEventsByLogin(String userLogin);
 
@@ -49,11 +49,11 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "where t3.word like concat(:word,'%');", nativeQuery = true)
     Set<String> getWords(String word);
 
-    @EntityGraph(value = "event-entity-graph")
+    @EntityGraph(value = "event-entity-graph2")
     @Query("SELECT e from Event e where e.dateTimeEnd is not null  and e.dateTimeEnd<CURRENT_TIMESTAMP and exists (SELECT  ea from EventAttendance  ea where  ea.user.login=:login and ea.event=e)")
     List<Event> findAllUserEndedEvents(String login);
 
-    @EntityGraph(value = "event-entity-graph")
+    @EntityGraph(value = "event-entity-graph2")
     @Query("SELECT e from Event e where e.dateTimeEnd is not null  and e.dateTimeEnd>=:date1 and e.dateTimeEnd<=:date2 and exists (SELECT  ea from EventAttendance  ea where  ea.user.login=:login and ea.event=e)")
     List<Event> findAllUserEndedEventsInInterval(String login, LocalDateTime date1, LocalDateTime date2);
 
