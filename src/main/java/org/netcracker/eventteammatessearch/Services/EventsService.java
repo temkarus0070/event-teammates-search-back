@@ -536,6 +536,8 @@ public class EventsService {
     }
 
     public Map<Long,Long> getLocationStats(List<Event> eventList){
+        if (eventList==null||eventList.size()==0)
+            return new HashMap<>();
         final int distance=400;
         Map<Long, Long> resultEventLongMap = new HashMap<>();
         List<Event> events = eventRepository.findByIsOnlineFalseAndDateTimeEndIsNotNullAndDateTimeEndLessThan(LocalDateTime.now());
