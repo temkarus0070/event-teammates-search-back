@@ -57,7 +57,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     @Query("SELECT e from Event e where e.dateTimeEnd is not null  and e.dateTimeEnd>=:date1 and e.dateTimeEnd<=:date2 and exists (SELECT  ea from EventAttendance  ea where  ea.user.login=:login and ea.event=e)")
     List<Event> findAllUserEndedEventsInInterval(String login, LocalDateTime date1, LocalDateTime date2);
 
-    @EntityGraph(value = "event-entity-graph")
+    @EntityGraph(value = "event-entity-graph1")
     @Query("SELECT e from Event e inner join User u on u member of e.invitedGuests and u.login=:login")
     List<Event> findUsersInvitedEvents(String login);
 }

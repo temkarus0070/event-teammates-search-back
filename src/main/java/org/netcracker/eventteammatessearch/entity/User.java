@@ -2,10 +2,7 @@ package org.netcracker.eventteammatessearch.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -19,8 +16,17 @@ import java.util.stream.Collectors;
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "app_users")
-@NamedEntityGraph(name = "user-graph",includeAllAttributes = true)
+@NamedEntityGraph(name = "user-graph",includeAllAttributes = true,attributeNodes =
+        {@NamedAttributeNode(value =
+                "chats",subgraph = "chatSubgraph"),@NamedAttributeNode(value = "createdEvents",subgraph = "eventSubgraph")
+        },subgraphs = {@NamedSubgraph(
+        name="chatSubgraph",attributeNodes = {@NamedAttributeNode(value = "chat"),@NamedAttributeNode(value = "user")}
+),@NamedSubgraph(name = "eventSubgraph",attributeNodes = {@NamedAttributeNode(value = "chat")})})
+@NamedEntityGraph(name = "userGraph1",attributeNodes = {@NamedAttributeNode("authorities"),
+        @NamedAttributeNode("surveyResult")
+})
 public class User {
     @ElementCollection()
     @ToString.Exclude
@@ -53,11 +59,18 @@ public class User {
         this.login = login;
     }
 
+    public User(String login, List<String> authoritiesInStrings) {
+        this.login=login;
+        this.authorities=authoritiesInStrings;
+    }
+
     public User(String login,  String password, List<GrantedAuthority> authorities) {
         this.login = login;
         this.password = password;
         this.authorities = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
     }
+
+
 
 
     private boolean isBlocked;
@@ -89,7 +102,7 @@ public class User {
     @JsonIgnore
     private Set<Event> invitations;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user",fetch = FetchType.LAZY)
     private Survey surveyResult;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
@@ -109,5 +122,17 @@ public class User {
     private String oauthService;
     private String oauthKey;
 
+
+    public User(List<String> authorities, String login,
+                String firstName, String lastName, String email, String phone,
+                String pictureUrl) {
+        this.authorities = authorities;
+        this.login = login;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.pictureUrl = pictureUrl;
+    }
 
 }

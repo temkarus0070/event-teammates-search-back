@@ -20,6 +20,10 @@ import java.util.Set;
         name = "event-entity-graph",
         includeAllAttributes = true
 )
+@NamedEntityGraph(
+        name = "event-entity-graph1",
+        attributeNodes = {@NamedAttributeNode("invitedGuests")}
+)
 public class Event {
 
     @Id

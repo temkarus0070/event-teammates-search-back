@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NamedEntityGraph(name = "surveyGraph",attributeNodes = {@NamedAttributeNode("type")})
 public class Survey {
 
     @Id
@@ -47,7 +48,7 @@ public class Survey {
     @NonNull
     private String location;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private User user;
 

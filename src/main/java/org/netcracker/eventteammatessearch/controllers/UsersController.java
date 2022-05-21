@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestMapping(value = "/api/users")
 @RestController
@@ -42,7 +43,9 @@ public class UsersController {
 
     @GetMapping("/getUsers")
     public List<User> getUsers() {
-        return userService.getAll();
+        List<User> all = userService.getAll();
+        List<User> collect = all.stream().map(u -> new User(u.getAuthorities(), u.getLogin(), u.getFirstName(), u.getLastName(), u.getEmail(), u.getPhone(), u.getPictureUrl())).collect(Collectors.toList());
+        return collect;
     }
 
     @GetMapping("/getUserByLogin")
@@ -110,7 +113,8 @@ public class UsersController {
 
     @GetMapping("/getCurrentUser")
     public User getCurrentUser(Principal principal){
-return userService.getUserByLogin(principal.getName());
+        User userByLogin = userService.getUserByLogin(principal.getName());
+        return new User(userByLogin.getLogin(),userByLogin.getAuthorities());
     }
 
     @PatchMapping("/updateCommercialAcc")

@@ -51,13 +51,14 @@ public class UserService {
         } else throw new ObjectNotFoundException(principal.getName(), "User");
     }
 
+
     public User getUserByLogin(String login) {
         User user = userRepository.findById(login).orElse(null);
         return user;
     }
 
     public List<User> getAll() {
-        List<User> all = userRepository.findAll();
+        List<User> all = userRepository.findAllUsers();
         return all;
     }
 

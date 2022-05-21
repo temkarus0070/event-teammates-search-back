@@ -9,16 +9,20 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
+    @EntityGraph(value = "userGraph1")
+    @Override
+    Optional<User> findById(String s);
 
     @EntityGraph(value = "user-graph")
     User findUserByPhoneContains(String phone);
 
-    @EntityGraph(value = "user-graph")
+    @EntityGraph(value = "userGraph1")
     @Query("select u from User u")
-    List<User> findAll();
+    List<User> findAllUsers();
 
     @Transactional
     @Query("UPDATE User u set u.authorities = :authorities, u.login= :username, u.password = :password where u.login= :login")
