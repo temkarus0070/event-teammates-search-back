@@ -14,6 +14,7 @@ import java.util.Objects;
 @Setter
 @ToString
 @NoArgsConstructor
+@NamedEntityGraph(name = "relation-graph",includeAllAttributes = true)
 public class Relationship {
 
     @EmbeddedId

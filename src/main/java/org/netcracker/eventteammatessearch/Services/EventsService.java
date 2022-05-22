@@ -113,7 +113,7 @@ public class EventsService {
         List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Review> reviewMap = reviewService.findReviewsOfUser(principal).stream().collect(Collectors.toMap((e) -> e.getId().getEventId(), (val) -> val));
         allUserEndedEvents=allUserEndedEvents.stream().filter(e->!reviewMap.containsKey(e.getId())).collect(Collectors.toList());
-        return allUserEndedEvents;
+        return getDTOS(allUserEndedEvents);
     }
 
     public List<Event> getFinishedEventsOfUserInInterval(Principal principal, LocalDateTime date1, LocalDateTime date2) {

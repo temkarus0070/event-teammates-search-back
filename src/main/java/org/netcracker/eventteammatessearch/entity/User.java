@@ -59,6 +59,13 @@ public class User {
         this.login = login;
     }
 
+    public User(String login, String firstName, String lastName, String pictureUrl) {
+        this.login = login;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.pictureUrl = pictureUrl;
+    }
+
     public User(String login, List<String> authoritiesInStrings) {
         this.login=login;
         this.authorities=authoritiesInStrings;

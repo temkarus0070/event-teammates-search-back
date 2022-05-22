@@ -87,21 +87,33 @@ public class FriendController {
     public List<Relationship> getRequests(Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());
-        return relationshipRepository.getRelationshipsRequestsByOwner(owner);
+        return cleanFromEntities(relationshipRepository.getRelationshipsRequestsByOwner(owner));
     }
 
     @GetMapping("/getFriends")
     public List<Relationship> getFriends(Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());
-        return relationshipRepository.getRelationshipsFriendsByOwner(owner);
+        return cleanFromEntities(relationshipRepository.getRelationshipsFriendsByOwner(owner));
     }
 
     @GetMapping("/getSendedRequests")
     public List<Relationship> getSendedRequests(Principal principal) {
         User owner = new User();
         owner.setLogin(principal.getName());
-        return relationshipRepository.getRelationshipSendedRequestsByOwner(owner);
+        return cleanFromEntities(relationshipRepository.getRelationshipSendedRequestsByOwner(owner));
+    }
+
+    private List<Relationship> cleanFromEntities(List<Relationship> relationships){
+        if (relationships!=null){
+            relationships.forEach(r->{
+                if (r.getId().getFriend()!=null)
+                r.getId().setFriend(new User(r.getId().getFriend().getLogin(),r.getId().getFriend().getFirstName(),r.getId().getFriend().getLastName(),r.getId().getFriend().getPictureUrl()));
+                if (r.getId().getOwner()!=null)
+                    r.getId().setOwner(new User(r.getId().getOwner().getLogin(),r.getId().getOwner().getFirstName(),r.getId().getOwner().getLastName(),r.getId().getOwner().getPictureUrl()));
+            });
+        }
+        return relationships;
     }
 
 }
