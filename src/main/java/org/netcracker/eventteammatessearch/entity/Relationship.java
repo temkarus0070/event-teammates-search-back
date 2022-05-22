@@ -14,26 +14,26 @@ import java.util.Objects;
 @Setter
 @ToString
 @NoArgsConstructor
-@NamedEntityGraph(name = "relation-graph",includeAllAttributes = true)
+@NamedEntityGraph(name = "relation-graph",includeAllAttributes = true,attributeNodes = {@NamedAttributeNode(value = "owner",subgraph = "user-sub"),
+        @NamedAttributeNode(value = "friend",subgraph = "user-sub")}
+,subgraphs = {@NamedSubgraph(name = "user-sub",attributeNodes = {@NamedAttributeNode("surveyResult")})})
+@EqualsAndHashCode
 public class Relationship {
+
+    @MapsId("ownerId")
+    @OneToOne()
+    private User owner;
+
+    @MapsId("friendId")
+    @OneToOne()
+    private User friend;
 
     @EmbeddedId
     private RelationshipId id;
 
-    private boolean friend;
+    private boolean isItFriend;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Relationship that = (Relationship) o;
-        return Objects.equals(id, that.id);
-    }
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 
     @Embeddable
     @Getter
@@ -42,10 +42,7 @@ public class Relationship {
     @NoArgsConstructor
     @EqualsAndHashCode
     public static class RelationshipId implements Serializable {
-        @OneToOne()
-        private User owner;
-
-        @OneToOne()
-        private User friend;
+        private String friendId;
+        private String ownerId;
     }
 }

@@ -13,19 +13,19 @@ import java.util.List;
 public interface RelationshipRepository extends JpaRepository<Relationship, String> {
 
     @EntityGraph(value = "relation-graph")
-    @Query("select r from Relationship r where r.id.owner=:owner and r.id.friend=:friend")
-    Relationship getRelationshipByUsersLogin(User owner, User friend);
+    @Query("select r from Relationship r where r.id.ownerId=:owner and r.id.friendId=:friend")
+    Relationship getRelationshipByUsersLogin(String owner, String friend);
 
     @EntityGraph(value = "relation-graph")
-    @Query("select r from Relationship r where r.id.friend=:owner and r.friend=false")
-    List<Relationship> getRelationshipsRequestsByOwner(User owner);
+    @Query("select r from Relationship r where r.id.friendId=:owner and r.isItFriend=false")
+    List<Relationship> getRelationshipsRequestsByOwner(String owner);
 
     @EntityGraph(value = "relation-graph")
-    @Query("select r from Relationship r where r.id.owner=:owner and r.friend=false")
-    List<Relationship> getRelationshipSendedRequestsByOwner(User owner);
+    @Query("select r from Relationship r where r.id.ownerId=:owner and r.isItFriend=false")
+    List<Relationship> getRelationshipSendedRequestsByOwner(String owner);
 
 
     @EntityGraph(value = "relation-graph")
-    @Query("select r from Relationship r where r.id.friend=:owner and r.friend=true")
-    List<Relationship> getRelationshipsFriendsByOwner(User owner);
+    @Query("select r from Relationship r where r.id.friendId=:owner and r.isItFriend=true")
+    List<Relationship> getRelationshipsFriendsByOwner(String owner);
 }
