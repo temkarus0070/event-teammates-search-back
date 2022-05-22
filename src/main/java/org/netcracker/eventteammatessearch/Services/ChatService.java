@@ -141,7 +141,7 @@ public class ChatService {
         if (chat.getEvent()!=null)
             chat.setEvent(new Event(chat.getEvent().getName()));
         chat.getChatUsers().forEach(c->{
-            c.setUser(new User(c.getId().getUserId()));
+            c.setUser(new User(c.getId().getUserId(),c.getUser().getFirstName(),c.getUser().getLastName(),c.getUser().getPictureUrl()));
         });
         return chat;
     }

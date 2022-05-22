@@ -66,6 +66,8 @@ public class User {
         this.pictureUrl = pictureUrl;
     }
 
+
+
     public User(String login, List<String> authoritiesInStrings) {
         this.login=login;
         this.authorities=authoritiesInStrings;
