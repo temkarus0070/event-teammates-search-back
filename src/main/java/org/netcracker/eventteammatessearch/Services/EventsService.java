@@ -229,8 +229,6 @@ public class EventsService {
             });
         }
         reviewService.setMarksToEvents(nearWithinDistance);
-        getLocationStats(nearWithinDistance);
-
         return getDTOS(nearWithinDistance);
     }
 
