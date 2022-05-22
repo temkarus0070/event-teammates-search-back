@@ -19,16 +19,20 @@ import java.util.Set;
 @ToString
 @NamedEntityGraph(
         name = "event-entity-graph",
-        includeAllAttributes = true
+        includeAllAttributes = true,
+        attributeNodes = {@NamedAttributeNode(value = "guests",subgraph = "guest-sub"),@NamedAttributeNode(value = "invitedGuests",subgraph = "user-sub"),
+                @NamedAttributeNode(value = "owner",subgraph = "user-sub")},
+
+        subgraphs = {@NamedSubgraph(name = "user-sub",attributeNodes = {@NamedAttributeNode("surveyResult")}),
+        @NamedSubgraph(name = "guest-sub",attributeNodes = {@NamedAttributeNode(value = "user",subgraph = "user-sub")})}
 )
 @NamedEntityGraph(
-        name = "event-entity-graph1",
-        attributeNodes = {@NamedAttributeNode("invitedGuests")}
+        name = "event-entity-graph1"
 )
 @NamedEntityGraph(
         name = "event-entity-graph2",
         attributeNodes = {@NamedAttributeNode("guests"),@NamedAttributeNode("chat"),@NamedAttributeNode("location"),
-        @NamedAttributeNode("tags"),@NamedAttributeNode("eventType")}
+        @NamedAttributeNode("tags")}
 )
 @NamedEntityGraph(
         name = "event-entity-graph3",
