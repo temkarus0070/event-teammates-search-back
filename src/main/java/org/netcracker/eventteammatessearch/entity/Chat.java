@@ -28,7 +28,7 @@ public class Chat {
 
     private boolean isPrivate;
 
-    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.PERSIST)
     @ToString.Exclude
     private Set<ChatUser> chatUsers;
 

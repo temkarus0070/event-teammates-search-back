@@ -24,8 +24,9 @@ public class ChatUser {
     @JsonIgnore
     private Chat chat;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @MapsId("userId")
+    @ToString.Exclude
     private User user;
 
     @Enumerated

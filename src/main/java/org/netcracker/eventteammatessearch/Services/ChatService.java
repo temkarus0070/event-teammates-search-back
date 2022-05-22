@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
@@ -239,8 +240,10 @@ public class ChatService {
                 chatDAOList.add(chatDAO);
             });
         }
+
         return chatDAOList;
     }
+
 
     public void remove(Message message) {
         this.messageRepository.removeMessageByChatIdAndIdAndUserId(message.getChatId(), message.getId(), message.getUserId());

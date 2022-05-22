@@ -110,6 +110,7 @@ public class User {
     private Set<Event> invitations;
 
     @OneToOne(mappedBy = "user",fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Survey surveyResult;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)

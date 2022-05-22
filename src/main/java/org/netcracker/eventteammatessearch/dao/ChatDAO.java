@@ -42,6 +42,6 @@ public class ChatDAO {
         this.chatUsers = chatUsers;
         this.lastReadMessage = lastReadMessage;
         this.unReadCount = unReadCount;
-        this.chatUsers.forEach(e->e.setUser(new User(e.getId().getUserId())));
+        this.chatUsers.forEach(e->e.setUser(new User(e.getId().getUserId(),e.getUser().getFirstName(),e.getUser().getLastName(),e.getUser().getPictureUrl())));
     }
 }
