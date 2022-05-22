@@ -80,7 +80,7 @@ public class EventsService {
             } catch (NullPointerException nullPointerException) {
                 logger.info("event owner marks have not been found", nullPointerException);
             }
-            return event;
+            return getDTOS(List.of(event)).get(0);
         } else throw new ObjectNotFoundException(id, "Event");
     }
 

@@ -37,7 +37,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     List<Event> findAll(Specification<Event> specification);
 
     @EntityGraph(value = "event-entity-graph2")
-    @Query(value = "SELECT e FROM Event e where e.owner.login = :userLogin and (e.dateTimeEnd is null or e.dateTimeEnd > CURRENT_TIMESTAMP) and e.isHidden = false")
+    @Query(value = "SELECT e FROM Event e where e.owner.login = :userLogin ")
     List<Event> getUsersCreatedEventsByLogin(String userLogin);
 
     @EntityGraph(value = "event-entity-graph")
