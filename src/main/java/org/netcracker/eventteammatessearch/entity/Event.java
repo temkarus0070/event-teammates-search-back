@@ -28,7 +28,7 @@ import java.util.Set;
 @NamedEntityGraph(
         name = "event-entity-graph2",
         attributeNodes = {@NamedAttributeNode("guests"),@NamedAttributeNode("chat"),@NamedAttributeNode("location"),
-        @NamedAttributeNode("tags")}
+        @NamedAttributeNode("tags"),@NamedAttributeNode("eventType")}
 )
 @NamedEntityGraph(
         name = "event-entity-graph3",
