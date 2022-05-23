@@ -218,23 +218,6 @@ public class EventsService {
         }
     }
 
-    public void notifyGuestsAboutUpdate(Event event) {
-        if (event != null) {
-            List<Notification> notifications = new ArrayList<>();
-            if (event.getGuests()!=null)
-                event.getGuests().forEach(g -> {
-                    Notification notification = new Notification();
-                    notification.setId(sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME));
-                    notification.setTitle(String.format("Событие %s было обновлено", event.getName()));
-                    notification.setUserId(g.getId().getUserId());
-                    notification.setDescription("Данные мероприятия поменялись");
-                    notifications.add(notification);
-                });
-            notificationsRepository.saveAll(notifications);
-        }
-    }
-
-
     public void update(Event event, Principal principal) {
         Optional<Event> optionalEvent = this.eventRepository.findById(event.getId());
         if (optionalEvent.isPresent()) {
@@ -248,7 +231,6 @@ public class EventsService {
                 event.setChat(optionalEvent.get().getChat());
                 event.setComplaints(optionalEvent.get().getComplaints());
                 event.setGuests(optionalEvent.get().getGuests());
-                notifyGuestsAboutUpdate(event);
                 this.eventRepository.save(event);
             } else {
                 logger.warn(String.format("Пользователь %s пытался редактировать не свой эвент с id = %d", principal.getName(), event.getId()));
@@ -579,12 +561,9 @@ public class EventsService {
     }
 
     public void removeUserFromEvent(Principal principal, long eventId) {
-        Optional<Event> optionalEvent = eventRepository.findById(eventId);
-        if (optionalEvent.isPresent()){
-            chatService.removeUserFromChat(principal.getName(), eventId);
-            UserEventKey userEventKey = new UserEventKey(eventId, principal.getName());
-            this.eventAttendanceRepository.deleteById(userEventKey);
-        }
+        UserEventKey userEventKey = new UserEventKey(eventId, principal.getName());
+        chatService.removeUserFromChat(principal.getName(), eventId);
+        this.eventAttendanceRepository.deleteById(userEventKey);
     }
 
     public Map<Long,Long> getLocationStats(List<Event> eventList){

@@ -24,7 +24,7 @@ import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+
     @EntityGraph(value = "event-entity-graph3")
     @Override
     Optional<Event> findById(Long aLong);

@@ -252,7 +252,10 @@ public class ChatService {
     public void removeUserFromChat(String username, long eventId) {
         Chat byEvent_id = this.chatRepository.getByEvent_Id(eventId);
         if (byEvent_id != null) {
-            chatUserRepository.deleteById(new ChatUserKey(byEvent_id.getId(), username));
+            Optional<ChatUser> byId = chatUserRepository.findById(new ChatUserKey(byEvent_id.getId(), username));
+            byId.ifPresent(e->{
+                chatUserRepository.delete(byId.get());
+            });
         }
     }
 
