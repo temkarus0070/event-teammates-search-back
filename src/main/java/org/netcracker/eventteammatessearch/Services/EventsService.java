@@ -579,9 +579,12 @@ public class EventsService {
     }
 
     public void removeUserFromEvent(Principal principal, long eventId) {
-        UserEventKey userEventKey = new UserEventKey(eventId, principal.getName());
-        chatService.removeUserFromChat(principal.getName(), eventId);
-        this.eventAttendanceRepository.deleteById(userEventKey);
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        if (optionalEvent.isPresent()){
+            chatService.removeUserFromChat(principal.getName(), eventId);
+            UserEventKey userEventKey = new UserEventKey(eventId, principal.getName());
+            this.eventAttendanceRepository.deleteById(userEventKey);
+        }
     }
 
     public Map<Long,Long> getLocationStats(List<Event> eventList){
