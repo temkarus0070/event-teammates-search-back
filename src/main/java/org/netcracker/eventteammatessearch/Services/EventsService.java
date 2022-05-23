@@ -244,8 +244,9 @@ public class EventsService {
                 chat.setId(e.getChat().getId());
             }
             User owner = null;
-            if (e.getOwner() != null)
-                owner = new User(e.getOwner().getLogin());
+            if (e.getOwner() != null) {
+                owner = new User(e.getOwner().getLogin(),e.getOwner().isPhoneConfirmed());
+            }
             Set<EventAttendance> guests = new HashSet<>();
             if (e.getGuests() != null) {
                 guests = e.getGuests().stream().map(u -> new EventAttendance(u.getId().getUserId())).collect(Collectors.toSet());

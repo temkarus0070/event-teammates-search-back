@@ -73,7 +73,12 @@ public class User {
         this.authorities=authoritiesInStrings;
     }
 
-    public User(String login,  String password, List<GrantedAuthority> authorities) {
+    public User(String login, boolean isPhoneConfirmed) {
+        this.login = login;
+        this.isPhoneConfirmed = isPhoneConfirmed;
+    }
+
+    public User(String login, String password, List<GrantedAuthority> authorities) {
         this.login = login;
         this.password = password;
         this.authorities = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
@@ -147,7 +152,7 @@ public class User {
 
     public User(List<String> authorities, String login,
                 String firstName, String lastName, String email, String phone,
-                String pictureUrl,boolean oauthUser) {
+                String pictureUrl,boolean oauthUser,boolean phoneConfirmed) {
         this.authorities = authorities;
         this.login = login;
         this.firstName = firstName;
@@ -156,6 +161,7 @@ public class User {
         this.phone = phone;
         this.pictureUrl = pictureUrl;
         this.setOauthUser(oauthUser);
+    this.isPhoneConfirmed=phoneConfirmed;
     }
 
 
