@@ -202,7 +202,7 @@ public class EventsService {
     }
 
     public void notifyGuestsAboutRemove(long eventId) {
-        Event event = this.get(eventId);
+        Event event = eventRepository.getById(eventId);
         if (event != null) {
             List<Notification> notifications = new ArrayList<>();
             if (event.getGuests()!=null)
@@ -218,6 +218,23 @@ public class EventsService {
         }
     }
 
+    public void notifyGuestsAboutUpdate(Event event) {
+        if (event != null) {
+            List<Notification> notifications = new ArrayList<>();
+            if (event.getGuests()!=null)
+                event.getGuests().forEach(g -> {
+                    Notification notification = new Notification();
+                    notification.setId(sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME));
+                    notification.setTitle(String.format("Событие %s было обновлено", event.getName()));
+                    notification.setUserId(g.getId().getUserId());
+                    notification.setDescription("Данные мероприятия поменялись");
+                    notifications.add(notification);
+                });
+            notificationsRepository.saveAll(notifications);
+        }
+    }
+
+
     public void update(Event event, Principal principal) {
         Optional<Event> optionalEvent = this.eventRepository.findById(event.getId());
         if (optionalEvent.isPresent()) {
@@ -231,6 +248,7 @@ public class EventsService {
                 event.setChat(optionalEvent.get().getChat());
                 event.setComplaints(optionalEvent.get().getComplaints());
                 event.setGuests(optionalEvent.get().getGuests());
+                notifyGuestsAboutUpdate(event);
                 this.eventRepository.save(event);
             } else {
                 logger.warn(String.format("Пользователь %s пытался редактировать не свой эвент с id = %d", principal.getName(), event.getId()));
