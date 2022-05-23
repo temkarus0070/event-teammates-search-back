@@ -116,7 +116,7 @@ public class Event {
     private Set<Complaint> complaints;
 
 
-    @ManyToMany(cascade = CascadeType.REFRESH)
+    @ManyToMany(cascade = {CascadeType.REFRESH,CascadeType.REMOVE})
     @ToString.Exclude
     private Set<User> invitedGuests;
 

@@ -10,8 +10,11 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.entity.*;
+import org.netcracker.eventteammatessearch.entity.mongoDB.Notification;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Review;
+import org.netcracker.eventteammatessearch.entity.mongoDB.sequenceGenerators.SequenceGeneratorService;
 import org.netcracker.eventteammatessearch.persistence.repositories.*;
+import org.netcracker.eventteammatessearch.persistence.repositories.mongo.NotificationsRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +63,12 @@ public class EventsService {
 
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
+
+    @Autowired
+    private SequenceGeneratorService sequenceGeneratorService;
+
+    @Autowired
+    private NotificationsRepository notificationsRepository;
 
 
     @Autowired
@@ -153,6 +162,7 @@ public class EventsService {
         } else throw new ObjectNotFoundException(eventId, "Event");
     }
 
+
     public void add(Event event, Principal principal) {
         String name = principal.getName();
         User user = userRepository.getUserByLogin(name);
@@ -187,8 +197,43 @@ public class EventsService {
     }
 
     public void delete(Long eventId) {
+        notifyGuestsAboutRemove(eventId);
         eventRepository.deleteById(eventId);
     }
+
+    public void notifyGuestsAboutRemove(long eventId) {
+        Event event = this.get(eventId);
+        if (event != null) {
+            List<Notification> notifications = new ArrayList<>();
+            if (event.getGuests()!=null)
+            event.getGuests().forEach(g -> {
+                Notification notification = new Notification();
+                notification.setId(sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME));
+                notification.setTitle(String.format("Событие %s удалено", event.getName()));
+                notification.setUserId(g.getId().getUserId());
+                notification.setDescription("Ваше участие аннулировано");
+                notifications.add(notification);
+            });
+            notificationsRepository.saveAll(notifications);
+        }
+    }
+
+    public void notifyGuestsAboutUpdate(Event event) {
+        if (event != null) {
+            List<Notification> notifications = new ArrayList<>();
+            if (event.getGuests()!=null)
+                event.getGuests().forEach(g -> {
+                    Notification notification = new Notification();
+                    notification.setId(sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME));
+                    notification.setTitle(String.format("Событие %s было обновлено", event.getName()));
+                    notification.setUserId(g.getId().getUserId());
+                    notification.setDescription("Данные мероприятия поменялись");
+                    notifications.add(notification);
+                });
+            notificationsRepository.saveAll(notifications);
+        }
+    }
+
 
     public void update(Event event, Principal principal) {
         Optional<Event> optionalEvent = this.eventRepository.findById(event.getId());
@@ -202,6 +247,8 @@ public class EventsService {
                 event.setOwner(optionalEvent.get().getOwner());
                 event.setChat(optionalEvent.get().getChat());
                 event.setComplaints(optionalEvent.get().getComplaints());
+                event.setGuests(optionalEvent.get().getGuests());
+                notifyGuestsAboutUpdate(event);
                 this.eventRepository.save(event);
             } else {
                 logger.warn(String.format("Пользователь %s пытался редактировать не свой эвент с id = %d", principal.getName(), event.getId()));
