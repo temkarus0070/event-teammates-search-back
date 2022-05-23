@@ -13,11 +13,15 @@ public class NotificationService {
     @Autowired
     private NotificationsRepository notificationsRepository;
 
+    @Autowired
+    private EventsService eventsService;
+
     public List<Notification> checkNotifications(Principal principal) {
         return notificationsRepository.findAllByUserIdOrderByIsShownAsc(principal.getName());
     }
 
     public boolean hasNew(Principal principal) {
+        if (eventsService.getInvitesEvent(principal.getName()).size() != 0) return true;
         List<Notification> allByUserIdAndShownTrue = notificationsRepository.findAllByUserIdAndIsShownIsFalse(principal.getName());
         if (allByUserIdAndShownTrue.size() > 0)
             return true;
