@@ -152,7 +152,7 @@ public class User {
 
     public User(List<String> authorities, String login,
                 String firstName, String lastName, String email, String phone,
-                String pictureUrl,boolean oauthUser,boolean phoneConfirmed) {
+                String pictureUrl,boolean oauthUser,boolean phoneConfirmed,boolean isCommercial,boolean isCommercialCreated) {
         this.authorities = authorities;
         this.login = login;
         this.firstName = firstName;
@@ -162,6 +162,8 @@ public class User {
         this.pictureUrl = pictureUrl;
         this.setOauthUser(oauthUser);
     this.isPhoneConfirmed=phoneConfirmed;
+    this.isCommercialUser=isCommercial;
+    this.isCommercialUserCreated=isCommercialCreated;
     }
 
 
