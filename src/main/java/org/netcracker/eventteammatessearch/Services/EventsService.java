@@ -93,6 +93,21 @@ public class EventsService {
         } else throw new ObjectNotFoundException(id, "Event");
     }
 
+    public Event getOne(Long id) {
+        Optional<Event> eventOptional = eventRepository.findById(id);
+        if (eventOptional.isPresent()) {
+            Event event = eventOptional.get();
+            String login = event.getOwner().getLogin();
+            try {
+                double avgMark = reviewRepository.averageReviewNumber(login);
+                event.setAvgMark(avgMark);
+            } catch (NullPointerException nullPointerException) {
+                logger.info("event owner marks have not been found", nullPointerException);
+            }
+            return eventOptional.get();
+        } else throw new ObjectNotFoundException(id, "Event");
+    }
+
     public List<Event> getFinishedEventsOfUser(Principal principal) {
         List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEvents(principal.getName());
         reviewService.setMarksToEvents(allUserEndedEvents);

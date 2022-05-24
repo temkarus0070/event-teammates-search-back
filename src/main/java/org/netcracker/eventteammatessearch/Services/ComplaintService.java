@@ -118,7 +118,7 @@ public class ComplaintService {
     }
 
     public void banEvent(String userId, long eventId) {
-        Event event = eventsService.get(eventId);
+        Event event = eventsService.getOne(eventId);
         if (event != null) {
             event.setHidden(true);
             List<Notification> notifications = new ArrayList<>();
