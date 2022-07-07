@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.Services;
 
+import org.netcracker.eventteammatessearch.Projections.UserProjection;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Notification;
 import org.netcracker.eventteammatessearch.entity.mongoDB.sequenceGenerators.SequenceGeneratorService;

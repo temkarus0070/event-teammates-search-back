@@ -30,8 +30,8 @@ public class ChatRestController {
 
 
     @GetMapping
-    public Chat get(@RequestParam long chatId, Principal principal) {
-        return chatService.cleanFromEntities(this.chatService.get(chatId, principal).get());
+    public ChatDAO get(@RequestParam long chatId, Principal principal) {
+        return new ChatDAO(this.chatService.get(chatId, principal).get());
     }
 
 

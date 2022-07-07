@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.security.Persistence.Entity;
 
+import org.netcracker.eventteammatessearch.Projections.UserProjection;
 import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class UserDetailsManager implements org.springframework.security.provisio
     public void createUser(UserDetails user) {
        org.netcracker.eventteammatessearch.security.Entity.UserDetails userDetails = (org.netcracker.eventteammatessearch.security.Entity.UserDetails) user;
         userDetails.getUser().setPassword(passwordEncoder.encode(userDetails.getPassword()));
-        if (userRepository.findById(userDetails.getUsername()).isEmpty())
+        if (userRepository.findUserByLogin(userDetails.getUsername()).isEmpty())
             userRepository.save(userDetails.getUser());
         else throw new AuthorizationServiceException("username is already used");
 
@@ -63,7 +64,7 @@ public class UserDetailsManager implements org.springframework.security.provisio
 
     @Override
     public boolean userExists(String username) {
-        return userRepository.findById(username).isPresent();
+        return userRepository.findUserByLogin(username).isPresent();
     }
 
     @Override

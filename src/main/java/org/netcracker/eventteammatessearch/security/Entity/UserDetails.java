@@ -18,6 +18,7 @@ public class UserDetails implements org.springframework.security.core.userdetail
         this.grantedAuthorityList=user.getAuthorities().stream().map(e->(GrantedAuthority)()->e).collect(Collectors.toList());
     }
 
+
     public User getUser() {
         return user;
     }

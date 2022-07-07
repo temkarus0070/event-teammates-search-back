@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -137,15 +139,6 @@ public class ChatService {
         return chatOptional;
     }
 
-    public Chat cleanFromEntities(Chat chat){
-        if (chat.getEvent()!=null)
-            chat.setEvent(new Event(chat.getEvent().getName()));
-        chat.getChatUsers().forEach(c->{
-            c.setUser(new User(c.getId().getUserId(),c.getUser().getFirstName(),c.getUser().getLastName(),c.getUser().getPictureUrl()));
-        });
-        return chat;
-    }
-
     public Chat getChatWithUser(String username, Principal principal) {
         Set<String> logins= Set.of(username, principal.getName());
         Chat chat = this.chatRepository.findChatByPrivateTrueAndChatUsers(logins);
@@ -240,7 +233,6 @@ public class ChatService {
                 chatDAOList.add(chatDAO);
             });
         }
-
         return chatDAOList;
     }
 

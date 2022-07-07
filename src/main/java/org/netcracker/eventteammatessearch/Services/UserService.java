@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.Services;
 
 import org.hibernate.ObjectNotFoundException;
+import org.netcracker.eventteammatessearch.Projections.UserProjection;
 import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -44,7 +42,7 @@ public class UserService {
     }
 
     public void setPhoneConfirmed(Principal principal) {
-        User userByLogin = getUserByLogin(principal.getName());
+        User userByLogin = userRepository.getById(principal.getName());
         if (userByLogin != null) {
             userByLogin.setPhoneConfirmed(true);
             userRepository.save(userByLogin);
@@ -53,10 +51,8 @@ public class UserService {
     }
 
 
-    public User getUserByLogin(String login) {
-        User user = userRepository.findById(login).orElse(null);
-        return new User(user.getAuthorities(),user.getLogin(),user.getFirstName(),user.getLastName()
-        ,user.getEmail(),user.getPhone(),user.getPictureUrl(),user.isOauthUser(),user.isPhoneConfirmed(),user.isCommercialUser(),user.isCommercialUserCreated(),user.getOrganizationName(),user.getDescription());
+    public UserProjection getUserByLogin(String login) {
+        return userRepository.findUserByLogin(login).orElse(null);
     }
 
     public List<User> getAll() {

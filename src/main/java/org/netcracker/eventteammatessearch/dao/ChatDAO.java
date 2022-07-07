@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.dao;
 
 import lombok.*;
+import org.netcracker.eventteammatessearch.entity.Chat;
 import org.netcracker.eventteammatessearch.entity.ChatUser;
 import org.netcracker.eventteammatessearch.entity.Event;
 import org.netcracker.eventteammatessearch.entity.User;
@@ -43,5 +44,14 @@ public class ChatDAO {
         this.lastReadMessage = lastReadMessage;
         this.unReadCount = unReadCount;
         this.chatUsers.forEach(e->e.setUser(new User(e.getId().getUserId(),e.getUser().getFirstName(),e.getUser().getLastName(),e.getUser().getPictureUrl())));
+    }
+
+    public ChatDAO(Chat chat){
+        if (chat.getEvent()!=null){
+            this.event=new Event(chat.getEvent().getName());
+        }
+        chat.getChatUsers().forEach(c->{
+            c.setUser(new User(c.getId().getUserId(),c.getUser().getFirstName(),c.getUser().getLastName(),c.getUser().getPictureUrl()));
+        });
     }
 }

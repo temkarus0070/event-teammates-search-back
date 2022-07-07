@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.controllers;
 
+import org.netcracker.eventteammatessearch.Projections.UserProjection;
 import org.netcracker.eventteammatessearch.Services.PayService;
 import org.netcracker.eventteammatessearch.Services.UserService;
 import org.netcracker.eventteammatessearch.entity.User;
@@ -49,7 +50,7 @@ public class UsersController {
     }
 
     @GetMapping("/getUserByLogin")
-    public User getByLogin(@RequestParam String userLogin) {
+    public UserProjection getByLogin(@RequestParam String userLogin) {
         return userService.getUserByLogin(userLogin);
     }
 
@@ -113,7 +114,7 @@ public class UsersController {
 
     @GetMapping("/getCurrentUser")
     public User getCurrentUser(Principal principal){
-        User userByLogin = userService.getUserByLogin(principal.getName());
+        UserProjection userByLogin = userService.getUserByLogin(principal.getName());
         return new User(userByLogin.getLogin(),userByLogin.getAuthorities());
     }
 

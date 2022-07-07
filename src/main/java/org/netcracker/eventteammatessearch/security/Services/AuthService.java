@@ -9,7 +9,6 @@ import org.netcracker.eventteammatessearch.security.Persistence.Entity.JwtUserEn
 import org.netcracker.eventteammatessearch.security.Persistence.JwtTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -36,7 +35,7 @@ public JwtUserEntity register(JwtUserEntity jwtUserEntity) throws Exception {
 
                         User user = objectMapper.readValue(jwtUserEntityById_jwt.getUserData(), User.class);
                     user.setLogin(jwtUserEntity.getId().getUsername());
-                   if(userRepository.findById(user.getLogin()).isPresent()) {
+                   if(userRepository.findUserByLogin(user.getLogin()).isPresent()) {
                        throw new HibernateException("Такое имя пользователя уже занято");
                    }
                    user.setRegistrationDate(LocalDate.now());

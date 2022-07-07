@@ -1,5 +1,6 @@
 package org.netcracker.eventteammatessearch.persistence.repositories;
 
+import org.netcracker.eventteammatessearch.Projections.UserProjection;
 import org.netcracker.eventteammatessearch.entity.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,9 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
+    @EntityGraph(value = "userGraph1")
+    Optional<UserProjection> findUserByLogin(String s);
+
     @EntityGraph(value = "userGraph1")
     @Override
     Optional<User> findById(String s);
