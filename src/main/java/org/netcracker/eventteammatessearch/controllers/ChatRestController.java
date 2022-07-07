@@ -1,7 +1,7 @@
 package org.netcracker.eventteammatessearch.controllers;
 
 import org.netcracker.eventteammatessearch.Services.ChatService;
-import org.netcracker.eventteammatessearch.dao.ChatDAO;
+import org.netcracker.eventteammatessearch.dto.ChatDto;
 import org.netcracker.eventteammatessearch.entity.Chat;
 import org.netcracker.eventteammatessearch.entity.Event;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
@@ -30,8 +30,8 @@ public class ChatRestController {
 
 
     @GetMapping
-    public ChatDAO get(@RequestParam long chatId, Principal principal) {
-        return new ChatDAO(this.chatService.get(chatId, principal).get());
+    public ChatDto get(@RequestParam long chatId, Principal principal) {
+        return new ChatDto(this.chatService.get(chatId, principal).get());
     }
 
 
@@ -41,7 +41,7 @@ public class ChatRestController {
     }
 
     @GetMapping("/getCurrentChats")
-    public List<ChatDAO> getAllChatsOfUser(Principal principal) {
+    public List<ChatDto> getAllChatsOfUser(Principal principal) {
         return chatService.getUserChats(principal);
     }
 

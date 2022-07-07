@@ -1,6 +1,6 @@
 package org.netcracker.eventteammatessearch.Services;
 
-import org.netcracker.eventteammatessearch.Projections.UserProjection;
+import org.netcracker.eventteammatessearch.dto.EventDto;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Notification;
 import org.netcracker.eventteammatessearch.entity.mongoDB.sequenceGenerators.SequenceGeneratorService;
@@ -61,7 +61,7 @@ public class ComplaintService {
     }
 
     public void sendWarningToEventOwner(long eventId, String text) {
-        Event event = eventsService.get(eventId);
+        EventDto event = eventsService.get(eventId);
         if (event != null) {
             Notification notification = new Notification();
             notification.setId(sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME));
@@ -89,7 +89,7 @@ public class ComplaintService {
     }
 
     public void banUserByComplaint(long eventId) {
-        Event event = eventsService.get(eventId);
+        EventDto event = eventsService.get(eventId);
         if (event != null) {
             Notification notification = new Notification();
             notification.setId(sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME));

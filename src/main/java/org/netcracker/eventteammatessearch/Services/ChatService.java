@@ -1,7 +1,7 @@
 package org.netcracker.eventteammatessearch.Services;
 
-import org.netcracker.eventteammatessearch.dao.ChatDAO;
-import org.netcracker.eventteammatessearch.dao.MessagesRemainCountData;
+import org.netcracker.eventteammatessearch.dto.ChatDto;
+import org.netcracker.eventteammatessearch.dto.MessagesRemainCountData;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.LastSeenChatMessage;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Message;
@@ -20,11 +20,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
@@ -179,15 +176,15 @@ public class ChatService {
         return new HashMap<>();
     }
 
-    public List<ChatDAO> getUserChats(Principal principal) {
-        List<ChatDAO> chatDAOList = new ArrayList<>();
+    public List<ChatDto> getUserChats(Principal principal) {
+        List<ChatDto> chatDtoList = new ArrayList<>();
         List<Chat> chats = this.chatRepository.getAllByChatUsersContains(principal.getName());
         if (chats != null) {
             List<Long> chatIds = chats.stream().map(Chat::getId).collect(Collectors.toList());
             Map<Long, LastSeenChatMessage> chatMessageMap = this.lastMessagesRepository.findAllById_ChatIdInAndId_Username(chatIds, principal.getName()).stream().collect(Collectors.toMap(e -> e.getId().getChatId(), e -> e));
 
             List<Message> byChatIdInAndOrderBySendTimeDesc = messageRepository.findByChatIdInAndOrderBySendTimeDesc(chatIds);
-            Map<Long, Message> messageMap =byChatIdInAndOrderBySendTimeDesc
+            Map<Long, Message> messageMap = byChatIdInAndOrderBySendTimeDesc
                     .stream().collect(Collectors.toMap((Message e) -> e.getChatId(), (Message e) -> e));
 
             Map<Long, Long> dataAboutRemainMessages = getDataAboutRemainMessages(chatIds, chatMessageMap);
@@ -225,15 +222,14 @@ public class ChatService {
                 long count = 0;
                 if (dataAboutRemainMessages.get(chat.getId()) != null) {
                     count = dataAboutRemainMessages.get(chat.getId());
-                }
-                else if (dataAboutCountMessages.get(chat.getId())!=null)
-                    count=dataAboutCountMessages.get(chat.getId());
+                } else if (dataAboutCountMessages.get(chat.getId()) != null)
+                    count = dataAboutCountMessages.get(chat.getId());
                 Message message = messageMap.get(chat.getId());
-                ChatDAO chatDAO = new ChatDAO(chat.getId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()), lastMessageId, count);
-                chatDAOList.add(chatDAO);
+                ChatDto chatDto = new ChatDto(chat.getId(), chat.getName(), chat.isPrivate(), chat.getEvent(), message, new ArrayList<>(chat.getChatUsers()), lastMessageId, count);
+                chatDtoList.add(chatDto);
             });
         }
-        return chatDAOList;
+        return chatDtoList;
     }
 
 

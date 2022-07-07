@@ -1,4 +1,4 @@
-package org.netcracker.eventteammatessearch.dao;
+package org.netcracker.eventteammatessearch.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

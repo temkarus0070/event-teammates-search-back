@@ -9,11 +9,15 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
+import org.netcracker.eventteammatessearch.dto.EventDto;
 import org.netcracker.eventteammatessearch.entity.*;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Notification;
 import org.netcracker.eventteammatessearch.entity.mongoDB.Review;
 import org.netcracker.eventteammatessearch.entity.mongoDB.sequenceGenerators.SequenceGeneratorService;
-import org.netcracker.eventteammatessearch.persistence.repositories.*;
+import org.netcracker.eventteammatessearch.persistence.repositories.EventAttendanceRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.EventRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.SurveyRepository;
+import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.NotificationsRepository;
 import org.netcracker.eventteammatessearch.persistence.repositories.mongo.ReviewRepository;
 import org.slf4j.Logger;
@@ -78,7 +82,7 @@ public class EventsService {
 
     private WKTReader wktReader = new WKTReader();
 
-    public Event get(Long id) {
+    public EventDto get(Long id) {
         Optional<Event> eventOptional = eventRepository.findById(id);
         if (eventOptional.isPresent()) {
             Event event = eventOptional.get();
@@ -108,23 +112,22 @@ public class EventsService {
         } else throw new ObjectNotFoundException(id, "Event");
     }
 
-    public List<Event> getFinishedEventsOfUser(Principal principal) {
+    public List<EventDto> getFinishedEventsOfUser(Principal principal) {
         List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEvents(principal.getName());
         reviewService.setMarksToEvents(allUserEndedEvents);
         return getDTOS(allUserEndedEvents);
     }
 
-    private void hideEventsUrl(List<Event> eventList,Principal principal){
-        eventList.forEach(e->{
-            var url=e.getUrl();
-            if(e.isOnline()&& e.getDateTimeStart().isAfter(LocalDateTime.now())){
-     url="";
-        }
-            else if (e.isOnline()&&e.getDateTimeStart().isBefore(LocalDateTime.now()) &&e.getGuests().stream().noneMatch(ev->ev.getUser().getLogin().equals(principal.getName()))){
-                url="";
+    private void hideEventsUrl(List<Event> eventList, Principal principal) {
+        eventList.forEach(e -> {
+            var url = e.getUrl();
+            if (e.isOnline() && e.getDateTimeStart().isAfter(LocalDateTime.now())) {
+                url = "";
+            } else if (e.isOnline() && e.getDateTimeStart().isBefore(LocalDateTime.now()) && e.getGuests().stream().noneMatch(ev -> ev.getUser().getLogin().equals(principal.getName()))) {
+                url = "";
             }
-            if (e.isOnline()&&e.getOwner().getLogin().equals(principal.getName())){
-                url=e.getUrl();
+            if (e.isOnline() && e.getOwner().getLogin().equals(principal.getName())) {
+                url = e.getUrl();
             }
 
             e.setUrl(url);
@@ -132,15 +135,15 @@ public class EventsService {
 
     }
 
-    public List<Event> getFinishedEventsOfUserWithoutReviews(Principal principal) {
+    public List<EventDto> getFinishedEventsOfUserWithoutReviews(Principal principal) {
         List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEvents(principal.getName());
         List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Review> reviewMap = reviewService.findReviewsOfUser(principal).stream().collect(Collectors.toMap((e) -> e.getId().getEventId(), (val) -> val));
-        allUserEndedEvents=allUserEndedEvents.stream().filter(e->!reviewMap.containsKey(e.getId())).collect(Collectors.toList());
+        allUserEndedEvents = allUserEndedEvents.stream().filter(e -> !reviewMap.containsKey(e.getId())).collect(Collectors.toList());
         return getDTOS(allUserEndedEvents);
     }
 
-    public List<Event> getFinishedEventsOfUserInInterval(Principal principal, LocalDateTime date1, LocalDateTime date2) {
+    public List<EventDto> getFinishedEventsOfUserInInterval(Principal principal, LocalDateTime date1, LocalDateTime date2) {
         List<Event> allUserEndedEvents = eventRepository.findAllUserEndedEventsInInterval(principal.getName(), date1, date2);
         List<Long> ids = allUserEndedEvents.stream().map(Event::getId).collect(Collectors.toList());
 
@@ -193,15 +196,16 @@ public class EventsService {
         eventRepository.save(event);
     }
 
-    public List<Event> getUsersCreatedEventsByLogin(String userLogin) {
-        List<Event> dtos = getDTOS(eventRepository.getUsersCreatedEventsByLogin(userLogin));
-        reviewService.setMarksToEvents(dtos);
+    public List<EventDto> getUsersCreatedEventsByLogin(String userLogin) {
+        List<Event> usersCreatedEventsByLogin = eventRepository.getUsersCreatedEventsByLogin(userLogin);
+        reviewService.setMarksToEvents(usersCreatedEventsByLogin);
+        List<EventDto> dtos = getDTOS(usersCreatedEventsByLogin);
         return dtos;
     }
 
-    public List<Event> getUsersAttendedEventsByLogin(String userLogin) {
+    public List<EventDto> getUsersAttendedEventsByLogin(String userLogin) {
         List<Event> usersAttendedEventsByLogin = eventAttendanceRepository.getUsersAttendedEventsByLogin(userLogin);
-        hideEventsUrl(usersAttendedEventsByLogin,new UserPrincipal(userLogin));
+        hideEventsUrl(usersAttendedEventsByLogin, new UserPrincipal(userLogin));
         reviewService.setMarksToEvents(usersAttendedEventsByLogin);
         return getDTOS(usersAttendedEventsByLogin);
     }
@@ -272,14 +276,14 @@ public class EventsService {
         } else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "НЕ НАЙДЕНО СОБЫТИЕ С id = " + event.getId());
     }
 
-    public List<Event> getEventsByRadius(double lon, double lat, double radius, Principal principal) {
+    public List<EventDto> getEventsByRadius(double lon, double lat, double radius, Principal principal) {
         Point p = factory.createPoint(new Coordinate(lon, lat));
         List<Event> nearWithinDistance = eventRepository.findNearWithinDistance(p, radius);
         if (principal != null) {
             Survey survey = surveyRepository.findByUser_login(principal.getName());
 
             nearWithinDistance.forEach(event -> {
-                if (survey!=null) {
+                if (survey != null) {
                     if (isEventFitSurvey(event, survey)) {
                         event.setRecommendedBySurvey(true);
                     }
@@ -294,47 +298,16 @@ public class EventsService {
         return getDTOS(nearWithinDistance);
     }
 
-    private List<Event> getDTOS(List<Event> list){
-        return list.stream().map(e -> {
-            Chat chat = null;
-            Location location = null;
-            if (e.getLocation() != null) {
-                location = new Location(e.getLocation().getName(), e.getLocation().getLocation());
-            }
-            if (e.getChat() != null) {
-                chat = new Chat();
-                chat.setId(e.getChat().getId());
-            }
-            User owner = null;
-            if (e.getOwner() != null) {
-                owner = new User(e.getOwner().getLogin(),e.getOwner().isPhoneConfirmed());
-            }
-            Set<EventAttendance> guests = new HashSet<>();
-            if (e.getGuests() != null) {
-                guests = e.getGuests().stream().map(u -> new EventAttendance(u.getId().getUserId())).collect(Collectors.toSet());
-            }
-
-            return new Event(e.getId(), e.getTheme(), e.getName(), e.getEventType(), e.getDescription(), e.getDateTimeStart(), e.getDateTimeEnd(), e.getMaxNumberOfGuests(),
-                    e.getPrice(),
-                    e.isHasChatWithOwner(), e.isPrivate(), e.isOnline(), e.isHidden(), chat, e.getUrl(), e.getAvgMark(), e.isCurrentUserInvited(), e.isCurrentUserEntered(),
-                    location,
-                    owner,
-                    guests,
-                    new HashSet<>(),
-                    new HashSet<>(),
-                    e.isRecommendedBySurvey(),
-                    e.getVisitorsCount(),
-                    e.getTags()
-            );
-        }).collect(Collectors.toList());
+    private List<EventDto> getDTOS(List<Event> list) {
+        return list.stream().map(EventDto::new).collect(Collectors.toList());
     }
 
     public boolean isEventFitSurvey(Event event, Survey survey) {
         int guestsCount = event.getGuests().size();
-        if (event.isOnline()&& survey.getFormat().stream().noneMatch(e->e.equalsIgnoreCase("online"))){
+        if (event.isOnline() && survey.getFormat().stream().noneMatch(e -> e.equalsIgnoreCase("online"))) {
             return false;
         }
-        if (!event.isOnline()&&survey.getFormat().stream().noneMatch(e->e.equalsIgnoreCase("offline")))
+        if (!event.isOnline() && survey.getFormat().stream().noneMatch(e -> e.equalsIgnoreCase("offline")))
             return false;
 
         if (event.getDateTimeStart().isBefore(survey.getDateTimeStart())){
@@ -370,7 +343,7 @@ public class EventsService {
         return city;
     }
 
-    public Page<Event> filterByPage(EventFilterData filterData, Principal principal, Pageable pageable) {
+    public Page<EventDto> filterByPage(EventFilterData filterData, Principal principal, Pageable pageable) {
         List<Specification<Event>> specificationList = new ArrayList<>();
         specificationList.add((root, query, criteriaBuilder) -> getWordsSpec(root, query, criteriaBuilder, filterData.getKeyWords()));
         specificationList.add((root, query, criteriaBuilder) -> filterData.getEventType() == null ? null : criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType()));
@@ -461,7 +434,8 @@ public class EventsService {
         reviewService.setMarksToEvents(eventPage.toList());
         if (filterData.getEventOwnerRating() > 0) {
             List<Event> eventList = eventPage.toList().stream().filter(e -> e.getAvgMark() >= filterData.getEventOwnerRating()).collect(Collectors.toList());
-            Page<Event> eventPage1 = new PageImpl<>(eventList, eventPage.getPageable(), eventPage.getTotalElements());
+
+            Page<EventDto> eventPage1 = new PageImpl<>(getDTOS(eventList), eventPage.getPageable(), eventPage.getTotalElements());
             return eventPage1;
         }
         if (filterData.getEventFormats().contains("ONLINE"))
@@ -470,7 +444,7 @@ public class EventsService {
     }
 
 
-    public List<Event> filter(EventFilterData filterData, Principal principal) {
+    public List<EventDto> filter(EventFilterData filterData, Principal principal) {
         List<Specification<Event>> specificationList = new ArrayList<>();
         specificationList.add((root, query, criteriaBuilder) -> getWordsSpec(root, query, criteriaBuilder, filterData.getKeyWords()));
         specificationList.add((root, query, criteriaBuilder) -> filterData.getEventType() == null ? null : criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType()));

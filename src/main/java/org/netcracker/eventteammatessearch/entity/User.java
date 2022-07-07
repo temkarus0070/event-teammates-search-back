@@ -84,9 +84,6 @@ public class User {
         this.authorities = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
     }
 
-
-
-
     private boolean isBlocked;
 
     @Transient

@@ -2,6 +2,7 @@ package org.netcracker.eventteammatessearch.controllers;
 
 import org.netcracker.eventteammatessearch.Services.EventsService;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
+import org.netcracker.eventteammatessearch.dto.EventDto;
 import org.netcracker.eventteammatessearch.entity.Event;
 import org.netcracker.eventteammatessearch.entity.EventAttendance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class EventsController {
         }
 
     @GetMapping("/getEventsWithinRadius")
-    public List<Event> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius, Principal principal) {
+    public List<EventDto> getEventsWithinRadius(@RequestParam double lon, @RequestParam double lat, @RequestParam double radius, Principal principal) {
         return eventsService.getEventsByRadius(lon, lat, radius, principal);
     }
 
@@ -61,12 +62,12 @@ public class EventsController {
     }
 
     @GetMapping("/getUsersCreatedEventsByLogin")
-    public List<Event> getUsersCreatedEventsByLogin(@RequestParam String userLogin) {
+    public List<EventDto> getUsersCreatedEventsByLogin(@RequestParam String userLogin) {
         return eventsService.getUsersCreatedEventsByLogin(userLogin);
     }
 
     @GetMapping("/getUsersAttendedEventsByLogin")
-    public List<Event> getUsersAttendedEventsByLogin(@RequestParam String userLogin) {
+    public List<EventDto> getUsersAttendedEventsByLogin(@RequestParam String userLogin) {
         return eventsService.getUsersAttendedEventsByLogin(userLogin);
     }
 
@@ -81,17 +82,17 @@ public class EventsController {
     }
 
     @GetMapping("/getEndedEvents")
-    public List<Event> getUserEndedEvents(Principal principal) {
+    public List<EventDto> getUserEndedEvents(Principal principal) {
         return eventsService.getFinishedEventsOfUser(principal);
     }
 
     @GetMapping("/getEndedEventsWithoutReviews")
-    public List<Event> getUserEndedEventsWithoutReviews(Principal principal) {
+    public List<EventDto> getUserEndedEventsWithoutReviews(Principal principal) {
         return eventsService.getFinishedEventsOfUserWithoutReviews(principal);
     }
 
     @GetMapping("/getEndedEventsInInterval")
-    public List<Event> getUserEndedEventsInInterval(Principal principal, @RequestParam String date1, @RequestParam String date2) {
+    public List<EventDto> getUserEndedEventsInInterval(Principal principal, @RequestParam String date1, @RequestParam String date2) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDateTime date1LTD = LocalDateTime.parse(date1, formatter);
         LocalDateTime date2LTD = LocalDateTime.parse(date2, formatter);
@@ -99,19 +100,19 @@ public class EventsController {
     }
 
     @GetMapping("/getEvent")
-    public Event get(@RequestParam Long eventId) {
+    public EventDto get(@RequestParam Long eventId) {
         return eventsService.get(eventId);
     }
 
     @PostMapping("/filter")
-    public List<Event> filter(@RequestBody EventFilterData filterData, Principal principal) {
+    public List<EventDto> filter(@RequestBody EventFilterData filterData, Principal principal) {
         return eventsService.filter(filterData, principal);
     }
 
     @PostMapping("/filterWithPaging")
-    public Page<Event> filterWithPaging(@RequestBody EventFilterData filterData, Principal principal, @RequestParam int pageNum, @RequestParam int size) {
+    public Page<EventDto> filterWithPaging(@RequestBody EventFilterData filterData, Principal principal, @RequestParam int pageNum, @RequestParam int size) {
         Pageable pageable = PageRequest.of(pageNum, size);
-        Page<Event> eventPage = eventsService.filterByPage(filterData, principal, pageable);
+        Page<EventDto> eventPage = eventsService.filterByPage(filterData, principal, pageable);
         return eventPage;
     }
 
