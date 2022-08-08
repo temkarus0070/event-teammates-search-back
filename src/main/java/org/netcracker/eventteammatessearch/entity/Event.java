@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -83,6 +82,7 @@ public class Event {
 
 
     @OneToOne(mappedBy = "event", cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Chat chat;
 
     private String url;
@@ -99,10 +99,12 @@ public class Event {
 
 
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Location location;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private User owner;
 
 

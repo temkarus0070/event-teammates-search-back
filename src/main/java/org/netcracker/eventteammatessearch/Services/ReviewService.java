@@ -36,12 +36,17 @@ public class ReviewService {
 
     public void setMarksToEvents(List<Event> eventList) {
         List<String> logins = eventList.stream().map(e -> e.getOwner().getLogin()).collect(Collectors.toList());
-        Map<String, Double> usersRatingMap = reviewRepository.getReviewsByEventOwnerIdIsIn(logins).stream().collect(Collectors.toMap(e -> e.getEventOwnerId(), e -> e.getMark()));
-        eventList.forEach(event -> {
-            if (usersRatingMap.containsKey(event.getOwner().getLogin())) {
-                event.setAvgMark(Math.floor(usersRatingMap.get(event.getOwner().getLogin())));
-            }
-        });
+        try {
+            Map<String, Double> usersRatingMap = reviewRepository.getReviewsByEventOwnerIdIsIn(logins).stream().collect(Collectors.toMap(e -> e.getEventOwnerId(), e -> e.getMark()));
+            eventList.forEach(event -> {
+                if (usersRatingMap.containsKey(event.getOwner().getLogin())) {
+                    event.setAvgMark(Math.floor(usersRatingMap.get(event.getOwner().getLogin())));
+                }
+            });
+        }
+        catch (Exception ex){
+            System.out.println("mongo not work");
+        }
     }
 
     public List<Review> findReviewsOfUser(Principal principal){

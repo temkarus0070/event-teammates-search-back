@@ -52,34 +52,28 @@ public class EventsService {
 
     @Autowired
     private EventRepository eventRepository;
-
     @Autowired
     private ReviewRepository reviewRepository;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private ReviewService reviewService;
-
     @Autowired
     private SurveyRepository surveyRepository;
-
     @Autowired
     private EventAttendanceRepository eventAttendanceRepository;
-
     @Autowired
     private SequenceGeneratorService sequenceGeneratorService;
-
     @Autowired
     private NotificationsRepository notificationsRepository;
-
-
+    @Autowired
+    private SurveyFilterService surveyFilterService;
+    @Autowired
+    private EventFilterOnSpecificationsService eventFilterOnSpecificationsService;
     @Autowired
     private ChatService chatService;
 
     private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
-
     private WKTReader wktReader = new WKTReader();
 
     public EventDto get(Long id) {
@@ -118,7 +112,7 @@ public class EventsService {
         return getDTOS(allUserEndedEvents);
     }
 
-    private void hideEventsUrl(List<Event> eventList, Principal principal) {
+    private void hideEventsUrlInList(List<Event> eventList, Principal principal) {
         eventList.forEach(e -> {
             var url = e.getUrl();
             if (e.isOnline() && e.getDateTimeStart().isAfter(LocalDateTime.now())) {
@@ -163,20 +157,19 @@ public class EventsService {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
         if (eventOptional.isPresent()) {
             Event event = eventOptional.get();
-            if (event.getDateTimeEnd()!=null&&event.getDateTimeEnd().isBefore(LocalDateTime.now())){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Данное событие уже закончилось");
+            if (event.getDateTimeEnd() != null && event.getDateTimeEnd().isBefore(LocalDateTime.now())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Данное событие уже закончилось");
             }
             if (event.getMaxNumberOfGuests() == 0 || event.getGuests().size() < event.getMaxNumberOfGuests()) {
                 EventAttendance eventAttendance = new EventAttendance();
                 eventAttendance.setId(new UserEventKey(event.getId(), principal.getName()));
                 eventAttendance.setEvent(event);
                 eventAttendance.setUser(new User(principal.getName()));
-                event.setInvitedGuests(event.getInvitedGuests().stream().filter(e->!e.getLogin().equals(principal.getName())).collect(Collectors.toSet()));
+                event.setInvitedGuests(event.getInvitedGuests().stream().filter(e -> !e.getLogin().equals(principal.getName())).collect(Collectors.toSet()));
                 eventAttendanceRepository.save(eventAttendance);
                 return eventAttendance;
 
-            }
-            else throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Превышен лимит участников мероприятия");
+            } else throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Превышен лимит участников мероприятия");
         } else throw new ObjectNotFoundException(eventId, "Event");
     }
 
@@ -205,7 +198,7 @@ public class EventsService {
 
     public List<EventDto> getUsersAttendedEventsByLogin(String userLogin) {
         List<Event> usersAttendedEventsByLogin = eventAttendanceRepository.getUsersAttendedEventsByLogin(userLogin);
-        hideEventsUrl(usersAttendedEventsByLogin, new UserPrincipal(userLogin));
+        hideEventsUrlInList(usersAttendedEventsByLogin, new UserPrincipal(userLogin));
         reviewService.setMarksToEvents(usersAttendedEventsByLogin);
         return getDTOS(usersAttendedEventsByLogin);
     }
@@ -224,15 +217,15 @@ public class EventsService {
         Event event = eventRepository.getById(eventId);
         if (event != null) {
             List<Notification> notifications = new ArrayList<>();
-            if (event.getGuests()!=null)
-            event.getGuests().forEach(g -> {
-                Notification notification = new Notification();
-                notification.setId(sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME));
-                notification.setTitle(String.format("Событие %s удалено", event.getName()));
-                notification.setUserId(g.getId().getUserId());
-                notification.setDescription("Ваше участие аннулировано");
-                notifications.add(notification);
-            });
+            if (event.getGuests() != null)
+                event.getGuests().forEach(g -> {
+                    Notification notification = new Notification();
+                    notification.setId(sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME));
+                    notification.setTitle(String.format("Событие %s удалено", event.getName()));
+                    notification.setUserId(g.getId().getUserId());
+                    notification.setDescription("Ваше участие аннулировано");
+                    notifications.add(notification);
+                });
             notificationsRepository.saveAll(notifications);
         }
     }
@@ -240,7 +233,7 @@ public class EventsService {
     public void notifyGuestsAboutUpdate(Event event) {
         if (event != null) {
             List<Notification> notifications = new ArrayList<>();
-            if (event.getGuests()!=null)
+            if (event.getGuests() != null)
                 event.getGuests().forEach(g -> {
                     Notification notification = new Notification();
                     notification.setId(sequenceGeneratorService.generateSequence(Notification.SEQUENCE_NAME));
@@ -303,123 +296,11 @@ public class EventsService {
     }
 
     public boolean isEventFitSurvey(Event event, Survey survey) {
-        int guestsCount = event.getGuests().size();
-        if (event.isOnline() && survey.getFormat().stream().noneMatch(e -> e.equalsIgnoreCase("online"))) {
-            return false;
-        }
-        if (!event.isOnline() && survey.getFormat().stream().noneMatch(e -> e.equalsIgnoreCase("offline")))
-            return false;
-
-        if (event.getDateTimeStart().isBefore(survey.getDateTimeStart())){
-            return false;
-        }
-        if (event.getDateTimeEnd()!=null&&event.getDateTimeEnd().isAfter(survey.getDateTimeEnd())){
-            return false;
-        }
-        if (guestsCount > survey.getMaxNumberOfGuests()) {
-            return false;
-        }
-        if (guestsCount<survey.getMinNumberOfGuests())
-            return false;
-        if (survey.getType().stream().noneMatch(e-> event.getEventType().getName().equalsIgnoreCase(e))) {
-            return false;
-        }
-        if (!(event.getPrice()<=survey.getMaxPrice()&&event.getPrice()>=survey.getMinPrice())){
-            return false;
-        }
-        if (survey.getFormat().contains("Offline") &&!event.isOnline() &&!getCityFromAddress(event.getLocation().getName()).equalsIgnoreCase(survey.getLocation())){
-            return false;
-        }
-        return true;
-    }
-
-    private String getCityFromAddress(String address){
-        String city="";
-        Pattern patternOnlyWithCity=Pattern.compile("г\\.[а-яА-Я]*");
-        Matcher onlyAddressWithCityMatcher = patternOnlyWithCity.matcher(address);
-        if (onlyAddressWithCityMatcher.find()) {
-            city = onlyAddressWithCityMatcher.group().substring(2);
-        }
-        return city;
+        return surveyFilterService.isFit(survey, event);
     }
 
     public Page<EventDto> filterByPage(EventFilterData filterData, Principal principal, Pageable pageable) {
-        List<Specification<Event>> specificationList = new ArrayList<>();
-        specificationList.add((root, query, criteriaBuilder) -> getWordsSpec(root, query, criteriaBuilder, filterData.getKeyWords()));
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventType() == null ? null : criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType()));
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventLengthFrom() != 0 || filterData.getEventLengthTo() != 0 ?
-                criteriaBuilder.isTrue(criteriaBuilder.function("is_date_diff_between", Boolean.class, root.get(Event_.dateTimeStart), root.get(Event_.dateTimeEnd),
-                        criteriaBuilder.literal(filterData.getEventLengthFrom()), criteriaBuilder.literal(filterData.getEventLengthTo()))) : null);
-
-        specificationList.add((root, query, criteriaBuilder) -> {
-            Predicate predicate = null;
-            if (filterData.getEventBeginTimeFrom() != null)
-                predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeFrom());
-            if (filterData.getEventBeginTimeTo() != null) {
-                Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeTo());
-                if (predicate != null) {
-                    predicate = criteriaBuilder.and(predicate, predicate1);
-                } else predicate = predicate1;
-            }
-            return predicate;
-        });
-        specificationList.add((root, query, criteriaBuilder) -> {
-            Predicate predicate = null;
-            if (filterData.getGuestsCountFrom() != 0) {
-                predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountFrom());
-            }
-            if (filterData.getGuestsCountTo() != 0) {
-                Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountTo());
-                if (filterData.getGuestsCountFrom() != 0) {
-                    predicate = criteriaBuilder.and(predicate1, predicate);
-                } else predicate = predicate1;
-            }
-            return predicate;
-        });
-        specificationList.add((root, query, criteriaBuilder) -> {
-                    Predicate predicate = null;
-                    if (filterData.getPriceFrom() != 0)
-                        predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.price), filterData.getPriceFrom());
-                    if (filterData.getPriceTo() != 0) {
-                        Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.price), filterData.getPriceTo());
-                        if (filterData.getPriceFrom() != 0) {
-                            predicate = criteriaBuilder.and(predicate1, predicate);
-                        } else predicate = predicate1;
-                    }
-                    return predicate;
-                }
-        );
-
-        specificationList.add((Specification<Event>) (root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get(Event_.isPrivate)));
-
-        specificationList.add((root, query, criteriaBuilder) -> {
-                    Predicate predicate = null;
-                    if (!filterData.isFreeEvents() && filterData.getPriceFrom() == 0 && filterData.getPriceTo() == 0)
-                        predicate = criteriaBuilder.notEqual(root.get(Event_.price), 0);
-                    return predicate;
-                }
-        );
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getTheme() != null && !filterData.getTheme().equals("") ? criteriaBuilder.equal(root.get(Event_.theme), filterData.getTheme()) : null);
-        specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
-                criteriaBuilder.equal(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("ONLINE")),
-                criteriaBuilder.notEqual(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("OFFLINE"))));
-        specificationList.add((root, query, criteriaBuilder) -> filterData.isFreeEvents() ? criteriaBuilder.equal(root.get(Event_.PRICE), 0) : null);
-        double[] userLocation = filterData.getUserLocation();
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getUserLocation().length == 2 && filterData.getMaxDistance() != 0 ?
-                org.hibernate.spatial.predicate.GeolatteSpatialPredicates.distanceWithin(criteriaBuilder, root.join(Event_.location).get("location"),
-                        DSL.point(WGS84, g(userLocation[0], userLocation[1]))
-                        , filterData.getMaxDistance()) : null);
-
-        specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get(Event_.IS_HIDDEN)));
-
-        Specification<Event> endSpec = null;
-        boolean isFirst = true;
-        for (Specification<Event> eventSpecification : specificationList) {
-            if (isFirst) {
-                endSpec = eventSpecification;
-                isFirst = false;
-            } else endSpec = endSpec.and(eventSpecification);
-        }
+        Specification<Event> endSpec = eventFilterOnSpecificationsService.getSpecification(filterData);
         Page<Event> eventPage = eventRepository.findAll(endSpec, pageable);
         List<Event> events = eventPage.getContent();
         if (principal != null) {
@@ -439,98 +320,18 @@ public class EventsService {
             return eventPage1;
         }
         if (filterData.getEventFormats().contains("ONLINE"))
-        hideEventsUrl(events,principal);
+            hideEventsUrlInList(events, principal);
         return new PageImpl<>(getDTOS(eventPage.toList()));
     }
 
 
     public List<EventDto> filter(EventFilterData filterData, Principal principal) {
-        List<Specification<Event>> specificationList = new ArrayList<>();
-        specificationList.add((root, query, criteriaBuilder) -> getWordsSpec(root, query, criteriaBuilder, filterData.getKeyWords()));
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventType() == null ? null : criteriaBuilder.equal(root.get(Event_.EVENT_TYPE), filterData.getEventType()));
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getEventLengthFrom() != 0 || filterData.getEventLengthTo() != 0 ?
-                criteriaBuilder.isTrue(criteriaBuilder.function("is_date_diff_between", Boolean.class, root.get(Event_.dateTimeStart), root.get(Event_.dateTimeEnd),
-                        criteriaBuilder.literal(filterData.getEventLengthFrom()), criteriaBuilder.literal(filterData.getEventLengthTo()))) : null);
-
-        specificationList.add((root, query, criteriaBuilder) -> {
-            Predicate predicate = null;
-            if (filterData.getEventBeginTimeFrom() != null)
-                predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeFrom());
-            if (filterData.getEventBeginTimeTo() != null) {
-                Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.DATE_TIME_START), filterData.getEventBeginTimeTo());
-                if (predicate != null) {
-                    predicate = criteriaBuilder.and(predicate, predicate1);
-                } else predicate = predicate1;
-            }
-            return predicate;
-        });
-
-        specificationList.add((Specification<Event>) (root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get(Event_.isPrivate)));
-
-        specificationList.add((root, query, criteriaBuilder) -> {
-            Predicate predicate = null;
-            if (filterData.getGuestsCountFrom() != 0) {
-                predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountFrom());
-            }
-            if (filterData.getGuestsCountTo() != 0) {
-                Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.maxNumberOfGuests), filterData.getGuestsCountTo());
-                if (filterData.getGuestsCountFrom() != 0) {
-                    predicate = criteriaBuilder.and(predicate1, predicate);
-                } else predicate = predicate1;
-            }
-            return predicate;
-        });
-        specificationList.add((root, query, criteriaBuilder) -> {
-                    Predicate predicate = null;
-                    if (filterData.getPriceFrom() != 0)
-                        predicate = criteriaBuilder.greaterThanOrEqualTo(root.get(Event_.price), filterData.getPriceFrom());
-                    if (filterData.getPriceTo() != 0) {
-                        Predicate predicate1 = criteriaBuilder.lessThanOrEqualTo(root.get(Event_.price), filterData.getPriceTo());
-                        if (filterData.getPriceFrom() != 0) {
-                            predicate = criteriaBuilder.and(predicate1, predicate);
-                        } else predicate = predicate1;
-                    }
-                    return predicate;
-                }
-        );
-
-        specificationList.add((root, query, criteriaBuilder) -> {
-                    Predicate predicate = null;
-                    if (!filterData.isFreeEvents() && filterData.getPriceFrom() == 0 && filterData.getPriceTo() == 0)
-                        predicate = criteriaBuilder.notEqual(root.get(Event_.price), 0);
-                    return predicate;
-                }
-        );
-
-        specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get(Event_.IS_HIDDEN)));
-
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getTheme() != null && !filterData.getTheme().equals("") ? criteriaBuilder.equal(root.get(Event_.theme), filterData.getTheme()) : null);
-        specificationList.add((root, query, criteriaBuilder) -> criteriaBuilder.or(
-                criteriaBuilder.equal(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("ONLINE")),
-                criteriaBuilder.notEqual(root.get(Event_.IS_ONLINE), filterData.getEventFormats().contains("OFFLINE"))));
-        specificationList.add((root, query, criteriaBuilder) -> filterData.isFreeEvents() ? criteriaBuilder.equal(root.get(Event_.PRICE), 0) : null);
-        double[] userLocation = filterData.getUserLocation();
-        specificationList.add((root, query, criteriaBuilder) -> filterData.getUserLocation().length == 2 && filterData.getMaxDistance() != 0 ?
-                org.hibernate.spatial.predicate.GeolatteSpatialPredicates.distanceWithin(criteriaBuilder, root.join(Event_.location).get("location"),
-                        DSL.point(WGS84, g(userLocation[0], userLocation[1]))
-                        , filterData.getMaxDistance()) : null);
-
-
-        Specification<Event> endSpec = null;
-        boolean isFirst = true;
-        for (Specification<Event> eventSpecification : specificationList) {
-            if (isFirst) {
-                endSpec = eventSpecification;
-                isFirst = false;
-            } else endSpec = endSpec.and(eventSpecification);
-        }
+        Specification<Event> endSpec = eventFilterOnSpecificationsService.getSpecification(filterData);
         List<Event> events = eventRepository.findAll(endSpec);
-        if (principal != null){
+        if (principal != null) {
             Survey survey = surveyRepository.findByUser_login(principal.getName());
             events.forEach(event -> {
-
-
-                if (survey!=null&&isEventFitSurvey(event,survey)){
+                if (survey != null && isEventFitSurvey(event, survey)) {
                     event.setRecommendedBySurvey(true);
                 }
                 if (event.getGuests().parallelStream().anyMatch(eventAttendance -> eventAttendance.getUser().getLogin().equals(principal.getName())))
@@ -544,28 +345,10 @@ public class EventsService {
             events = events.stream().filter(e -> e.getAvgMark() >= filterData.getEventOwnerRating()).collect(Collectors.toList());
         }
         if (filterData.getEventFormats().contains("ONLINE"))
-            hideEventsUrl(events,principal);
+            hideEventsUrlInList(events, principal);
         return getDTOS(events);
     }
 
-
-    private Predicate getWordsSpec(Root<Event> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder, List<String> words) {
-        if (words == null || words.size() == 0)
-            return null;
-        else {
-            Predicate predicate = null;
-            for (String word : words) {
-
-                Predicate like = criteriaBuilder.like(root.get(Event_.NAME), "%" + word + "%");
-                like = criteriaBuilder.or(like, criteriaBuilder.like(root.get(Event_.DESCRIPTION), "%" + word + "%"));
-                if (predicate == null) {
-                    predicate = like;
-                } else
-                    predicate = criteriaBuilder.or(like, predicate);
-            }
-            return predicate;
-        }
-    }
 
     public void removeUserFromEvent(Principal principal, long eventId) {
         UserEventKey userEventKey = new UserEventKey(eventId, principal.getName());
@@ -573,17 +356,17 @@ public class EventsService {
         this.eventAttendanceRepository.deleteById(userEventKey);
     }
 
-    public Map<Long,Long> getLocationStats(List<Event> eventList){
-        if (eventList==null||eventList.size()==0)
+    public Map<Long, Long> getLocationStats(List<Event> eventList) {
+        if (eventList == null || eventList.size() == 0)
             return new HashMap<>();
-        final int distance=400;
+        final int distance = 400;
         Map<Long, Long> resultEventLongMap = new HashMap<>();
         List<Event> events = eventRepository.findByIsOnlineFalseAndDateTimeEndIsNotNullAndDateTimeEndLessThan(LocalDateTime.now());
-        Map<Event,Long> eventLongMap=new HashMap<>();
-        Map<Location,Long> map=new HashMap<>();
+        Map<Event, Long> eventLongMap = new HashMap<>();
+        Map<Location, Long> map = new HashMap<>();
         map.put(events.get(0).getLocation(), (long) events.get(0).getGuests().size());
         eventLongMap.put(events.get(0), (long) events.get(0).getGuests().size());
-        if (events.size()>0) {
+        if (events.size() > 0) {
 
             for (int i = 1; i < events.size(); i++) {
                 int finalI = i;
@@ -591,7 +374,7 @@ public class EventsService {
                     double distance1 = distance(key.getLocation().getY(), key.getLocation().getX(), events.get(finalI).getLocation().getLocation().getY(), events.get(finalI).getLocation().getLocation().getX()) * 1609.34;
                     if (distance1 < distance) {
                         map.put(key, map.get(key) + events.get(finalI).getGuests().size());
-                        eventLongMap.put(events.get(finalI), map.get(key)+events.get(finalI).getGuests().size());
+                        eventLongMap.put(events.get(finalI), map.get(key) + events.get(finalI).getGuests().size());
                     } else {
                         eventLongMap.put(events.get(finalI), (long) events.get(finalI).getGuests().size());
                     }
@@ -632,13 +415,15 @@ public class EventsService {
         return (rad * 180.0 / Math.PI);
     }
 
-    public List<Event> getInvitesEvent(String name) { return eventRepository.findUsersInvitedEvents(name); }
+    public List<Event> getInvitesEvent(String name) {
+        return eventRepository.findUsersInvitedEvents(name);
+    }
 
-    public void removeInvite(long eventId, String login){
+    public void removeInvite(long eventId, String login) {
         Optional<Event> eventOptional = eventRepository.findById(eventId);
-        if (eventOptional.isPresent()){
+        if (eventOptional.isPresent()) {
             Event event = eventOptional.get();
-            event.setInvitedGuests(event.getInvitedGuests().stream().filter(u->!u.getLogin().equals(login)).collect(Collectors.toSet()));
+            event.setInvitedGuests(event.getInvitedGuests().stream().filter(u -> !u.getLogin().equals(login)).collect(Collectors.toSet()));
             eventRepository.save(event);
         }
     }
