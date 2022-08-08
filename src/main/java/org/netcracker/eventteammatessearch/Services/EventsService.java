@@ -1,7 +1,6 @@
 package org.netcracker.eventteammatessearch.Services;
 
 import com.sun.security.auth.UserPrincipal;
-import org.geolatte.geom.builder.DSL;
 import org.hibernate.ObjectNotFoundException;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -32,19 +31,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static org.geolatte.geom.builder.DSL.g;
-import static org.geolatte.geom.crs.CoordinateReferenceSystems.WGS84;
 
 @Component
 public class EventsService {
@@ -356,64 +346,6 @@ public class EventsService {
         this.eventAttendanceRepository.deleteById(userEventKey);
     }
 
-    public Map<Long, Long> getLocationStats(List<Event> eventList) {
-        if (eventList == null || eventList.size() == 0)
-            return new HashMap<>();
-        final int distance = 400;
-        Map<Long, Long> resultEventLongMap = new HashMap<>();
-        List<Event> events = eventRepository.findByIsOnlineFalseAndDateTimeEndIsNotNullAndDateTimeEndLessThan(LocalDateTime.now());
-        Map<Event, Long> eventLongMap = new HashMap<>();
-        Map<Location, Long> map = new HashMap<>();
-        map.put(events.get(0).getLocation(), (long) events.get(0).getGuests().size());
-        eventLongMap.put(events.get(0), (long) events.get(0).getGuests().size());
-        if (events.size() > 0) {
-
-            for (int i = 1; i < events.size(); i++) {
-                int finalI = i;
-                map.forEach((key, value) -> {
-                    double distance1 = distance(key.getLocation().getY(), key.getLocation().getX(), events.get(finalI).getLocation().getLocation().getY(), events.get(finalI).getLocation().getLocation().getX()) * 1609.34;
-                    if (distance1 < distance) {
-                        map.put(key, map.get(key) + events.get(finalI).getGuests().size());
-                        eventLongMap.put(events.get(finalI), map.get(key) + events.get(finalI).getGuests().size());
-                    } else {
-                        eventLongMap.put(events.get(finalI), (long) events.get(finalI).getGuests().size());
-                    }
-
-                });
-            }
-
-            eventList.forEach(e -> {
-                eventLongMap.forEach((key, val) -> {
-                    double distance1 = distance(key.getLocation().getLocation().getY(), key.getLocation().getLocation().getX(), e.getLocation().getLocation().getY(), e.getLocation().getLocation().getX()) * 1609.34;
-                    if (distance1 < distance) {
-                        resultEventLongMap.put(e.getId(), eventLongMap.get(key));
-                    }
-                });
-            });
-        }
-        return resultEventLongMap;
-    }
-
-    private double distance(double lat1, double lon1, double lat2, double lon2) {
-        double theta = lon1 - lon2;
-        double dist = Math.sin(deg2rad(lat1))
-                * Math.sin(deg2rad(lat2))
-                + Math.cos(deg2rad(lat1))
-                * Math.cos(deg2rad(lat2))
-                * Math.cos(deg2rad(theta));
-        dist = Math.acos(dist);
-        dist = rad2deg(dist);
-        dist = dist * 60 * 1.1515;
-        return (dist);
-    }
-
-    private double deg2rad(double deg) {
-        return (deg * Math.PI / 180.0);
-    }
-
-    private double rad2deg(double rad) {
-        return (rad * 180.0 / Math.PI);
-    }
 
     public List<Event> getInvitesEvent(String name) {
         return eventRepository.findUsersInvitedEvents(name);

@@ -1,6 +1,7 @@
 package org.netcracker.eventteammatessearch.controllers;
 
 import org.netcracker.eventteammatessearch.Services.EventsService;
+import org.netcracker.eventteammatessearch.Services.LocationStatsService;
 import org.netcracker.eventteammatessearch.appEntities.EventFilterData;
 import org.netcracker.eventteammatessearch.dto.EventDto;
 import org.netcracker.eventteammatessearch.entity.Event;
@@ -28,22 +29,23 @@ public class EventsController {
     @Autowired
     private EventsService eventsService;
 
-    /* add event */
+    @Autowired
+    private LocationStatsService locationStatsService;
+
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public void add(@RequestBody Event event, Principal principal) {
         try {
             eventsService.add(event, principal);
-        }
-        catch (Exception ex){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,ex.getMessage());
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
         }
 
 
         @PostMapping("/getVisitorsStats")
         public Map<Long,Long> getVisitorsStats(@RequestBody List<Event> list){
-        return eventsService.getLocationStats(list);
+            return locationStatsService.getLocationStats(list);
         }
 
     @GetMapping("/getEventsWithinRadius")
